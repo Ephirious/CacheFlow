@@ -1,0 +1,20 @@
+import org.gradle.accessors.dm.LibrariesForLibs
+
+val libs = the<LibrariesForLibs>()
+plugins {
+    id("shared-setup")
+}
+
+
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+//            implementation(project(":shared:core"))
+//            implementation(project(":shared:utils:api"))
+
+            implementation(libs.koin.core)
+            implementation(libs.ktor.client.core)
+            implementation(libs.bundles.serialization)
+        }
+    }
+}

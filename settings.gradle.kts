@@ -28,4 +28,12 @@ dependencyResolutionManagement {
     }
 }
 
-include(":shared")
+include(":k2ts") // umbrella module for ts
+
+include(":shared:core")
+include(":shared:root:presentation")
+
+include(":shared:interop-test:presentation")
+
+include(":shared:utils:common")
+
