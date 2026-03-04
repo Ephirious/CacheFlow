@@ -6,10 +6,11 @@ import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.essenty.lifecycle.stop
 import kotlinx.browser.document
 import root.RealRootComponent
+import root.RootComponent
 
 
 @JsExport
-fun initRealRootComponent(): RealRootComponent {
+fun initRealRootComponent(): RootComponent {
     val lifecycle = LifecycleRegistry()
 
     val root =

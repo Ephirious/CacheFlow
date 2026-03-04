@@ -2,15 +2,15 @@ package interopTest
 
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
-@JsExport
 
+@JsExport
 sealed class InteropTestState : MVIState {
     data object Loading : InteropTestState()
     data class OK(
         val text: String
     ) : InteropTestState()
 
-    data class Error(val text: String) : InteropTestState()
+    data class Error(val error: String) : InteropTestState()
 }
 
 @JsExport

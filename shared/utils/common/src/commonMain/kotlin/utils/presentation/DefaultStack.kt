@@ -13,6 +13,7 @@ interface DefaultStack<Config : Any, Child : Any> : BackHandlerOwner {
     val nav: StackNavigation<Config>
 
     val stack: Value<ChildStack<Config, Child>>
+    val jsStack: JsValue<JsChildStack<Child>>
 
     fun onBackClicked() {
         popOnce(stack.active.instance::class)
@@ -23,21 +24,6 @@ interface DefaultStack<Config : Any, Child : Any> : BackHandlerOwner {
     ) {
         if (child.isInstance(stack.active.instance)) {
             nav.pop()
-        }
-    }
-
-    val activeChild: Child get() = stack.value.active.instance
-
-    fun observeJsStack(
-        observer: (JsChildStack<Child>) -> Unit
-    ): JsDisposable {
-        val disposable = stack.subscribe { stack ->
-            observer(object : JsChildStack<Child> {
-                override val active = stack.active.instance
-            })
-        }
-        return object : JsDisposable {
-            override fun dispose() = disposable.cancel()
         }
     }
 }

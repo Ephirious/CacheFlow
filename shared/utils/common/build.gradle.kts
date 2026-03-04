@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.decompose.core)
+            implementation(libs.flowmvi.core)
 
             implementation(libs.kotlinx.coroutines)
 

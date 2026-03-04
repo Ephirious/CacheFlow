@@ -8,40 +8,39 @@ import com.arkivanov.decompose.value.Value
 import interopTest.RealInteropTestComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import root.RootComponent.Config
+import utils.presentation.JsChildStack
+import utils.presentation.JsValue
+import utils.presentation.asJsStack
 
 
-
-@JsExport
 class RealRootComponent(
     componentContext: ComponentContext
 ) : RootComponent, KoinComponent, ComponentContext by componentContext {
 
 
-
-
-    override val nav = StackNavigation<Config>()
+    override val nav = StackNavigation<RootConfig>()
     private val _stack = childStack(
         source = nav,
-        serializer = Config.serializer(),
+        serializer = RootConfig.serializer(),
         initialConfiguration = getInitialConfig(),
         childFactory = ::child,
         handleBackButton = true
     )
 
-    override val stack: Value<ChildStack<Config, RootChild>>
-        get() = _stack
+    override val stack: Value<ChildStack<RootConfig, RootChild>> = _stack
 
-    private fun child(config: Config, childCtx: ComponentContext): RootChild {
+    override val jsStack: JsValue<JsChildStack<RootChild>> = stack.asJsStack()
+
+    private fun child(config: RootConfig, childCtx: ComponentContext): RootChild {
         return when (config) {
-            Config.InteropTest -> RootChild.InteropTestChild(
+            RootConfig.InteropTest -> RootChild.InteropTestChild(
                 RealInteropTestComponent(componentCtx = childCtx, container = get())
             )
         }
     }
 
-    private fun getInitialConfig(): Config {
-        return Config.InteropTest
+    private fun getInitialConfig(): RootConfig {
+        return RootConfig.InteropTest
     }
 
 }
