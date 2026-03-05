@@ -6,23 +6,29 @@ import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.dsl.updateStateImmediate
 import pro.respawn.flowmvi.plugins.enableLogging
+import pro.respawn.flowmvi.plugins.init
 import pro.respawn.flowmvi.plugins.recover
 import pro.respawn.flowmvi.plugins.reduce
+import pro.respawn.flowmvi.plugins.resetStateOnStop
 
 private typealias Ctx = PipelineContext<InteropTestState, InteropTestIntent, Nothing>
 
-@JsExport
-class InteropTestContainer(
 
-) : Container<InteropTestState, InteropTestIntent, Nothing> {
-    @Suppress("NON_EXPORTABLE_TYPE")
+class InteropTestContainer : Container<InteropTestState, InteropTestIntent, Nothing> {
     override val store: Store<InteropTestState, InteropTestIntent, Nothing> =
         store(initial = InteropTestState.OK(text = "")) {
             configure {
                 name = "InteropTest"
                 debuggable = true
             }
+            init {
+                withState {
+                    println("init: $this")
+                }
+            }
             enableLogging()
+
+            resetStateOnStop()
             recover {
                 updateState { InteropTestState.Error(it.message ?: "unknown error!") }
                 null

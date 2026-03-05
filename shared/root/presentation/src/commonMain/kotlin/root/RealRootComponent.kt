@@ -6,9 +6,9 @@ import com.arkivanov.decompose.value.Value
 import interopTest.RealInteropTestComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import utils.presentation.JsChildStack
-import utils.presentation.JsValue
-import utils.presentation.asJsStack
+import utils.interop.JsChildStack
+import utils.interop.JsValue
+import utils.interop.asJsStack
 
 
 class RealRootComponent(
@@ -28,7 +28,7 @@ class RealRootComponent(
     override val stack: Value<ChildStack<RootConfig, RootChild>>
         get() = _stack
 
-    override val jsStack: JsValue<JsChildStack<RootChild>> = stack.asJsStack()
+    override val jsStack: JsValue<JsChildStack<RootChild>> by lazy { _stack.asJsStack() }
 
     private fun child(config: RootConfig, childCtx: ComponentContext): RootChild {
         return when (config) {
@@ -42,12 +42,7 @@ class RealRootComponent(
         return RootConfig.InteropTest(0)
     }
 
-    override fun test() {
-        nav.pushNew(RootConfig.InteropTest(10 + stack.backStack.size))
+    override fun testPush() {
+        nav.pushNew(RootConfig.InteropTest(10 + _stack.backStack.size))
     }
-
-    override fun pop() {
-        nav.pop()
-    }
-
 }

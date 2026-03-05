@@ -1,12 +1,12 @@
+import {useValue, when} from "../../interop";
 import {initRealRootComponent, InteropTestComponent, InteropTestIntent, InteropTestState, RootChild} from "k2ts";
 import {useMemo} from "react";
-import {useJsValue, when} from "interop";
 
 
 export function Greeting() {
     const root = useMemo(() => initRealRootComponent(), []);
 
-    const stack = useJsValue(root.jsStack);
+    const stack = useValue(root.childStack);
     const activeChild = stack.active;
 
 
@@ -17,10 +17,10 @@ export function Greeting() {
                     [{index}] {child.constructor.name}
                 </li>
             ))}</>
-            <button onClick={() => root.test()}>
+            <button onClick={() => root.testPush()}>
                 {"New screen"}
             </button>
-            <button onClick={() => root.pop()}>
+            <button onClick={() => root.onBackClicked()}>
                 {"Pop"}
             </button>
 
@@ -32,8 +32,7 @@ export function Greeting() {
 }
 
 const InteropTestView = ({component}: { component: InteropTestComponent }) => {
-    const state = useJsValue(component.jsState);
-
+    const state = useValue(component.state);
 
     const styles = `
         @keyframes fadeIn {

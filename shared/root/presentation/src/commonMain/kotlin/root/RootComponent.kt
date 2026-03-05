@@ -8,8 +8,7 @@ import kotlinx.serialization.Serializable as Serializable
 
 @JsExport
 interface RootComponent : DefaultStack<RootConfig, RootChild> {
-    fun test()
-    fun pop()
+    fun testPush()
 }
 
 @Serializable

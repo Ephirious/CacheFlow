@@ -4,21 +4,17 @@ import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.launch
 import pro.respawn.flowmvi.annotation.InternalFlowMVIAPI
 import pro.respawn.flowmvi.api.DelicateStoreApi
-import pro.respawn.flowmvi.api.MVIAction
-import pro.respawn.flowmvi.api.MVIIntent
-import pro.respawn.flowmvi.api.MVIState
 import pro.respawn.flowmvi.api.Store
-import pro.respawn.flowmvi.dsl.state
 import pro.respawn.flowmvi.essenty.dsl.retainedStore
-import pro.respawn.flowmvi.essenty.dsl.subscribe
-import utils.presentation.JsValue
-import utils.presentation.asJsValue
+import utils.interop.JsValue
+import utils.interop.asJsValue
 import utils.presentation.componentCoroutineScope
 
 @JsExport
 interface InteropTestComponent : ComponentContext {
     fun restartState()
 
+    @JsName("state")
     val jsState: JsValue<InteropTestState>
 
     fun intent(intent: InteropTestIntent)
@@ -43,10 +39,7 @@ class RealInteropTestComponent(
     }
 
     @OptIn(InternalFlowMVIAPI::class, DelicateStoreApi::class)
-    override val jsState: JsValue<InteropTestState> = states.asJsValue(
-        initialValue = state,
-        scope = componentCoroutineScope,
-    )
-
-
+    override val jsState: JsValue<InteropTestState> by lazy {
+        states.asJsValue(scope = componentCoroutineScope)
+    }
 }
