@@ -1,5 +1,11 @@
 import {useValue, when} from "../../interop";
-import {initRealRootComponent, InteropTestComponent, InteropTestIntent, InteropTestState, RootChild} from "k2ts";
+import {
+    initRealRootComponent,
+    InteropTestComponent,
+    InteropTestIntent,
+    InteropTestState,
+    RootChild
+} from "k2ts";
 import {useMemo} from "react";
 
 
@@ -9,10 +15,9 @@ export function Greeting() {
     const stack = useValue(root.childStack);
     const activeChild = stack.active;
 
-
     return (
         <div>
-            <>{stack.backStack.map((child, index) => (
+            <>{stack.backStack.asJsReadonlyArrayView().map((child, index) => (
                 <li key={index} style={{color: 'gray'}}>
                     [{index}] {child.constructor.name}
                 </li>

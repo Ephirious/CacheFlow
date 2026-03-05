@@ -8,7 +8,6 @@ import kotlinx.coroutines.launch
 
 fun <T : Any> Value<T>.asJsValue(): JsValue<T> = JsValueImpl(this)
 
-
 fun <T : Any> StateFlow<T>.asJsValue(
     scope: CoroutineScope
 ): JsValue<T> {
@@ -21,15 +20,4 @@ fun <T : Any> StateFlow<T>.asJsValue(
     }
 
     return JsValueImpl(valueRelay)
-}
-
-fun <T : Any> CoroutineScope.createJsValue(initialValue: T): Pair<JsValue<T>, (T) -> Unit> {
-    val valueRelay = MutableValue(initialValue)
-    val jsValue = JsValueImpl(valueRelay)
-
-    val update = { newValue: T ->
-        valueRelay.value = newValue
-    }
-
-    return jsValue to update
 }

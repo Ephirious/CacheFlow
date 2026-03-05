@@ -17,6 +17,7 @@ interface InteropTestComponent : ComponentContext {
     @JsName("state")
     val jsState: JsValue<InteropTestState>
 
+    @Suppress("unused")
     fun intent(intent: InteropTestIntent)
 
     val num: Int
@@ -32,6 +33,7 @@ class RealInteropTestComponent(
         factory = container
     ) {
     override fun restartState() {
+        // restart state cuz of: `resetStateOnStop` plugin
         componentCoroutineScope.launch {
             this@RealInteropTestComponent.closeAndWait()
             this@RealInteropTestComponent.start(componentCoroutineScope)

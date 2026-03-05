@@ -19,5 +19,6 @@ sealed interface RootConfig {
 
 @JsExport
 sealed class RootChild {
+    @Suppress("unused")
     class InteropTestChild(val component: InteropTestComponent) : RootChild()
 }

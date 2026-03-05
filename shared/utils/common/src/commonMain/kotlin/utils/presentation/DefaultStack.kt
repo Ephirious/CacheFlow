@@ -21,6 +21,7 @@ interface DefaultStack<Config : Any, Child : Any> : BackHandlerOwner {
     @JsName("childStack")
     val jsStack: JsValue<JsChildStack<Child>>
 
+    @Suppress("unused")
     fun onBackClicked() {
         popOnce(stack.active.instance::class)
     }

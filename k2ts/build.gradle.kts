@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    
 }
 
 kotlin {
@@ -16,11 +15,10 @@ kotlin {
 
         useEsModules()
     }
-    
+
     sourceSets {
         commonMain.dependencies {
             implementation(projects.shared.root.presentation)
-            // put your Multiplatform dependencies here
         }
     }
 }

@@ -5,6 +5,7 @@ import pro.respawn.flowmvi.api.MVIState
 
 @JsExport
 sealed class InteropTestState : MVIState {
+    @Suppress("unused")
     data object Loading : InteropTestState()
     data class OK(
         val text: String
