@@ -1,7 +1,7 @@
 package di
 
 import core.coreModule
-import interopTestPresentationModule
+import interopSamplePresentationModule
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
@@ -15,7 +15,7 @@ fun initKoin(
         appDeclaration()
         modules(
             coreModule,
-            interopTestPresentationModule
+            interopSamplePresentationModule
         )
     }
 }

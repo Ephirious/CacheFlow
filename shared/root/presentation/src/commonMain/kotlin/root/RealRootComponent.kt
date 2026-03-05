@@ -3,7 +3,7 @@ package root
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
-import interopTest.RealInteropTestComponent
+import interopSampleFlow.RealInteropSampleFlowComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import utils.interop.JsChildStack
@@ -32,8 +32,8 @@ class RealRootComponent(
 
     private fun child(config: RootConfig, childCtx: ComponentContext): RootChild {
         return when (config) {
-            is RootConfig.InteropTest -> RootChild.InteropTestChild(
-                RealInteropTestComponent(componentCtx = childCtx, container = get(), num = config.x)
+            is RootConfig.InteropTest -> RootChild.InteropSampleFlowChild(
+                RealInteropSampleFlowComponent(componentCtx = childCtx, container = get())
             )
         }
     }

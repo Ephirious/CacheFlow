@@ -1,7 +1,7 @@
 package root
 
 
-import interopTest.InteropTestComponent
+import interopSampleFlow.InteropSampleFlowComponent
 import utils.presentation.DefaultStack
 import kotlinx.serialization.Serializable as Serializable
 
@@ -20,5 +20,5 @@ sealed interface RootConfig {
 @JsExport
 sealed class RootChild {
     @Suppress("unused")
-    class InteropTestChild(val component: InteropTestComponent) : RootChild()
+    class InteropSampleFlowChild(val component: InteropSampleFlowComponent) : RootChild()
 }
