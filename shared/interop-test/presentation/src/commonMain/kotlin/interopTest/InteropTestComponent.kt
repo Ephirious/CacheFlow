@@ -22,12 +22,15 @@ interface InteropTestComponent : ComponentContext {
     val jsState: JsValue<InteropTestState>
 
     fun intent(intent: InteropTestIntent)
+
+    val num: Int
 }
 
 
 class RealInteropTestComponent(
     componentCtx: ComponentContext,
     container: () -> InteropTestContainer,
+    override val num: Int
 ) : InteropTestComponent, ComponentContext by componentCtx,
     Store<InteropTestState, InteropTestIntent, Nothing> by componentCtx.retainedStore(
         factory = container

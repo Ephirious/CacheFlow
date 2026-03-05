@@ -1,77 +1,90 @@
-import {JSLogo} from "../JSLogo/JSLogo";
-import {match} from "../../utils/matcher.ts";
-import {useJsValue} from "../../utils/useJsValue.ts";
 import {initRealRootComponent, InteropTestComponent, InteropTestIntent, InteropTestState, RootChild} from "k2ts";
-import {useMemo, useState} from "react";
+import {useMemo} from "react";
+import {useJsValue, when} from "interop";
+
 
 export function Greeting() {
     const root = useMemo(() => initRealRootComponent(), []);
-    const [isVisible, setIsVisible] = useState<boolean>(false);
-    const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
     const stack = useJsValue(root.jsStack);
     const activeChild = stack.active;
 
-    const handleAnimationEnd = (event: React.AnimationEvent<HTMLDivElement>) => {
-        if (event.animationName === 'fadeOut') {
-            setIsVisible(false);
-            setIsAnimating(false);
-        }
-    };
 
     return (
-        <div className="greeting-container">
-            <button onClick={() => isVisible ? setIsAnimating(true) : setIsVisible(true)}>
-                {isVisible ? 'Hide' : 'Show'}
+        <div>
+            <>{stack.backStack.map((child, index) => (
+                <li key={index} style={{color: 'gray'}}>
+                    [{index}] {child.constructor.name}
+                </li>
+            ))}</>
+            <button onClick={() => root.test()}>
+                {"New screen"}
+            </button>
+            <button onClick={() => root.pop()}>
+                {"Pop"}
             </button>
 
-            {isVisible && (
-                <div
-                    className={isAnimating ? 'greeting-content fade-out' : 'greeting-content'}
-                    onAnimationEnd={handleAnimationEnd}
-                >
-                    <JSLogo/>
-
-                    {/* Безопасное условие: рендерим компонент, а не вызываем хук напрямую */}
-                    {activeChild instanceof RootChild.InteropTestChild && (
-                        <InteropTestView component={activeChild.component}/>
-                    )}
-                </div>
+            {activeChild instanceof RootChild.InteropTestChild && (
+                <InteropTestView component={activeChild.component}/>
             )}
         </div>
     );
 }
 
-const InteropTestView = ({ component }: { component: InteropTestComponent }) => {
+const InteropTestView = ({component}: { component: InteropTestComponent }) => {
     const state = useJsValue(component.jsState);
 
-    return match(state)
-        .is(InteropTestState.Loading, () => (
-            <div>Загрузка из Kotlin...</div>
-        ))
-        .on(InteropTestState.OK, (s) => (
-            <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <h1>Данные из Kotlin: {s.text}</h1>
 
-                {/* Текстовое поле для ввода */}
-                <input
-                    type="text"
-                    value={s.text}
-                    placeholder="Введите текст..."
-                    style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-                    onChange={(e) => {
-                        // Отправляем интент в Kotlin при каждом изменении
-                        component.intent(new InteropTestIntent.ChangedText(e.target.value));
-                    }}
-                />
+    const styles = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+        .animate-fade-in {
+            animation: fadeIn 1.4s ease-out forwards;
+        }
+        .animate-pulse {
+            animation: pulse 2.5s infinite ease-in-out;
+        }
+    `;
 
-                <button onClick={() => component.restartState()}>
-                    Сбросить состояние
-                </button>
-            </div>
-        ))
-        .on(InteropTestState.Error, (s) => (
-            <div style={{ color: 'red' }}>Ошибка: {s.error}</div>
-        ))
-        .otherwise(() => <div>Что-то пошло не так</div>);
+    return <>
+        <style>{styles}</style>
+        {
+            when(state)
+                .is(InteropTestState.Loading, () => (
+                    <div>Загрузка из Kotlin...</div>
+                ))
+                .on(InteropTestState.OK, (s) => (
+                    <div className="container" style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                        <h1>Данные из Kotlin: {s.text}</h1>
+                        <input
+                            type="text"
+                            value={s.text}
+                            placeholder="Введите текст..."
+                            style={{padding: '8px', borderRadius: '4px', border: '1px solid #ccc'}}
+                            onChange={(e) => {
+                                component.intent(new InteropTestIntent.ChangedText(e.target.value));
+                            }}
+                        />
+
+                        <button onClick={() => component.restartState()}>
+                            Сбросить состояние
+                        </button>
+                    </div>
+                ))
+                .on(InteropTestState.Error, (s) => (
+                    <div style={{color: 'red'}}>Ошибка: {s.error}</div>
+                ))
+                .otherwise(() => <div>Что-то пошло не так</div>)
+        }
+        {<div key={component.num} className="animate-pulse" style={{color: '#666', fontWeight: 'bold'}}>
+            Some animation: {component.num}
+        </div>}
+    </>
 };

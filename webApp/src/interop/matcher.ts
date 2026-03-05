@@ -7,7 +7,6 @@ class Matcher<T extends object, R = never> {
     constructor(private value: T) {
     }
 
-    // Используем Union тип (R | NextR), чтобы накапливать возможные результаты возврата
     on<V extends T, NextR>(
         type: ClassType<V>,
         handler: (value: V) => NextR
@@ -39,4 +38,5 @@ class Matcher<T extends object, R = never> {
     }
 }
 
-export const match = <T extends object>(value: T) => new Matcher<T>(value);
+// kotlin naming
+export const when = <T extends object>(value: T) => new Matcher<T>(value);

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc && vite build",
-    "start": "vite"
+    "start": "vite --host"
   },
   "dependencies": {
     "k2ts": "0.0.0-unspecified",
