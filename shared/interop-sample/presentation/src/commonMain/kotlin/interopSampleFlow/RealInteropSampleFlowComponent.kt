@@ -4,6 +4,9 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.items
+import com.arkivanov.decompose.router.stack.pushNew
+import com.arkivanov.decompose.router.stack.pushToFront
 import com.arkivanov.decompose.value.Value
 import interopSampleFlow.InteropSampleFlowChild.InteropSampleChild
 import interopSampleFlow.InteropSampleFlowConfig.InteropSample
@@ -15,7 +18,7 @@ import pro.respawn.flowmvi.essenty.dsl.retainedStore
 import utils.interop.JsChildStack
 import utils.interop.JsValue
 import utils.interop.asJsStack
-import utils.interop.asJsValue
+import utils.interop.jsStateSubscribe
 import utils.presentation.componentCoroutineScope
 import kotlin.getValue
 
@@ -29,8 +32,28 @@ class RealInteropSampleFlowComponent(
 
     @OptIn(InternalFlowMVIAPI::class)
     override val jsState: JsValue<InteropSampleFlowState> by lazy {
-        states.asJsValue(scope = componentCoroutineScope)
+        jsStateSubscribe(lifecycleOwner = this, componentCoroutineScope)
     }
+
+
+    override fun createNewTab() {
+        // ...
+        val existingNums = _stack.items
+            .mapNotNull { (it.configuration as? InteropSample)?.num }
+            .toSet()
+
+        var nextNum = 1
+        while (existingNums.contains(nextNum)) {
+            nextNum++
+        }
+
+        nav.pushNew(InteropSample(num = nextNum))
+    }
+
+    override fun navigateToTab(tabNum: Int) {
+        nav.pushToFront(InteropSample(num = tabNum))
+    }
+
     override val nav = StackNavigation<InteropSampleFlowConfig>()
 
     private val _stack = childStack(
@@ -49,7 +72,8 @@ class RealInteropSampleFlowComponent(
             is InteropSample -> InteropSampleChild(
                 RealInteropSampleComponent(
                     componentCtx = childCtx,
-                    container = { InteropSampleContainer() }
+                    container = { InteropSampleContainer() },
+                    num = config.num,
                 )
             )
         }

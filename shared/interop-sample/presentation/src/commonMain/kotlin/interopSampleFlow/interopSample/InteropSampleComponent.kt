@@ -2,11 +2,15 @@ package interopSampleFlow.interopSample
 
 import com.arkivanov.decompose.ComponentContext
 import pro.respawn.flowmvi.annotation.InternalFlowMVIAPI
+import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.essenty.dsl.retainedStore
 import utils.interop.JsValue
-import utils.interop.asJsValue
+import utils.interop.jsStateSubscribe
 import utils.presentation.componentCoroutineScope
+
+private typealias Ctx = PipelineContext<InteropSampleState, InteropSampleIntent, Nothing>
+
 
 @JsExport
 interface InteropSampleComponent : ComponentContext {
@@ -16,19 +20,24 @@ interface InteropSampleComponent : ComponentContext {
 
     @Suppress("unused")
     fun intent(intent: InteropSampleIntent)
+
+    @Suppress("unused")
+    val num: Int
 }
 
 
 class RealInteropSampleComponent(
     componentCtx: ComponentContext,
-    container: () -> InteropSampleContainer
-) : InteropSampleComponent, ComponentContext by componentCtx,
+    container: () -> InteropSampleContainer,
+    override val num: Int,
+
+    ) : InteropSampleComponent, ComponentContext by componentCtx,
     Store<InteropSampleState, InteropSampleIntent, Nothing> by componentCtx.retainedStore(
         factory = container
     ) {
 
     @OptIn(InternalFlowMVIAPI::class)
     override val jsState: JsValue<InteropSampleState> by lazy {
-        states.asJsValue(scope = componentCoroutineScope)
+        jsStateSubscribe(scope = componentCoroutineScope, lifecycleOwner = this)
     }
 }

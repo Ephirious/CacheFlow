@@ -10,7 +10,8 @@
   "dependencies": {
     "k2ts": "0.0.0-unspecified",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "vite-tsconfig-paths": "^6.1.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

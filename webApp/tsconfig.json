@@ -21,7 +21,10 @@
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "paths": {
+      "interop": ["./interop"]
+    }
   },
   "include": [
     "src"

@@ -5,7 +5,8 @@ import pro.respawn.flowmvi.api.MVIState
 
 @JsExport
 data class InteropSampleState(
-    val text: String
+    val text: String,
+    val seconds: Int
 ) : MVIState
 
 @JsExport

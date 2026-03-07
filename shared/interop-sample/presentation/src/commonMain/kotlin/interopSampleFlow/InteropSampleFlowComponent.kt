@@ -14,6 +14,10 @@ interface InteropSampleFlowComponent : ComponentContext, DefaultStack<InteropSam
 
     @Suppress("unused")
     fun intent(intent: InteropSampleFlowIntent)
+
+    fun createNewTab()
+
+    fun navigateToTab(tabNum: Int)
 }
 
 @Serializable
