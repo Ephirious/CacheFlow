@@ -2,6 +2,6 @@ package interopSample.models
 
 @JsExport
 data class Weather(
-    val temperature: Float,
+    val temperature: Double,
     val temperatureUnit: String
 )

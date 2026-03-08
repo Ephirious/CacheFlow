@@ -1,6 +1,7 @@
 package interopSampleFlow
 
-import interopSample.usecases.GetWeatherUseCase
+import interopSample.usecases.GetWeatherFlowUseCase
+import interopSample.usecases.RefreshWeatherUseCase
 import interopSample.usecases.ManageSampleTextUseCases
 import interopSampleFlow.InteropSampleFlowState.WeatherState
 import kotlinx.coroutines.Job
@@ -9,11 +10,13 @@ import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
+import pro.respawn.flowmvi.dsl.updateState
 import pro.respawn.flowmvi.dsl.updateStateImmediate
 import pro.respawn.flowmvi.plugins.enableLogging
 import pro.respawn.flowmvi.plugins.init
 import pro.respawn.flowmvi.plugins.recover
 import pro.respawn.flowmvi.plugins.reduce
+import pro.respawn.flowmvi.plugins.whileSubscribed
 import utils.AppConfig
 import utils.presentation.AsyncDispatcher
 
@@ -21,7 +24,8 @@ private typealias Ctx = PipelineContext<InteropSampleFlowState, InteropSampleFlo
 
 
 class InteropSampleFlowContainer(
-    private val getWeatherUseCase: GetWeatherUseCase,
+    private val getWeatherFlowUseCase: GetWeatherFlowUseCase,
+    private val refreshWeatherUseCase: RefreshWeatherUseCase,
     private val manageSampleTextUseCases: ManageSampleTextUseCases,
 ) : Container<InteropSampleFlowState, InteropSampleFlowIntent, Nothing> {
     override val store: Store<InteropSampleFlowState, InteropSampleFlowIntent, Nothing> =
@@ -41,13 +45,17 @@ class InteropSampleFlowContainer(
                 updateState { copy(weatherState = WeatherState.Error(it.message ?: "unknown error!")) }
                 null
             }
-            init {
-                loadWeather(false)
+
+            whileSubscribed {
+                getWeatherFlowUseCase().collect { weather ->
+                    updateState { copy(weatherState = WeatherState.OK(weather)) }
+                }
             }
+
             reduce { intent ->
                 when (intent) {
                     InteropSampleFlowIntent.ClickedRefresh ->
-                        loadWeather(true)
+                        refreshWeather()
 
                     is InteropSampleFlowIntent.ChangedSampleText -> {
                         manageSampleTextUseCases.setSampleText(intent.text)
@@ -58,21 +66,15 @@ class InteropSampleFlowContainer(
         }
 
 
-    private var loadWeatherJob: Job? = null
-    private fun Ctx.loadWeather(fromNetwork: Boolean) {
-        if (loadWeatherJob?.isActive == true) return
+    private var refreshWeatherJob: Job? = null
+    private fun Ctx.refreshWeather() {
+        if (refreshWeatherJob?.isActive == true) return
 
-        loadWeatherJob = launch(AsyncDispatcher) {
-            if (fromNetwork) {
-                updateState {
-                    copy(weatherState = WeatherState.Loading)
-                }
-            }
-
+        refreshWeatherJob = launch(AsyncDispatcher) {
             updateState {
-                val weather = getWeatherUseCase(fromNetwork)
-                copy(weatherState = WeatherState.OK(weather))
+                copy(weatherState = WeatherState.Loading)
             }
+            refreshWeatherUseCase()
         }
     }
 }

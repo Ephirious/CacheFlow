@@ -13,7 +13,7 @@ internal data class WeatherDTO(
     @Serializable
     internal data class CurrentWeatherDTO(
         @SerialName("temperature")
-        val temperature: Float
+        val temperature: Double
     )
 
     @Serializable

@@ -1,0 +1,10 @@
+CREATE TABLE WeatherEntity (
+    temperature REAL NOT NULL,
+    unit TEXT NOT NULL
+);
+
+insertWeather:
+INSERT OR REPLACE INTO WeatherEntity(temperature, unit) VALUES (?, ?);
+
+selectAll:
+SELECT * FROM WeatherEntity;
