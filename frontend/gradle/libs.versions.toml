@@ -1,0 +1,64 @@
+[versions]
+kotlin = "2.3.20-RC2"
+ksp = "2.3.4"
+
+coroutines = "1.10.2"
+
+#Network
+ktor = "3.4.1"
+serialization = "1.10.0"
+
+# App Architecture
+koin = "4.2.0-RC1"
+decompose = "3.4.0"
+flowmvi = "3.3.0-alpha03"
+
+# Local storage
+russhwolf-settings = "1.3.0"
+sqldelight = "2.2.1"
+
+
+[libraries]
+# Koin
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+
+# Decompose
+decompose-core = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+
+# FlowMVI
+flowmvi-core = { module = "pro.respawn.flowmvi:core", version.ref = "flowmvi" }
+flowmvi-essenty = { module = "pro.respawn.flowmvi:essenty", version.ref = "flowmvi" }
+
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "serialization" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+
+# Russhwolf settings
+settings-core = { module = "com.russhwolf:multiplatform-settings", version.ref = "russhwolf-settings" }
+settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "russhwolf-settings" }
+
+sqldelight-web = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqldelight" }
+sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+
+gradle-plugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradle-plugin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
+gradle-plugin-ksp = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+gradle-plugin-sqldelight = { module = "app.cash.sqldelight:gradle-plugin", version.ref = "sqldelight" }
+
+[bundles]
+settings = ["settings-core", "settings-no-arg"]
+presentation-api = ["decompose-core", "flowmvi-core", "flowmvi-essenty"]
+serialization = ["kotlinx-serialization-core", "kotlinx-serialization-json"]
+core-ktor-client = ["ktor-client-core", "ktor-client-logging", "ktor-client-content-negotiation", "ktor-client-json"]
+
+[plugins]
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization" }
+ksp = { id = "com.google.devtools.ksp" }
+sqldelight = { id = "app.cash.sqldelight" }
