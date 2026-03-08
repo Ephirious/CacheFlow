@@ -1,5 +1,5 @@
 plugins {
-    id("shared-setup")
+    id("shared")
 }
 
 kotlin {

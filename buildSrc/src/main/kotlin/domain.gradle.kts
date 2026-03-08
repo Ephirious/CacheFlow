@@ -1,21 +1,14 @@
 import org.gradle.accessors.dm.LibrariesForLibs
-
 val libs = the<LibrariesForLibs>()
-
 plugins {
-    id("shared-setup")
+    id("shared")
 }
 
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            api(libs.bundles.presentation.api)
-
-            implementation(libs.koin.core)
+            // for flow
             implementation(libs.kotlinx.coroutines)
-
-
-            implementation(project(":shared:utils:common")) // projects.shared.utils.common
         }
     }
 }

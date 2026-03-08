@@ -1,5 +1,6 @@
 plugins {
-    id("data-ktor-setup")
+    id("data-ktor")
+    id("data-settings")
 }
 
 kotlin {

@@ -1,3 +1,3 @@
 plugins {
-    id("domain-setup")
+    id("domain")
 }

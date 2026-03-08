@@ -1,5 +1,5 @@
 plugins {
-    id("presentation-setup")
+    id("presentation")
 }
 
 kotlin {

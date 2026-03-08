@@ -1,12 +1,13 @@
+import org.gradle.accessors.dm.LibrariesForLibs
+val libs = the<LibrariesForLibs>()
 plugins {
     id("shared")
 }
 
+
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.koin.core)
-            implementation(libs.bundles.core.ktor.client)
             implementation(libs.bundles.settings)
         }
     }
