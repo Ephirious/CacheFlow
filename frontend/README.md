@@ -8,20 +8,22 @@
 * [k2ts](./k2ts) содержит настройки для билда библиотеки под JS таргет
 
 ### Билд и запуск
+
 Чтобы сбилдить и запустить веб-приложение, следуйте следующим шагам:
-1. Скачайте IntelliJ IDEA
+
+1. Скачайте IntelliJ IDEA, установите плагин Kotlin Multiplatform
 2. Откройте этот проект (в IDEA) и установите JAVA 17
 2. Скачайте [Node.js](https://nodejs.org/en/download) (содержит `npm`)
 3. Сбилдите Kotlin/JS код (модуль k2ts):
-   - на macOS/Linux
-     ```shell
-     ./gradlew :k2ts:jsBrowserProductionLibraryDistribution
-     ```
-   - на Windows
-     ```shell
-     .\gradlew.bat :k2ts:jsBrowserProductionLibraryDistribution
-     ```
-   
+    - на macOS/Linux
+      ```shell
+      ./gradlew :k2ts:jsBrowserProductionLibraryDistribution
+      ```
+    - на Windows
+      ```shell
+      .\gradlew.bat :k2ts:jsBrowserProductionLibraryDistribution
+      ```
+
    > Билдим Production версию для лучшей стабильности
 4. Запустите приложение
    ```shell
