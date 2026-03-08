@@ -19,6 +19,8 @@
      ```shell
      .\gradlew.bat :k2ts:jsBrowserProductionLibraryDistribution
      ```
+   
+   > Билдим Production версию для лучшей стабильности
 3. Запустите приложение
    ```shell
    npm install
