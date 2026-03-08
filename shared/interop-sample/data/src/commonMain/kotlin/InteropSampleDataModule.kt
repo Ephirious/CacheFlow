@@ -1,4 +1,4 @@
-import interopSample.ktor.InteropSampleRemoteDataSource
+import interopSample.cloud.InteropSampleRemoteDataSource
 import interopSample.repositories.InteropSampleRepository
 import interopSample.repositories.InteropSampleRepositoryImpl
 import interopSample.usecases.GetWeatherUseCase

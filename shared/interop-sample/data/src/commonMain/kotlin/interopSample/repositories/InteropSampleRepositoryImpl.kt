@@ -1,6 +1,6 @@
 package interopSample.repositories
 
-import interopSample.ktor.InteropSampleRemoteDataSource
+import interopSample.cloud.InteropSampleRemoteDataSource
 import interopSample.mappers.toDomain
 import interopSample.models.Weather
 

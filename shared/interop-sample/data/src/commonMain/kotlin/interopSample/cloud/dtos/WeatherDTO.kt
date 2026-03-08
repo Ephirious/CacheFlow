@@ -1,4 +1,4 @@
-package interopSample.ktor.dtos
+package interopSample.cloud.dtos
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
