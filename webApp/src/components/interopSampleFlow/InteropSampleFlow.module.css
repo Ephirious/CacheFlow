@@ -12,6 +12,15 @@
     gap: 10px;
 }
 
+
+.sampleTextBox {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+    align-items: center;
+    gap: 10px;
+}
+
 .box {
     margin-top: 10px;
     border: 2px solid lightgray;
@@ -22,6 +31,8 @@
     word-wrap: break-word;
     word-break: break-all;
 }
+
+
 
 .tabs {
     display: flex;

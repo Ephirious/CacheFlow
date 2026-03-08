@@ -7,6 +7,7 @@ import {
 import {useValue, when} from "interop";
 import InteropSampleScreen from "./interopSample/InteropSample.tsx";
 import styles from './InteropSampleFlow.module.css';
+import shit from './interopSample/InteropSample.module.css';
 
 const InteropSampleFlowScreen = ({component}: { component: InteropSampleFlowComponent }) => {
     const state = useValue(component.state);
@@ -31,22 +32,33 @@ const InteropSampleFlowScreen = ({component}: { component: InteropSampleFlowComp
                     >
                         Обновить
                     </button>
-                    {when(state)
-                        .is(InteropSampleFlowState.Loading, () => (
+                    {when(state.weatherState)
+                        .is(InteropSampleFlowState.WeatherState.Loading, () => (
                             "Loading..."
                         ))
-                        .on(InteropSampleFlowState.OK, (ok) => (
+                        .on(InteropSampleFlowState.WeatherState.OK, (ok) => (
                             "Погода в Москве: " + ok.weather.temperature + ok.weather.temperatureUnit
                         ))
-                        .on(InteropSampleFlowState.Error, (error) => (
+                        .on(InteropSampleFlowState.WeatherState.Error, (error) => (
                             error.error
                         ))
                         .run()
                     }
                 </div>
+                <input className={shit.input}
+
+                       style={{marginBottom:'10px'}}
+                       type="text"
+                       value={state.sampleText}
+                       placeholder="Сохраняется в localStorage"
+                       onChange={(e) => {
+                           component.intent(new InteropSampleFlowIntent.ChangedSampleText(e.target.value));
+                       }}
+                />
 
             </div>
             <button className={styles.button}
+                    style={{marginRight:'5px'}}
                     onClick={() => {
                         component.createNewTab()
                     }}
