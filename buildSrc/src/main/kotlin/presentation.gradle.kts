@@ -18,4 +18,10 @@ kotlin {
             implementation(project(":shared:utils:common")) // projects.shared.utils.common
         }
     }
+
+    compilerOptions {
+        optIn.addAll(
+            "com.arkivanov.decompose.ExperimentalDecomposeApi"
+        )
+    }
 }

@@ -4,7 +4,7 @@
   "private": true,
   "workspaces": [
     "webApp",
-    "k2ts/build/dist/js/developmentLibrary"
+    "k2ts/build/dist/js/productionLibrary"
   ],
   "scripts": {
     "build": "cd webApp && npm run build",

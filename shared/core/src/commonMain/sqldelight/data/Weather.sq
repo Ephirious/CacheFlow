@@ -1,7 +1,10 @@
-CREATE TABLE WeatherEntity (
+CREATE TABLE IF NOT EXISTS WeatherEntity (
     temperature REAL NOT NULL,
     unit TEXT NOT NULL
 );
+
+deleteAll:
+DELETE FROM WeatherEntity;
 
 insertWeather:
 INSERT OR REPLACE INTO WeatherEntity(temperature, unit) VALUES (?, ?);

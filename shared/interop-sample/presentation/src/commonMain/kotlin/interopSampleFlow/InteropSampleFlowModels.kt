@@ -1,7 +1,6 @@
 package interopSampleFlow
 
 import interopSample.models.Weather
-import interopSampleFlow.InteropSampleFlowState
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
 

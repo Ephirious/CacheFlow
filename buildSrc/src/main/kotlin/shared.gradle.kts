@@ -16,8 +16,7 @@ kotlin {
 
     compilerOptions {
         optIn.addAll(
-            "kotlin.js.ExperimentalJsExport",
-            "com.arkivanov.decompose.ExperimentalDecomposeApi"
+            "kotlin.js.ExperimentalJsExport"
         )
     }
 }

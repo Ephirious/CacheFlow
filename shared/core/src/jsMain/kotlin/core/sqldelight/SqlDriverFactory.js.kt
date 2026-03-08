@@ -13,7 +13,7 @@ actual class SqlDriverFactory actual constructor() {
         name: String
     ): SqlDriver = WebWorkerDriver(
         Worker(
-            "/db/sqljs.worker.js",
+            "/db/sqljs.worker.js"
         )
     )
 }

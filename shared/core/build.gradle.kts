@@ -10,7 +10,6 @@ kotlin {
             implementation(libs.bundles.core.ktor.client)
             implementation(libs.bundles.settings)
         }
-
         jsMain.dependencies {
             implementation(libs.sqldelight.web)
             // k2ts implements other devNpm, etc. files!!

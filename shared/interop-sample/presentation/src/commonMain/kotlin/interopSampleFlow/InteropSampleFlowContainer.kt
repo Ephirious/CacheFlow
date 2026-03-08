@@ -1,8 +1,8 @@
 package interopSampleFlow
 
 import interopSample.usecases.GetWeatherFlowUseCase
-import interopSample.usecases.RefreshWeatherUseCase
 import interopSample.usecases.ManageSampleTextUseCases
+import interopSample.usecases.RefreshWeatherUseCase
 import interopSampleFlow.InteropSampleFlowState.WeatherState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -10,10 +10,8 @@ import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
-import pro.respawn.flowmvi.dsl.updateState
 import pro.respawn.flowmvi.dsl.updateStateImmediate
 import pro.respawn.flowmvi.plugins.enableLogging
-import pro.respawn.flowmvi.plugins.init
 import pro.respawn.flowmvi.plugins.recover
 import pro.respawn.flowmvi.plugins.reduce
 import pro.respawn.flowmvi.plugins.whileSubscribed
@@ -47,9 +45,7 @@ class InteropSampleFlowContainer(
             }
 
             whileSubscribed {
-                getWeatherFlowUseCase().collect { weather ->
-                    updateState { copy(weatherState = WeatherState.OK(weather)) }
-                }
+                startWeatherSubscription()
             }
 
             reduce { intent ->
@@ -75,6 +71,23 @@ class InteropSampleFlowContainer(
                 copy(weatherState = WeatherState.Loading)
             }
             refreshWeatherUseCase()
+            startWeatherSubscription()
+        }
+    }
+
+    private var weatherSubscriptionJob: Job? = null
+
+
+    private fun Ctx.startWeatherSubscription() {
+        if (weatherSubscriptionJob?.isActive == true) return
+        weatherSubscriptionJob = launch(AsyncDispatcher) {
+            try {
+                getWeatherFlowUseCase().collect { weather ->
+                    updateState { copy(weatherState = WeatherState.OK(weather)) }
+                }
+            } catch (_: NullPointerException) {
+                throw NullPointerException("Нет оффлайн данных (ошибка!!)")
+            }
         }
     }
 }

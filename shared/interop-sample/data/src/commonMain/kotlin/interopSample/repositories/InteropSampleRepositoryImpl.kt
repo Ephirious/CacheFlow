@@ -12,14 +12,20 @@ internal class InteropSampleRepositoryImpl(
     private val localDataSource: InteropSampleLocalDataSource,
     private val dbDataSource: InteropSampleDatabaseDataSource,
 ) : InteropSampleRepository {
-    override fun getWeatherFlow(): Flow<Weather> = dbDataSource.getWeatherFlow()
+    override fun getWeatherFlow(): Flow<Weather> =
+        dbDataSource.getWeatherFlow()
 
     override suspend fun refreshWeather() {
         runCatching {
             remoteDataSource.fetchWeather()
-        }.onSuccess { dto ->
-            dbDataSource.saveWeather(dto.toDomain())
-        }
+        }.fold(
+            onSuccess = { dto ->
+                dbDataSource.saveWeather(dto.toDomain())
+
+                dbDataSource.getWeather()
+            },
+            onFailure = { throw it }
+        )
     }
 
     override fun setSampleText(text: String) = localDataSource.setSampleText(text)
