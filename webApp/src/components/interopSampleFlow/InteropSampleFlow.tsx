@@ -1,12 +1,16 @@
 import {
     InteropSampleFlowChild,
-    InteropSampleFlowComponent
+    InteropSampleFlowComponent,
+    InteropSampleFlowIntent,
+    InteropSampleFlowState
 } from "k2ts";
 import {useValue, when} from "interop";
 import InteropSampleScreen from "./interopSample/InteropSample.tsx";
 import styles from './InteropSampleFlow.module.css';
 
 const InteropSampleFlowScreen = ({component}: { component: InteropSampleFlowComponent }) => {
+    const state = useValue(component.state);
+
     const stack = useValue(component.childStack);
     const activeChild = stack.active;
 
@@ -16,7 +20,32 @@ const InteropSampleFlowScreen = ({component}: { component: InteropSampleFlowComp
     ).sort((a, b) => a.component.num - b.component.num);
     return (
         <div className={styles.container}>
-            <h2>InteropSampleFlowScreen</h2>
+            <div>
+                <h2>InteropSampleFlowScreen</h2>
+
+                <div className={styles.weatherBox}>
+                    <button className={styles.button}
+                            onClick={() => {
+                                component.intent(InteropSampleFlowIntent.ClickedRefresh)
+                            }}
+                    >
+                        Обновить
+                    </button>
+                    {when(state)
+                        .is(InteropSampleFlowState.Loading, () => (
+                            "Loading..."
+                        ))
+                        .on(InteropSampleFlowState.OK, (ok) => (
+                            "Погода в Москве: " + ok.weather.temperature + ok.weather.temperatureUnit
+                        ))
+                        .on(InteropSampleFlowState.Error, (error) => (
+                            error.error
+                        ))
+                        .run()
+                    }
+                </div>
+
+            </div>
             <button className={styles.button}
                     onClick={() => {
                         component.createNewTab()

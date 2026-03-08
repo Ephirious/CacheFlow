@@ -4,6 +4,14 @@
     box-sizing: border-box;
 }
 
+.weatherBox {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+    align-items: center;
+    gap: 10px;
+}
+
 .box {
     margin-top: 10px;
     border: 2px solid lightgray;

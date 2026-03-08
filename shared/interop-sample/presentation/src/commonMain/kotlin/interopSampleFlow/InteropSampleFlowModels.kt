@@ -1,5 +1,6 @@
 package interopSampleFlow
 
+import interopSample.models.Weather
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
 
@@ -7,7 +8,7 @@ import pro.respawn.flowmvi.api.MVIState
 sealed class InteropSampleFlowState : MVIState {
     data object Loading : InteropSampleFlowState()
     data class OK(
-        val weather: Any
+        val weather: Weather
     ) : InteropSampleFlowState()
 
     data class Error(val error: String) : InteropSampleFlowState()

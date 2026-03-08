@@ -1,5 +1,6 @@
 package interopSampleFlow
 
+import interopSample.usecases.GetWeatherUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import pro.respawn.flowmvi.api.Container
@@ -16,7 +17,9 @@ import utils.presentation.AsyncDispatcher
 private typealias Ctx = PipelineContext<InteropSampleFlowState, InteropSampleFlowIntent, Nothing>
 
 
-class InteropSampleFlowContainer : Container<InteropSampleFlowState, InteropSampleFlowIntent, Nothing> {
+class InteropSampleFlowContainer(
+    private val getWeatherUseCase: GetWeatherUseCase
+) : Container<InteropSampleFlowState, InteropSampleFlowIntent, Nothing> {
     override val store: Store<InteropSampleFlowState, InteropSampleFlowIntent, Nothing> =
         store(initial = InteropSampleFlowState.Loading) {
             configure {
@@ -30,26 +33,32 @@ class InteropSampleFlowContainer : Container<InteropSampleFlowState, InteropSamp
                 null
             }
             init {
-                loadWeather()
+                loadWeather(false)
             }
             reduce { intent ->
                 when (intent) {
                     InteropSampleFlowIntent.ClickedRefresh ->
-                        loadWeather()
+                        loadWeather(true)
                 }
             }
         }
 
 
     private var loadWeatherJob: Job? = null
-    private fun Ctx.loadWeather() {
+    private fun Ctx.loadWeather(fromNetwork: Boolean) {
         if (loadWeatherJob?.isActive == true) return
 
         loadWeatherJob = launch(AsyncDispatcher) {
-            updateState {
-                InteropSampleFlowState.Loading
+            if (fromNetwork) {
+                updateState {
+                    InteropSampleFlowState.Loading
+                }
             }
-            // todo load
+
+            updateState {
+                val weather = getWeatherUseCase(fromNetwork)
+                InteropSampleFlowState.OK(weather = weather)
+            }
         }
     }
 }

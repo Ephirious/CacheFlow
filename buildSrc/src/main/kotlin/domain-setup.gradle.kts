@@ -9,8 +9,6 @@ kotlin {
         commonMain.dependencies {
             // for flow
             implementation(libs.kotlinx.coroutines)
-
-//            api(project(":shared:utils:api"))
         }
     }
 }

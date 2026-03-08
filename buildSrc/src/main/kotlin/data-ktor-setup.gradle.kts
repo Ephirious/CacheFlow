@@ -9,8 +9,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-//            implementation(project(":shared:core"))
-//            implementation(project(":shared:utils:api"))
+            implementation(project(":shared:core"))
 
             implementation(libs.koin.core)
             implementation(libs.ktor.client.core)

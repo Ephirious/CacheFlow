@@ -1,6 +1,7 @@
 package di
 
 import core.coreModule
+import interopSampleDataModule
 import interopSamplePresentationModule
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -15,6 +16,7 @@ fun initKoin(
         appDeclaration()
         modules(
             coreModule,
+            interopSampleDataModule,
             interopSamplePresentationModule
         )
     }
