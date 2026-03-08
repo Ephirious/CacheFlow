@@ -1,6 +1,6 @@
 package interopSample.ktor
 
-import interopSample.ktor.dtos.WeatherRemote
+import interopSample.ktor.dtos.WeatherDTO
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -17,7 +17,7 @@ internal class InteropSampleRemoteDataSource(
         parameters.appendAll("latitude" to "55.7558", "longitude" to "37.6173", "current_weather" to "true")
     }
 
-    suspend fun fetchWeather(): WeatherRemote = try {
+    suspend fun fetchWeather(): WeatherDTO = try {
         httpClient.get(openMeteoUrl).body()
     } catch (t: Throwable) {
         if (t is Exception) throw t
