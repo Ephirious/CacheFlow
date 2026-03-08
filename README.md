@@ -1,32 +1,26 @@
-This is a Kotlin Multiplatform project targeting Web.
+Это Kotlin Multiplatform проект с UI на TypeScript
 
-* [/shared](./shared/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./shared/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+* /shared: здесь код пошарен между всеми таргетами в проекте.
 
-* [/webApp](./webApp) contains web React application. It uses the Kotlin/JS library produced
-  by the [shared](./shared) module.
+* [/webApp](./webApp) содержит веб React приложение. Оно использует Kotlin/JS библиотеку сбилженную
+  через [k2ts](./k2ts) модуль.
 
-### Build and Run Web Application
+* [k2ts](./k2ts) содержит настройки для билда библиотеки под JS таргет
 
-To build and run the development version of the web app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-1. Install [Node.js](https://nodejs.org/en/download) (which includes `npm`)
-2. Build Kotlin/JS shared code:
-   - on macOS/Linux
+### Билд и запуск
+Чтобы сбилдить и запустить веб-приложение, следуйте следующим шагам:
+1. Скачайте [Node.js](https://nodejs.org/en/download) (содержит `npm`)
+2. Сбилдите Kotlin/JS код (модуль k2ts):
+   - на macOS/Linux
      ```shell
-     ./gradlew :shared:jsBrowserDevelopmentLibraryDistribution
+     ./gradlew :k2ts:jsBrowserProductionLibraryDistribution
      ```
-   - on Windows
+   - на Windows
      ```shell
-     .\gradlew.bat :shared:jsBrowserDevelopmentLibraryDistribution
+     .\gradlew.bat :k2ts:jsBrowserProductionLibraryDistribution
      ```
-3. Build and run the web application
+3. Запустите приложение
    ```shell
    npm install
    npm run start
    ```
-
----
-
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
