@@ -1,4 +1,4 @@
-package interopSampleFlow.interopSample
+package interopSample.mvi
 
 import kotlinx.coroutines.delay
 import pro.respawn.flowmvi.api.Container

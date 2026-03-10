@@ -1,4 +1,4 @@
-import interopSampleFlow.InteropSampleFlowContainer
+import interopSampleFlow.mvi.InteropSampleFlowContainer
 import org.koin.dsl.module
 
 val interopSamplePresentationModule = module {

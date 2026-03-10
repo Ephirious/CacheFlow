@@ -1,9 +1,9 @@
-package interopSampleFlow
+package interopSampleFlow.mvi
 
 import interopSample.usecases.GetWeatherFlowUseCase
 import interopSample.usecases.ManageSampleTextUseCases
 import interopSample.usecases.RefreshWeatherUseCase
-import interopSampleFlow.InteropSampleFlowState.WeatherState
+import interopSampleFlow.mvi.InteropSampleFlowState.WeatherState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import pro.respawn.flowmvi.api.Container

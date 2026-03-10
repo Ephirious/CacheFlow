@@ -1,4 +1,4 @@
-package interopSampleFlow
+package interopSampleFlow.mvi
 
 import interopSample.models.Weather
 import pro.respawn.flowmvi.api.MVIIntent
