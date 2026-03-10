@@ -10,7 +10,7 @@ serialization = "1.10.0"
 
 # App Architecture
 koin = "4.2.0-RC1"
-decompose = "3.4.0"
+decompose = "3.5.0-beta01"
 flowmvi = "3.3.0-alpha03"
 
 # Local storage

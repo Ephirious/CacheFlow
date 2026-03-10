@@ -2,6 +2,7 @@ package root
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
+import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
 import interopSampleFlow.RealInteropSampleFlowComponent
 import main.RealMainComponent
@@ -11,13 +12,18 @@ import org.koin.core.component.get
 import root.RootChild.*
 import root.outputs.onRootOutput
 import stats.RealStatsComponent
+import utils.Url
+import utils.consumePathSegment
 import utils.interop.JsChildStack
 import utils.interop.JsValue
 import utils.interop.asJsStack
+import utils.path
+import utils.pathSegmentOf
 
 
 class RealRootComponent(
-    componentContext: ComponentContext
+    componentContext: ComponentContext,
+    deepLinkUrl: Url? = null,
 ) : RootComponent, KoinComponent, ComponentContext by componentContext {
 
 
@@ -25,7 +31,7 @@ class RealRootComponent(
     private val _stack = childStack(
         source = nav,
         serializer = RootConfig.serializer(),
-        initialConfiguration = getInitialConfig(),
+        initialStack = { getInitialStack(deepLinkUrl) },
         childFactory = ::child,
         handleBackButton = true
     )
@@ -55,9 +61,24 @@ class RealRootComponent(
         }
     }
 
-    private fun getInitialConfig(): RootConfig {
-        return RootConfig.Main
-    }
-
     override fun onOutput(output: RootOutput) = onRootOutput(output)
+    override val webNavigation: WebNavigation<*> =
+        childStackWebNavigation(
+            navigator = nav,
+            stack = _stack,
+            serializer = RootConfig.serializer(),
+            pathMapper = { it.configuration.path() },
+
+            )
+
+    private fun getInitialStack(deepLinkUrl: Url?): List<RootConfig> {
+        val (path, _) = deepLinkUrl?.consumePathSegment() ?: return listOf(RootConfig.Main) // _ - childUrl
+
+        return when (path) {
+            pathSegmentOf<RootConfig.Stats>() -> listOf(RootConfig.Main, RootConfig.Stats)
+            pathSegmentOf<RootConfig.Settings>() -> listOf(RootConfig.Main, RootConfig.Settings)
+            pathSegmentOf<RootConfig.InteropTest>() -> listOf(RootConfig.Main, RootConfig.InteropTest)
+            else -> listOf(RootConfig.Main)
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package root
 
 
+import com.arkivanov.decompose.router.webhistory.WebNavigationOwner
 import interopSampleFlow.InteropSampleFlowComponent
 import main.MainComponent
 import settings.SettingsComponent
@@ -10,7 +11,7 @@ import kotlinx.serialization.Serializable as Serializable
 
 
 @JsExport
-interface RootComponent : DefaultStack<RootConfig, RootChild> {
+interface RootComponent : DefaultStack<RootConfig, RootChild>, WebNavigationOwner {
     fun onOutput(output: RootOutput)
 }
 
