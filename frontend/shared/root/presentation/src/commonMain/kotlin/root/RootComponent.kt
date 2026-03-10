@@ -3,7 +3,7 @@ package root
 
 import interopSampleFlow.InteropSampleFlowComponent
 import main.MainComponent
-import more.MoreComponent
+import settings.SettingsComponent
 import stats.StatsComponent
 import utils.presentation.DefaultStack
 import kotlinx.serialization.Serializable as Serializable
@@ -26,14 +26,14 @@ sealed interface RootConfig {
     data object Stats : RootConfig
 
     @Serializable
-    data object More : RootConfig
+    data object Settings : RootConfig
 }
 
 @JsExport
 sealed class RootOutput {
     data object NavigateToMain : RootOutput()
     data object NavigateToStats : RootOutput()
-    data object NavigateToMore : RootOutput()
+    data object NavigateToSettings : RootOutput()
     data object NavigateToInteropTest : RootOutput()
 }
 
@@ -49,5 +49,5 @@ sealed class RootChild {
     class StatsChild(val component: StatsComponent) : RootChild()
 
     @Suppress("unused")
-    class MoreChild(val component: MoreComponent) : RootChild()
+    class SettingsChild(val component: SettingsComponent) : RootChild()
 }

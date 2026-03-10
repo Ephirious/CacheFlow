@@ -8,7 +8,7 @@ const RootScreen = ({component}: { component: RootComponent }) => {
     const activeChild = stack.active;
 
     return <>
-        <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+        <div style={{display: "flex", flexDirection: "column", alignItems: "center", gap: "10px"}}>
             <RootTabBar component={component} activeChild={activeChild}/>
             {
                 when(activeChild)
@@ -18,8 +18,8 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                     .on(RootChild.StatsChild, (_child) => (
                         <>Stats</>
                     ))
-                    .on(RootChild.MoreChild, (_child) => (
-                        <>More</>
+                    .on(RootChild.SettingsChild, (_child) => (
+                        <>Settings</>
                     ))
                     .on(RootChild.InteropSampleFlowChild, (child) => (
                         <InteropSampleFlowScreen component={child.component}/>

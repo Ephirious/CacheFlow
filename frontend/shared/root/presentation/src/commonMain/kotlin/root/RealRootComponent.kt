@@ -5,7 +5,7 @@ import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
 import interopSampleFlow.RealInteropSampleFlowComponent
 import main.RealMainComponent
-import more.RealMoreComponent
+import settings.RealSettingsComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import root.RootChild.*
@@ -49,8 +49,8 @@ class RealRootComponent(
                 RealStatsComponent(componentCtx = childCtx)
             )
 
-            RootConfig.More -> MoreChild(
-                RealMoreComponent(componentCtx = childCtx)
+            RootConfig.Settings -> SettingsChild(
+                RealSettingsComponent(componentCtx = childCtx)
             )
         }
     }

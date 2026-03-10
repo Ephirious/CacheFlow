@@ -5,7 +5,7 @@ import core.coreModule
 import core.sqldelight.createDriver
 import interopSampleDataModule
 import interopSamplePresentationModule
-import morePresentationModule
+import settingsPresentationModule
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
@@ -40,7 +40,7 @@ suspend fun initKoin(
 
             statsPresentationModule,
 
-            morePresentationModule
+            settingsPresentationModule
         )
     }
 }

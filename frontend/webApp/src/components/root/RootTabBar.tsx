@@ -36,9 +36,9 @@ const RootTabBar = ({component, activeChild}: RootTabBarProps) => {
             Статистика
         </button>
         <button
-            style={getButtonStyle(activeChild instanceof RootChild.MoreChild)}
+            style={getButtonStyle(activeChild instanceof RootChild.SettingsChild)}
             onClick={() => {
-                component.onOutput(RootOutput.NavigateToMore)
+                component.onOutput(RootOutput.NavigateToSettings)
             }}
         >
             Настройки

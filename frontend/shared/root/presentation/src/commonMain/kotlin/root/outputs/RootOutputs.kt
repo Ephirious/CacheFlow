@@ -11,7 +11,7 @@ fun RootComponent.onRootOutput(
     when (output) {
         RootOutput.NavigateToInteropTest -> nav.pushToFront(RootConfig.InteropTest)
         RootOutput.NavigateToMain -> nav.pushToFront(RootConfig.Main)
-        RootOutput.NavigateToMore -> nav.pushToFront(RootConfig.More)
+        RootOutput.NavigateToSettings -> nav.pushToFront(RootConfig.Settings)
         RootOutput.NavigateToStats -> nav.pushToFront(RootConfig.Stats)
     }
 }

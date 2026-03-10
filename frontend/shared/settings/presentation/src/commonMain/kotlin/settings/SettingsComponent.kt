@@ -1,9 +1,9 @@
-package more
+package settings
 
 import com.arkivanov.decompose.ComponentContext
 
 @JsExport
-interface MoreComponent : ComponentContext {
+interface SettingsComponent : ComponentContext {
 
 //    @JsName("state")
 //    val jsState: JsValue<MoreState>
@@ -12,10 +12,10 @@ interface MoreComponent : ComponentContext {
 //    fun intent(intent: MoreIntent)
 }
 
-class RealMoreComponent(
+class RealSettingsComponent(
     componentCtx: ComponentContext,
 //    container: () -> MoreContainer,
-) : MoreComponent, ComponentContext by componentCtx {
+) : SettingsComponent, ComponentContext by componentCtx {
 //    Store<MoreState, MoreIntent, Nothing> by componentCtx.retainedStore(factory = container)
 
 //    @OptIn(InternalFlowMVIAPI::class)

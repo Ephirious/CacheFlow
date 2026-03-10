@@ -43,9 +43,9 @@ include(":shared:transactions:presentation")
 
 include(":shared:stats:presentation")
 
-include(":shared:more:data")
-include(":shared:more:domain")
-include(":shared:more:presentation")
+include(":shared:settings:data")
+include(":shared:settings:domain")
+include(":shared:settings:presentation")
 
 include(":shared:editors:data")
 include(":shared:editors:domain")

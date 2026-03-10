@@ -15,8 +15,8 @@ kotlin {
 
             implementation(projects.shared.stats.presentation)
 
-            implementation(projects.shared.more.data)
-            implementation(projects.shared.more.presentation)
+            implementation(projects.shared.settings.data)
+            implementation(projects.shared.settings.presentation)
 
             implementation(projects.shared.editors.data)
             implementation(projects.shared.editors.presentation)
