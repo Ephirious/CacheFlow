@@ -48,6 +48,7 @@
     border: 1px solid lightgray;
     border-radius: 4px;
     background: white;
+    transition: all 0.2s ease;
 }
 
 .button.active {

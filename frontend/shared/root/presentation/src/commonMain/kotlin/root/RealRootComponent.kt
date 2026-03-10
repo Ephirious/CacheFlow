@@ -4,8 +4,13 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
 import interopSampleFlow.RealInteropSampleFlowComponent
+import main.RealMainComponent
+import more.RealMoreComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import root.RootChild.*
+import root.outputs.onRootOutput
+import stats.RealStatsComponent
 import utils.interop.JsChildStack
 import utils.interop.JsValue
 import utils.interop.asJsStack
@@ -32,17 +37,27 @@ class RealRootComponent(
 
     private fun child(config: RootConfig, childCtx: ComponentContext): RootChild {
         return when (config) {
-            is RootConfig.InteropTest -> RootChild.InteropSampleFlowChild(
+            is RootConfig.InteropTest -> InteropSampleFlowChild(
                 RealInteropSampleFlowComponent(componentCtx = childCtx, container = get())
+            )
+
+            RootConfig.Main -> MainChild(
+                RealMainComponent(componentCtx = childCtx)
+            )
+
+            RootConfig.Stats -> StatsChild(
+                RealStatsComponent(componentCtx = childCtx)
+            )
+
+            RootConfig.More -> MoreChild(
+                RealMoreComponent(componentCtx = childCtx)
             )
         }
     }
 
     private fun getInitialConfig(): RootConfig {
-        return RootConfig.InteropTest(0)
+        return RootConfig.Main
     }
 
-    override fun testPush() {
-        nav.pushNew(RootConfig.InteropTest(10 + _stack.backStack.size))
-    }
+    override fun onOutput(output: RootOutput) = onRootOutput(output)
 }
