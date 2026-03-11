@@ -1,17 +1,15 @@
 package root
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.router.stack.*
+import com.arkivanov.decompose.router.stack.ChildStack
+import com.arkivanov.decompose.router.stack.StackNavigation
+import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.childStackWebNavigation
 import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
-import interopSampleFlow.RealInteropSampleFlowComponent
-import main.RealMainComponent
-import settings.RealSettingsComponent
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import root.RootChild.*
 import root.outputs.onRootOutput
-import stats.RealStatsComponent
 import utils.Url
 import utils.consumePathSegment
 import utils.interop.JsChildStack
@@ -26,6 +24,7 @@ class RealRootComponent(
     deepLinkUrl: Url? = null,
 ) : RootComponent, KoinComponent, ComponentContext by componentContext {
 
+    private val components = PersistentRootComponents(this) // ОБЯЗАТЕЛЬНО ОБЪЯВЛЯТЬ СВЕРХУ – ИНАЧЕ ОШИБКА unified
 
     override val nav = StackNavigation<RootConfig>()
     private val _stack = childStack(
@@ -41,22 +40,25 @@ class RealRootComponent(
 
     override val jsStack: JsValue<JsChildStack<RootChild>> by lazy { _stack.asJsStack() }
 
+
     private fun child(config: RootConfig, childCtx: ComponentContext): RootChild {
         return when (config) {
-            is RootConfig.InteropTest -> InteropSampleFlowChild(
-                RealInteropSampleFlowComponent(componentCtx = childCtx, container = get())
-            )
+            is RootConfig.InteropTest -> {
+                InteropSampleFlowChild(
+                    components.interop.get(childCtx.lifecycle)
+                )
+            }
 
             RootConfig.Main -> MainChild(
-                RealMainComponent(componentCtx = childCtx)
+                components.main.get(childCtx.lifecycle)
             )
 
             RootConfig.Stats -> StatsChild(
-                RealStatsComponent(componentCtx = childCtx)
+                components.stats.get(childCtx.lifecycle)
             )
 
             RootConfig.Settings -> SettingsChild(
-                RealSettingsComponent(componentCtx = childCtx)
+                components.settings.get(childCtx.lifecycle)
             )
         }
     }
@@ -67,9 +69,8 @@ class RealRootComponent(
             navigator = nav,
             stack = _stack,
             serializer = RootConfig.serializer(),
-            pathMapper = { it.configuration.path() },
-
-            )
+            pathMapper = { it.configuration.path() }
+        )
 
     private fun getInitialStack(deepLinkUrl: Url?): List<RootConfig> {
         val (path, _) = deepLinkUrl?.consumePathSegment() ?: return listOf(RootConfig.Main) // _ - childUrl
