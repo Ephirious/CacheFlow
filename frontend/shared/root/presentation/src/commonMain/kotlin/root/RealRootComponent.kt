@@ -24,7 +24,8 @@ class RealRootComponent(
     deepLinkUrl: Url? = null,
 ) : RootComponent, KoinComponent, ComponentContext by componentContext {
 
-    private val components = PersistentRootComponents(this) // ОБЯЗАТЕЛЬНО ОБЪЯВЛЯТЬ СВЕРХУ – ИНАЧЕ ОШИБКА unified
+    // ОБЯЗАТЕЛЬНО ОБЪЯВЛЯТЬ СВЕРХУ – ИНАЧЕ ОШИБКА unified в get (kotlin/js moment)
+    private val components = PersistentRootComponents(this)
 
     override val nav = StackNavigation<RootConfig>()
     private val _stack = childStack(
