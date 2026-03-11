@@ -16,16 +16,7 @@ internal class InteropSampleRepositoryImpl(
         dbDataSource.getWeatherFlow()
 
     override suspend fun refreshWeather() {
-        runCatching {
-            remoteDataSource.fetchWeather()
-        }.fold(
-            onSuccess = { dto ->
-                dbDataSource.saveWeather(dto.toDomain())
-
-                dbDataSource.getWeather()
-            },
-            onFailure = { throw it }
-        )
+        dbDataSource.saveWeather(remoteDataSource.fetchWeather().toDomain())
     }
 
     override fun setSampleText(text: String) = localDataSource.setSampleText(text)
