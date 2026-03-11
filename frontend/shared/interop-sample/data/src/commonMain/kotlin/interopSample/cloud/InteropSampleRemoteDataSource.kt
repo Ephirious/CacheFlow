@@ -6,6 +6,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.util.*
+import utils.data.throwableToException
 
 internal class InteropSampleRemoteDataSource(
     private val httpClient: HttpClient
@@ -17,10 +18,7 @@ internal class InteropSampleRemoteDataSource(
         parameters.appendAll("latitude" to "55.7558", "longitude" to "37.6173", "current_weather" to "true")
     }
 
-    suspend fun fetchWeather(): WeatherDTO = runCatching {
+    suspend fun fetchWeather(): WeatherDTO = throwableToException {
         httpClient.get(openMeteoUrl).body<WeatherDTO>()
-    }.fold(
-        onSuccess = { response -> response },
-        onFailure = { error -> throw (error as? Exception ?: RuntimeException(error)) }
-    )
+    }
 }
