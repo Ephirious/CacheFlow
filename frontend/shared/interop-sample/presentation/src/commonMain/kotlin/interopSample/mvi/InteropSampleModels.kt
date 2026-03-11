@@ -1,4 +1,4 @@
-package interopSampleFlow.interopSample
+package interopSample.mvi
 
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState

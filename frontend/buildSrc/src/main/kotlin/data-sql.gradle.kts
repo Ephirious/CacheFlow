@@ -9,6 +9,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":shared:core"))
+            // async
+            implementation(project(":shared:utils:common"))
             implementation(libs.sqldelight.coroutines)
         }
     }

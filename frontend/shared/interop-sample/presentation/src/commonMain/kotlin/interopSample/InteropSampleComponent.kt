@@ -1,16 +1,15 @@
-package interopSampleFlow.interopSample
+package interopSample
 
 import com.arkivanov.decompose.ComponentContext
+import interopSample.mvi.InteropSampleContainer
+import interopSample.mvi.InteropSampleIntent
+import interopSample.mvi.InteropSampleState
 import pro.respawn.flowmvi.annotation.InternalFlowMVIAPI
-import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.essenty.dsl.retainedStore
 import utils.interop.JsValue
 import utils.interop.jsStateSubscribe
 import utils.presentation.componentCoroutineScope
-
-private typealias Ctx = PipelineContext<InteropSampleState, InteropSampleIntent, Nothing>
-
 
 @JsExport
 interface InteropSampleComponent : ComponentContext {

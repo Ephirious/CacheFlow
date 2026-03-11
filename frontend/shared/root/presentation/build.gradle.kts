@@ -9,6 +9,19 @@ kotlin {
 
             implementation(projects.shared.interopSample.data)
             implementation(projects.shared.interopSample.presentation)
+
+            implementation(projects.shared.transactions.data)
+            implementation(projects.shared.transactions.presentation)
+
+            implementation(projects.shared.stats.presentation)
+
+            implementation(projects.shared.settings.data)
+            implementation(projects.shared.settings.presentation)
+
+            implementation(projects.shared.editors.data)
+            implementation(projects.shared.editors.presentation)
+
+            implementation(projects.shared.sync.data)
         }
     }
 }

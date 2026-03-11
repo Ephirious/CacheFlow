@@ -10,8 +10,11 @@ import com.arkivanov.decompose.router.stack.pushToFront
 import com.arkivanov.decompose.value.Value
 import interopSampleFlow.InteropSampleFlowChild.InteropSampleChild
 import interopSampleFlow.InteropSampleFlowConfig.InteropSample
-import interopSampleFlow.interopSample.InteropSampleContainer
-import interopSampleFlow.interopSample.RealInteropSampleComponent
+import interopSample.mvi.InteropSampleContainer
+import interopSample.RealInteropSampleComponent
+import interopSampleFlow.mvi.InteropSampleFlowContainer
+import interopSampleFlow.mvi.InteropSampleFlowIntent
+import interopSampleFlow.mvi.InteropSampleFlowState
 import pro.respawn.flowmvi.annotation.InternalFlowMVIAPI
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.essenty.dsl.retainedStore

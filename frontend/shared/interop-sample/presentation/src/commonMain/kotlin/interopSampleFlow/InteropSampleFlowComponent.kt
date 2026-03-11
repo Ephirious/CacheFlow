@@ -1,7 +1,9 @@
 package interopSampleFlow
 
 import com.arkivanov.decompose.ComponentContext
-import interopSampleFlow.interopSample.InteropSampleComponent
+import interopSample.InteropSampleComponent
+import interopSampleFlow.mvi.InteropSampleFlowIntent
+import interopSampleFlow.mvi.InteropSampleFlowState
 import kotlinx.serialization.Serializable
 import utils.interop.JsValue
 import utils.presentation.DefaultStack
