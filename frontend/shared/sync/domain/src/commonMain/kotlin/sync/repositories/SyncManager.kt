@@ -9,12 +9,8 @@ enum class SyncStatus {
 
 interface SyncManager {
 
-
-    // Отправить данные на сервер
-    suspend fun sync()
-
-    // Подписаться на обновления бд, если упало с ошибкой, то добавить в ServiceWorker
-    suspend fun observeDb()
+    // Добавляет запрос о синхронизации в очередь – выдерживает debounce перед отправкой
+    fun requestSync()
 
     // Статус синхронизации для отображения в UI
     val status: StateFlow<SyncStatus>

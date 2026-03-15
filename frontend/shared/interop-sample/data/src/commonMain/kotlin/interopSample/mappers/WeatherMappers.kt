@@ -5,7 +5,7 @@ import interopSample.cloud.dtos.WeatherDTO
 import interopSample.models.Weather
 
 internal fun WeatherDTO.toDomain() = Weather(
-    temperature = currentWeather.temperature,
+    temperature = currentWeather.temperature+(1..10).random(),
     temperatureUnit = currentWeatherUnits.temperature
 )
 

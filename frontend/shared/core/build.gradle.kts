@@ -11,7 +11,7 @@ kotlin {
             implementation(libs.bundles.settings)
         }
         jsMain.dependencies {
-            implementation(libs.sqldelight.web)
+            implementation(libs.sqldelight.web.worker)
             // k2ts implements other devNpm, etc. files!!
         }
     }

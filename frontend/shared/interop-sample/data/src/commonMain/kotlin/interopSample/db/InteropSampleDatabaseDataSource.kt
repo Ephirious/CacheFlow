@@ -1,5 +1,6 @@
 package interopSample.db
 
+import app.cash.sqldelight.async.coroutines.awaitAsOne
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToOne
 import data.WeatherQueries
@@ -19,6 +20,12 @@ class InteropSampleDatabaseDataSource(
             .map { entity ->
                 entity.toDomain()
             }
+    }
+
+    suspend fun getWeather(): Weather {
+        return weatherQueries.selectAll { temperature, unit ->
+            Weather(temperature = temperature, temperatureUnit = unit)
+        }.awaitAsOne()
     }
 
     suspend fun saveWeather(weather: Weather) {

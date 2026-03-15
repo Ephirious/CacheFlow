@@ -29,6 +29,7 @@ dependencyResolutionManagement {
 }
 
 include(":k2ts") // umbrella module for ts
+include(":k2ts-worker") // umbrella module for kotlin to service_worker
 
 include(":shared:core")
 include(":shared:root:presentation")
