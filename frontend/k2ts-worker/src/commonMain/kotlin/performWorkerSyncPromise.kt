@@ -1,4 +1,6 @@
+import app.cash.sqldelight.db.SqlDriver
 import core.coreModule
+import core.sqldelight.SqlJsDriverSW
 import core.sqldelight.getSqlDriverModule
 import interopSample.usecases.GetWeatherUseCase
 import kotlinx.coroutines.CoroutineScope
@@ -14,6 +16,9 @@ fun performWorkerSyncPromise() = CoroutineScope(Dispatchers.Default).promise {
     println("Performing worker sync!!")
     val koin = initKoinForWorker()
     koin.get<SyncManager>().requestSync()
+
+
+    (koin.get<SqlDriver>() as SqlJsDriverSW).reloadDbFromDisk()
     println(koin.get<GetWeatherUseCase>()())
     println("Done")
 }

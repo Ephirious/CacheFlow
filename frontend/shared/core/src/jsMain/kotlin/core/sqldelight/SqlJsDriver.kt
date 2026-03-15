@@ -15,7 +15,6 @@ class SqlJsDriverSW(
     private val schema: SqlSchema<QueryResult.AsyncValue<Unit>>
 ) : SqlDriver {
 
-
     private companion object {
         const val DB_NAME = "app_db"
         const val STORE_NAME = "table"
@@ -26,7 +25,6 @@ class SqlJsDriverSW(
     private var db: dynamic = null
     private val mutex = Mutex()
 
-    private val listeners = mutableMapOf<String, MutableSet<Query.Listener>>()
     private var transaction: Transaction? = null
 
 
@@ -37,18 +35,22 @@ class SqlJsDriverSW(
             if (db != null) return@withLock
 
             val initSqlJs = js("self.initSqlJs")
-            val SQL = await(initSqlJs(js("{ locateFile: f => '/db/sql-wasm.wasm' }")))
+
+            val sql = await(initSqlJs(js("{ locateFile: f => '/db/sql-wasm.wasm' }")))
 
             val savedData = getDbFromIndexedDB()
 
             db = if (savedData != null) {
                 println("DEBUG: Restoring DB from ${savedData.size} bytes")
                 val uint8 = Uint8Array(savedData.toTypedArray())
-                js("new SQL.Database(uint8)")
+                js("new sql.Database(uint8)")
+                uint8 // suppress unusable
             } else {
                 println("DEBUG: Creating fresh database")
-                js("new SQL.Database()")
+                js("new sql.Database()")
+                sql // suppress unusable
             }
+
 
             if (savedData == null) {
                 schema.create(this)
@@ -85,6 +87,18 @@ class SqlJsDriverSW(
             }
             req.onerror = { cont.resume(null) }
         }
+    }
+
+    suspend fun reloadDbFromDisk() {
+        if (db != null) {
+            try {
+                db.close()
+            } catch (_: dynamic) { }
+            db = null
+        }
+
+        ensureDb()
+
     }
 
     private fun saveDbToIndexedDB() {
@@ -127,6 +141,7 @@ class SqlJsDriverSW(
 
         mapper(cursor).await()
     }
+
     override fun execute(
         identifier: Int?,
         sql: String,
@@ -146,10 +161,6 @@ class SqlJsDriverSW(
             db.run(sql, ps.params())
         else
             db.run(sql)
-
-        if (identifier != null) {
-            notifyListeners("WeatherEntity")
-        }
 
         0L
     }
@@ -178,8 +189,8 @@ class SqlJsDriverSW(
                 try {
                     if (successful) db.run("COMMIT") else db.run("ROLLBACK")
                     saveDbToIndexedDB()
-                } catch (e: dynamic) {
-                    println("Info: Transaction already closed or rolled back.")
+                } catch (_: dynamic) {
+
                 }
             }
             transaction = parent
@@ -187,25 +198,11 @@ class SqlJsDriverSW(
     }
 
 
-    override fun addListener(vararg queryKeys: String, listener: Query.Listener) {
-        println("DEBUG: Listener added for keys: ${queryKeys.joinToString()}")
-        queryKeys.forEach {
-            listeners.getOrPut(it) { mutableSetOf() }.add(listener)
-        }
-    }
+    override fun addListener(vararg queryKeys: String, listener: Query.Listener) {}
 
-    override fun removeListener(vararg queryKeys: String, listener: Query.Listener) {
-        println("DEBUG: Listener deleted from keys: ${queryKeys.joinToString()}")
-        queryKeys.forEach { listeners[it]?.remove(listener) }
-    }
+    override fun removeListener(vararg queryKeys: String, listener: Query.Listener) {}
 
-    override fun notifyListeners(vararg queryKeys: String) {
-        println("DEBUG: Notifying listeners for keys: ${queryKeys.joinToString()}")
-        queryKeys
-            .flatMap { listeners[it].orEmpty() }
-            .distinct()
-            .forEach { it.queryResultsChanged() }
-    }
+    override fun notifyListeners(vararg queryKeys: String) {}
 
     override fun close() {
         db?.close()
@@ -213,7 +210,7 @@ class SqlJsDriverSW(
     }
 }
 
-private class JsPrepared(val count: Int) : SqlPreparedStatement {
+private class JsPrepared(count: Int) : SqlPreparedStatement {
 
     private val params = arrayOfNulls<Any>(count)
 
@@ -222,12 +219,10 @@ private class JsPrepared(val count: Int) : SqlPreparedStatement {
     }
 
     override fun bindString(index: Int, string: String?) {
-        println("DEBUG: Binding String at index $index: $string")
         params[index] = string
     }
 
     override fun bindDouble(index: Int, double: Double?) {
-        println("DEBUG: Binding Double at index $index: $double")
         params[index] = double
     }
 
