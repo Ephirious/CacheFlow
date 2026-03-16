@@ -1,12 +1,12 @@
 package sync.repositories
 
+import core.sw.swSendMessagesToClients
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json.Default.encodeToString
 import sync.cloud.SyncRemoteDataSource
 import utils.data.withWebLock
 
-external val self: dynamic
 
 class SyncManagerSWImpl(
     remoteDataSource: SyncRemoteDataSource
@@ -22,13 +22,7 @@ class SyncManagerSWImpl(
             AppServiceMessage.serializer(),
             AppServiceMessage.StatusChanged(newStatus)
         )
-        self.clients.matchAll(js("{ type: 'window', includeUncontrolled: true }"))
-            .then { clients ->
-                for (client in clients) {
-                    client.postMessage(encodedStatus)
-                    println("[INFO-ServiceWorker] Sent: $encodedStatus")
-                }
-            }
+        swSendMessagesToClients(encodedStatus)
 
         status.value = newStatus
     }

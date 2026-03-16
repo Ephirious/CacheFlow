@@ -1,7 +1,7 @@
-import app.cash.sqldelight.db.SqlDriver
 import core.coreModule
-import core.sqldelight.SqlJsServiceWorkerDriver
+import core.sqldelight.CustomSqlDriver
 import core.sqldelight.getSqlDriverModule
+import interopSample.usecases.RefreshWeatherUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.promise
@@ -16,8 +16,9 @@ fun performWorkerSyncPromise() = CoroutineScope(Dispatchers.Default).promise {
     println("[INFO-ServiceWorker] Perform")
     val koin = initKoinForWorker()
 
-    (koin.get<SqlDriver>() as SqlJsServiceWorkerDriver).reloadDbFromDisk()
+    koin.get<CustomSqlDriver>().reloadDb()
     koin.get<SyncManager>().requestSync()
+    koin.get<RefreshWeatherUseCase>().invoke()
     println("[INFO-ServiceWorker] Perform done")
 }
 
@@ -36,7 +37,9 @@ suspend fun initKoinForWorker(): Koin {
             coreModule,
             syncDataModule { remoteDataSource ->
                 SyncManagerSWImpl(remoteDataSource)
-            }
+            },
+
+            interopSampleDataModule
         )
     }.koin
 }

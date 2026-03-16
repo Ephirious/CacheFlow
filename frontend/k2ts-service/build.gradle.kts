@@ -20,6 +20,9 @@ kotlin {
             implementation(projects.shared.sync.domain)
             implementation(projects.shared.sync.data)
             implementation(libs.koin.core)
+
+            implementation(projects.shared.interopSample.domain)
+            implementation(projects.shared.interopSample.data)
         }
     }
 }

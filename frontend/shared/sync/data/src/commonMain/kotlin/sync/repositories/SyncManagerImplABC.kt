@@ -2,20 +2,16 @@ package sync.repositories
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.koin.core.component.KoinComponent
 import sync.cloud.SyncRemoteDataSource
 import utils.presentation.AsyncDispatcher
 
 abstract class SyncManagerImplABC(
     protected val remoteDataSource: SyncRemoteDataSource,
     override val scope: CoroutineScope = CoroutineScope(AsyncDispatcher + SupervisorJob())
-) : SyncManager {
+) : SyncManager, KoinComponent {
     override val status = MutableStateFlow(SyncStatus.Ok)
-
-    protected val getTransactionsFlowUseCase: () -> Flow<List<SampleDBData>> = { createMockFlow("Transactions") }
-    protected val getCategoriesFlowUseCase: () -> Flow<List<SampleDBData>> = { createMockFlow("Categories") }
-    protected val getAccountsFlowUseCase: () -> Flow<List<SampleDBData>> = { createMockFlow("Accounts") }
 
     protected suspend fun syncWithStatusCallback(
         onStatusChange: suspend (SyncStatus) -> Unit

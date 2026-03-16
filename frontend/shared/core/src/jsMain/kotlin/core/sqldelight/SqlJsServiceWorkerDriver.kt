@@ -3,6 +3,7 @@ package core.sqldelight
 import app.cash.sqldelight.Query
 import app.cash.sqldelight.Transacter
 import app.cash.sqldelight.db.*
+import core.sw.swSendMessagesToClients
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -13,7 +14,7 @@ import kotlin.coroutines.resumeWithException
 
 class SqlJsServiceWorkerDriver(
     private val schema: SqlSchema<QueryResult.AsyncValue<Unit>>
-) : SqlDriver {
+) : CustomSqlDriver {
 
     private companion object {
         const val DB_NAME = "app_db"
@@ -27,6 +28,8 @@ class SqlJsServiceWorkerDriver(
 
     private var transaction: Transaction? = null
 
+    private var sql: dynamic = null
+
 
     private suspend fun ensureDb() {
         if (db != null) return
@@ -35,18 +38,19 @@ class SqlJsServiceWorkerDriver(
             if (db != null) return@withLock
 
             val initSqlJs = js("self.initSqlJs")
-
-            val sql = await(initSqlJs(js("{ locateFile: f => '/db/sql-wasm.wasm' }")))
-
+            if (sql == null) {
+                sql = await(initSqlJs(js("{ locateFile: f => '/db/sql-wasm.wasm' }")))
+            }
+            val jsScopedSql = sql
             val savedData = getDbFromIndexedDB()
 
             db = if (savedData != null) {
                 val uint8 = Uint8Array(savedData.toTypedArray())
                 println("[INFO-ServiceWorker] Restoring DB from ${uint8.byteLength} bytes")
-                js("new sql.Database(uint8)")
+                js("new jsScopedSql.Database(uint8)")
             } else {
-                println("[INFO-ServiceWorker] Creating fresh database: $sql")
-                js("new sql.Database()")
+                println("[INFO-ServiceWorker] Creating fresh database: $jsScopedSql")
+                js("new jsScopedSql.Database()")
             }
 
 
@@ -87,19 +91,6 @@ class SqlJsServiceWorkerDriver(
         }
     }
 
-    suspend fun reloadDbFromDisk() {
-        if (db != null) {
-            try {
-                db.close()
-            } catch (_: dynamic) {
-            }
-            db = null
-        }
-
-        ensureDb()
-
-    }
-
     private fun saveDbToIndexedDB() {
         val data = db.export()
         val request = js("indexedDB").open(STORAGE_NAME, 1)
@@ -107,6 +98,7 @@ class SqlJsServiceWorkerDriver(
             val tx = e.target.result.transaction(STORE_NAME, "readwrite")
             tx.objectStore(STORE_NAME).put(data, DB_NAME)
         }
+        swSendMessagesToClients("{\"type\":\"db_updated\"}")
     }
 
     private suspend fun await(promise: dynamic): dynamic =
@@ -206,6 +198,18 @@ class SqlJsServiceWorkerDriver(
     override fun close() {
         db?.close()
         db = null
+    }
+
+    override suspend fun reloadDb() {
+        if (db != null) {
+            try {
+                db.close()
+            } catch (_: dynamic) {
+            }
+            db = null
+        }
+
+        ensureDb()
     }
 }
 

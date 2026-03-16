@@ -1,10 +1,12 @@
 package sync.repositories
 
+import core.sqldelight.CustomSqlDriver
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json.Default.decodeFromString
+import org.koin.core.component.inject
 import sync.cloud.SyncRemoteDataSource
 import sync.registerBackgroundSync
 import utils.data.withWebLock
@@ -14,12 +16,15 @@ class SyncManagerAppImpl(
 ) : SyncManagerImplABC(
     remoteDataSource = remoteDataSource
 ) {
+    private val sqlDriver: CustomSqlDriver by inject()
+
+
     override suspend fun requestSync() {
         scheduler.schedule()
     }
 
     private val scheduler =
-        SyncScheduler(scope, listOf(getTransactionsFlowUseCase(), getCategoriesFlowUseCase(), getAccountsFlowUseCase()))
+        SyncScheduler(scope, listOf(/*todo*/))
 
 
     private val mutex = Mutex()
@@ -32,11 +37,16 @@ class SyncManagerAppImpl(
         }
         window.navigator.serviceWorker.onmessage = { message ->
             (message.data as? String)?.let { data ->
-                println("[INFO-App] Catch from service $data")
-                when (val msg = decodeFromString<AppServiceMessage>(data)) {
-                    AppServiceMessage.DataUpdated -> TODO()
-                    is AppServiceMessage.StatusChanged -> {
-                        msg.status
+                scope.launch {
+                    println("[INFO-App] Catch from service $data")
+                    when (val msg = decodeFromString<AppServiceMessage>(data)) {
+                        AppServiceMessage.DBUpdated -> {
+                            sqlDriver.reloadDb()
+                        }
+
+                        is AppServiceMessage.StatusChanged -> {
+                            status.value = msg.status
+                        }
                     }
                 }
             }

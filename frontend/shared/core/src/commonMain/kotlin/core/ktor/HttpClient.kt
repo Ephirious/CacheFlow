@@ -28,7 +28,7 @@ fun getHttpClient(engineFactory: HttpClientEngineFactory<HttpClientEngineConfig>
                 isLenient = true
                 ignoreUnknownKeys = true
                 classDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC
-                classDiscriminator = "json_type"
             })
         }
+
     }

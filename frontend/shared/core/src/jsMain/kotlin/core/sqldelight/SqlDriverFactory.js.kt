@@ -1,7 +1,6 @@
 package core.sqldelight
 
 import app.cash.sqldelight.db.QueryResult
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.SqlSchema
 
 
@@ -10,9 +9,9 @@ actual class SqlDriverFactory actual constructor() {
         schema: SqlSchema<QueryResult.AsyncValue<Unit>>,
         name: String,
         isSW: Boolean
-    ): SqlDriver =
+    ): CustomSqlDriver =
         if (isSW)
             SqlJsServiceWorkerDriver(schema)
         else
-            WebWorkerDriver()
+            getWebWorkerDriver()
 }

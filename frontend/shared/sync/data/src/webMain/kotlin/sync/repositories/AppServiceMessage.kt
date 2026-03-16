@@ -13,5 +13,5 @@ sealed interface AppServiceMessage {
 
     @Serializable
     @SerialName("db_updated")
-    data object DataUpdated : AppServiceMessage
+    data object DBUpdated : AppServiceMessage
 }
