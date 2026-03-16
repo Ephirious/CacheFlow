@@ -1,3 +1,10 @@
+.idea/
+
+––– плохо для прода, но для быстрой разработки пойдёт –––
+package-lock.json
+/kotlin-js-store/yarn.lock
+
+
 *.iml
 .kotlin
 .gradle
@@ -17,3 +24,4 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+
