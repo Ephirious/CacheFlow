@@ -4,10 +4,12 @@
   "private": true,
   "workspaces": [
     "webApp",
-    "k2ts/build/dist/js/productionLibrary"
+    "k2ts/build/dist/js/productionLibrary",
+    "k2ts-service/build/dist/js/productionExecutable"
   ],
   "scripts": {
     "build": "cd webApp && npm run build",
-    "start": "cd webApp && npm run start"
+    "start": "cd webApp && npm run start",
+    "buildStart": "cd webApp && npm run build && npm run start"
   }
 }

@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.3.20-RC2"
+kotlin = "2.3.20-RC3"
 ksp = "2.3.4"
 
 coroutines = "1.10.2"
@@ -43,7 +43,7 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 settings-core = { module = "com.russhwolf:multiplatform-settings", version.ref = "russhwolf-settings" }
 settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "russhwolf-settings" }
 
-sqldelight-web = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqldelight" }
+sqldelight-web-worker = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqldelight" }
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 
 gradle-plugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }

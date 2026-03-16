@@ -12,18 +12,16 @@ kotlin {
             target = "es2015"
             freeCompilerArgs.addAll(listOf("-Xir-per-module=false"))
         }
-
         useEsModules()
     }
 
     sourceSets {
         commonMain.dependencies {
             implementation(projects.shared.root.presentation)
-        }
-        jsMain.dependencies {
-            // I hate this, but I just copied it to public in webApp....
-//            implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.2.1"))
-//            implementation(npm("sql.js", "1.8.0"))
+            implementation(projects.shared.utils.common)
+            implementation(projects.shared.sync.domain)
+            implementation(projects.shared.sync.data)
+            implementation(libs.koin.core)
         }
     }
 }

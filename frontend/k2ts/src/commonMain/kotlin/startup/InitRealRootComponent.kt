@@ -1,6 +1,7 @@
-package presentation
+package startup
 
 import com.arkivanov.decompose.DefaultComponentContext
+import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.router.webhistory.withWebHistory
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.resume
@@ -11,7 +12,7 @@ import root.RootComponent
 import utils.Url
 
 
-@JsExport
+@OptIn(ExperimentalDecomposeApi::class)
 fun initRealRootComponent(): RootComponent {
     val lifecycle = LifecycleRegistry()
 

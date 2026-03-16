@@ -7,8 +7,13 @@ const STORE_NAME = 'table';
 
 const STORAGE_NAME = "CacheFlowSqlStorage"
 
+let SQL = null;
+let sqlModuleReady = createDatabase();
+
 async function createDatabase() {
-  const SQL = await initSqlJs({ locateFile: file => '/db/sql-wasm.wasm' });
+  if (!SQL) {
+    SQL = await initSqlJs({ locateFile: file => '/db/sql-wasm.wasm' });
+  }
   const savedData = await getDbBuffer();
   db = savedData ? new SQL.Database(new Uint8Array(savedData)) : new SQL.Database();
 }
@@ -70,12 +75,20 @@ async function handleMessage(event) {
       }
       return { id, results };
 
+    case "reload_db":
+      if (db) {
+        try { db.close(); } catch (e) {}
+        db = null;
+      }
+      isTransactionActive = false;
+      sqlModuleReady = createDatabase();
+      await sqlModuleReady;
+      return { id, results: { values: [] } };
+
     default:
       throw new Error(`Unsupported action: ${action}`);
   }
 }
-
-const sqlModuleReady = createDatabase();
 
 self.onmessage = async (event) => {
   try {
