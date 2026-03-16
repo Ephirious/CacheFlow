@@ -3,7 +3,7 @@ package core.sqldelight
 import app.cash.sqldelight.Query
 import app.cash.sqldelight.Transacter
 import app.cash.sqldelight.db.*
-import core.sw.swSendMessagesToClients
+import core.sw.swSendMessageToClients
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -98,7 +98,7 @@ class SqlJsServiceWorkerDriver(
             val tx = e.target.result.transaction(STORE_NAME, "readwrite")
             tx.objectStore(STORE_NAME).put(data, DB_NAME)
         }
-        swSendMessagesToClients("{\"type\":\"db_updated\"}")
+        swSendMessageToClients("{\"type\":\"db_updated\"}")
     }
 
     private suspend fun await(promise: dynamic): dynamic =
