@@ -12,7 +12,7 @@ actual class SqlDriverFactory actual constructor() {
         isSW: Boolean
     ): SqlDriver =
         if (isSW)
-            SqlJsDriverSW(schema)
+            SqlJsServiceWorkerDriver(schema)
         else
             WebWorkerDriver()
 }

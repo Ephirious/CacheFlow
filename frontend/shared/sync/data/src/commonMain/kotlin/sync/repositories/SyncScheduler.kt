@@ -25,5 +25,5 @@ class SyncScheduler(
     ).debounce(IDLE_DEBOUNCE)
         .shareIn(scope, SharingStarted.WhileSubscribed())
 
-    fun schedule() = trigger.tryEmit(Unit)
+    suspend fun schedule() = trigger.emit(Unit)
 }

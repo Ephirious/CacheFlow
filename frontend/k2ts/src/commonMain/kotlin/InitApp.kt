@@ -23,7 +23,6 @@ fun initApp() = CoroutineScope(AsyncDispatcher).promise<RootComponent> {
 
     syncManager.requestSync()
 
-
     val rootComponent = initRealRootComponent()
 
     return@promise rootComponent

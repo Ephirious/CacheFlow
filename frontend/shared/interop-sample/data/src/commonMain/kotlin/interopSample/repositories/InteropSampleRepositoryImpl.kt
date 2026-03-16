@@ -20,9 +20,12 @@ internal class InteropSampleRepositoryImpl(
 
 
     override suspend fun refreshWeather() {
-        val weather = remoteDataSource.fetchWeather().toDomain()
-        println("DEBUG: Saving weather - Temp: ${weather.temperature}, Unit: ${weather.temperatureUnit}")
-        dbDataSource.saveWeather(weather)
+        dbDataSource.saveWeather(remoteDataSource.fetchWeather().toDomain().let {
+            it.copy(
+                // hehe
+                temperature = it.temperature + (1..10).random()
+            )
+        })
     }
 
     override fun setSampleText(text: String) = localDataSource.setSampleText(text)

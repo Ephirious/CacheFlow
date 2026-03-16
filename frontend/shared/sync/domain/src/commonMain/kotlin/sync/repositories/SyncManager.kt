@@ -1,7 +1,10 @@
 package sync.repositories
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.Serializable
 
+@Serializable
 @JsExport
 enum class SyncStatus {
     Ok, InProcess, Failed
@@ -10,20 +13,11 @@ enum class SyncStatus {
 interface SyncManager {
 
     // Добавляет запрос о синхронизации в очередь – выдерживает debounce перед отправкой
-    fun requestSync()
+    suspend fun requestSync()
 
     // Статус синхронизации для отображения в UI
     val status: StateFlow<SyncStatus>
+
+    val scope: CoroutineScope
 }
-
-//@JsExport()
-//@JsName("SyncManager")
-//interface SyncManagerJS {
-//    fun sync(): Promise<Unit>
-//
-////    fun observeDb(): Promise<Unit>
-//
-//    val status: JsValue<SyncStatus>
-//}
-
 

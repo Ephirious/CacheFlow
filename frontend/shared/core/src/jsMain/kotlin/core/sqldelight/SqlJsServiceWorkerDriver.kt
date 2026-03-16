@@ -11,7 +11,7 @@ import org.khronos.webgl.get
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-class SqlJsDriverSW(
+class SqlJsServiceWorkerDriver(
     private val schema: SqlSchema<QueryResult.AsyncValue<Unit>>
 ) : SqlDriver {
 
@@ -41,14 +41,12 @@ class SqlJsDriverSW(
             val savedData = getDbFromIndexedDB()
 
             db = if (savedData != null) {
-                println("DEBUG: Restoring DB from ${savedData.size} bytes")
                 val uint8 = Uint8Array(savedData.toTypedArray())
+                println("[INFO-ServiceWorker] Restoring DB from ${uint8.byteLength} bytes")
                 js("new sql.Database(uint8)")
-                uint8 // suppress unusable
             } else {
-                println("DEBUG: Creating fresh database")
+                println("[INFO-ServiceWorker] Creating fresh database: $sql")
                 js("new sql.Database()")
-                sql // suppress unusable
             }
 
 
@@ -81,7 +79,7 @@ class SqlJsDriverSW(
                 if (result != null) {
                     cont.resume(result.unsafeCast<ByteArray>())
                 } else {
-                    println("DEBUG: Key '$DB_NAME' not found in IndexedDB")
+                    println("[INFO-ServiceWorker] Key '$DB_NAME' not found in IndexedDB")
                     cont.resume(null)
                 }
             }
@@ -93,7 +91,8 @@ class SqlJsDriverSW(
         if (db != null) {
             try {
                 db.close()
-            } catch (_: dynamic) { }
+            } catch (_: dynamic) {
+            }
             db = null
         }
 
@@ -154,11 +153,11 @@ class SqlJsDriverSW(
         val ps = JsPrepared(parameters)
         binders?.invoke(ps)
 
-        val p = ps.params()
-        println("DEBUG: Executing '$sql' with params: ${JSON.stringify(p)}")
+        val params = ps.params()
+        println("[INFO-ServiceWorker] Executing '$sql' with params: ${JSON.stringify(params)}")
 
         if (parameters > 0)
-            db.run(sql, ps.params())
+            db.run(sql, params)
         else
             db.run(sql)
 

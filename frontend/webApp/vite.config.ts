@@ -12,7 +12,7 @@ export default defineConfig({
         copy({
             targets: [
                 {
-                    src: '../k2ts-worker/build/dist/js/productionExecutable/k2ts-worker.js',
+                    src: '../k2ts-service/build/dist/js/productionExecutable/k2ts-service.js',
                     dest: 'public'
                 }
             ]

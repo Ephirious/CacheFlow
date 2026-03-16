@@ -9,6 +9,7 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import settingsPresentationModule
 import statsPresentationModule
+import sync.repositories.SyncManagerAppImpl
 import syncDataModule
 import transactionsPresentationModule
 
@@ -18,7 +19,7 @@ suspend fun initKoin(
     appDeclaration: KoinAppDeclaration = {}
 ): KoinApplication {
 
-    val (sqlDriverModule, _) = getSqlDriverModule(isSW = false)
+    val sqlDriverModule = getSqlDriverModule(isSW = false)
 
     return startKoin {
         appDeclaration()
@@ -37,7 +38,9 @@ suspend fun initKoin(
             settingsPresentationModule,
 
 
-            syncDataModule
+            syncDataModule { remoteDataSource ->
+                SyncManagerAppImpl(remoteDataSource)
+            }
         )
     }
 }

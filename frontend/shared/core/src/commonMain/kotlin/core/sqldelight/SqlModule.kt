@@ -14,13 +14,13 @@ suspend fun createDriver(isSW: Boolean): SqlDriver {
     return driver
 }
 
-suspend fun getSqlDriverModule(isSW: Boolean): Pair<Module, SqlDriver> {
+suspend fun getSqlDriverModule(isSW: Boolean): Module {
     val driver = createDriver(isSW)
     return module {
         single<SqlDriver> {
             driver
         }
-    } to driver
+    }
 }
 
 internal val sqlModule = module {

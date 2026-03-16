@@ -22,6 +22,7 @@ kotlin {
             implementation(projects.shared.editors.presentation)
 
             implementation(projects.shared.sync.data)
+            implementation(projects.shared.sync.domain)
         }
     }
 }

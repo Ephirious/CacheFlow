@@ -18,5 +18,5 @@ suspend fun registerServiceWorker() {
         .await()
 
     container.ready.await()
-
+    println("[INFO-ServiceWorker] Registered service")
 }

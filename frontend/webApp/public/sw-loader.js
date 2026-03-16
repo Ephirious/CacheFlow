@@ -15,4 +15,4 @@ if (typeof localStorage === 'undefined') {
 }
 
 importScripts('db/worker.sql-wasm.js');
-importScripts('./k2ts-worker.js');
+importScripts('./k2ts-service.js');

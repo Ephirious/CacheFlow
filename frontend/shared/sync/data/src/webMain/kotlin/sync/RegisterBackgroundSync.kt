@@ -6,6 +6,8 @@ import org.w3c.workers.ServiceWorkerRegistration
 import kotlin.js.Promise
 
 
+const val SYNC_TAG = "sync-send"
+
 external interface BackgroundSyncManager {
     fun register(tag: String): Promise<Unit>
     fun getTags(): Promise<Array<String>>
@@ -25,9 +27,9 @@ actual suspend fun registerBackgroundSync() {
 
     val tags = syncManager.getTags().await()
 
-    if (!tags.contains("sync-transactions")) {
-        syncManager.register("sync-transactions").await()
-        println("registered")
+    if (!tags.contains(SYNC_TAG)) {
+        syncManager.register(SYNC_TAG).await()
+        println("[INFO-App] Registered new background sync")
     }
-    println("already registered")
+    println("[INFO-App] Background sync already registered")
 }

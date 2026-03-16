@@ -4,13 +4,12 @@ plugins {
 
 kotlin {
     js(IR) {
-        outputModuleName = "k2ts-worker"
+        outputModuleName = "k2ts-service"
         browser()
         binaries.executable()
         compilerOptions {
             target = "es2015"
             freeCompilerArgs.addAll(listOf("-Xir-per-module=false"))
-
         }
         useEsModules()
     }
@@ -20,8 +19,6 @@ kotlin {
             implementation(projects.shared.core)
             implementation(projects.shared.sync.domain)
             implementation(projects.shared.sync.data)
-            implementation(projects.shared.interopSample.data)
-            implementation(projects.shared.interopSample.domain)
             implementation(libs.koin.core)
         }
     }
