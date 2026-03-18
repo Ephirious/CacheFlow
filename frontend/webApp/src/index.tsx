@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import RootScreen from "./components/root/Root.tsx";
+import RootScreen from "./components/layout/Root.tsx";
 import {initApp} from "k2ts";
+import "./styles/main.css"
 
 
 const rootElement = document.getElementById('root');

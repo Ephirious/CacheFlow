@@ -2,12 +2,14 @@ import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import copy from 'rollup-plugin-copy'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
     root: '.',
     base: '/',
     plugins: [
         react(),
+        tailwindcss(),
         tsconfigPaths(),
         copy({
             targets: [
