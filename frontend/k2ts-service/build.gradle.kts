@@ -23,6 +23,8 @@ kotlin {
 
             implementation(projects.shared.interopSample.domain)
             implementation(projects.shared.interopSample.data)
+
+            implementation(projects.shared.utils.pure)
         }
     }
 }

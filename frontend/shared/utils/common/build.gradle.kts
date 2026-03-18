@@ -10,7 +10,7 @@ kotlin {
             implementation(libs.flowmvi.essenty)
 
             implementation(libs.kotlinx.coroutines)
-
+            api(projects.shared.utils.pure)
         }
     }
 }
