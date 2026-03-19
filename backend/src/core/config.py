@@ -18,5 +18,6 @@ class Settings(BaseSettings):
     pool_timeout: int
     pool_recycle: int
     pool_pre_ping: bool
+    email_code_expire_min: int
 
 settings = Settings()
