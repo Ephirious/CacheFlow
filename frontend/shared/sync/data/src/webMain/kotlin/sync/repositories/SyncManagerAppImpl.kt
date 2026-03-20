@@ -23,6 +23,8 @@ class SyncManagerAppImpl(
         scheduler.schedule()
     }
 
+    override suspend fun forceSync() = trySync()
+
     private val scheduler =
         SyncScheduler(scope, listOf(/*todo*/))
 

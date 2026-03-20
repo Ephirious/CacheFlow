@@ -27,7 +27,9 @@ class SyncManagerSWImpl(
         status.value = newStatus
     }
 
-    override suspend fun requestSync() {
+    override suspend fun requestSync() = forceSync()
+
+    override suspend fun forceSync() {
         mutex.withLock {
             withWebLock(scope) {
                 syncWithStatusCallback { newStatus ->

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cacheflow-v14';
+const CACHE_NAME = 'cacheflow-mxчr'+Date.now();
 
 console.log('[SW] Запущен с версией кэша:', CACHE_NAME);
 
@@ -105,5 +105,5 @@ if (typeof localStorage === 'undefined') {
     };
 }
 
-importScripts('/db/worker.sql-wasm.js');
+importScripts('/db/sql-wasm.js');
 importScripts('/k2ts-service.js');
