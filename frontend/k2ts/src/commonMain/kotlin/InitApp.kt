@@ -12,12 +12,12 @@ import utils.presentation.AsyncDispatcher
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 fun initApp() = CoroutineScope(AsyncDispatcher).promise<RootComponent> {
+    registerServiceWorker()
+    setupPushNotifications()
+
     val koin = initKoin()
 
     val syncManager: SyncManager = koin.koin.get()
-
-    registerServiceWorker()
-    setupPushNotifications()
 
     observeNetwork(
         syncManager = syncManager

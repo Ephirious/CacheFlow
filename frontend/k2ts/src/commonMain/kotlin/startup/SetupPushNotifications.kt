@@ -10,6 +10,7 @@ import utils.AppConfig.pushVapidPublicKey
 import utils.AppConfig.serverIP
 import utils.AppConfig.serverPort
 import utils.AppConfig.urlSchemeString
+import utils.getServiceContainer
 
 suspend fun setupPushNotifications() {
     try {
@@ -19,7 +20,7 @@ suspend fun setupPushNotifications() {
             else
                 Notification.permission
         if (permission == NotificationPermission.GRANTED) {
-            val registration = window.navigator.serviceWorker.ready.await()
+            val registration = getServiceContainer()?.ready?.await()
             val subscription = subscribeToPush(registration)
             sendSubscriptionToServer(subscription)
         }
