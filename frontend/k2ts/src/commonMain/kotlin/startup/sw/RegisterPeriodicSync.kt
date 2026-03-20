@@ -3,6 +3,7 @@ package startup.sw
 import kotlinx.coroutines.await
 import org.w3c.workers.ServiceWorkerRegistration
 import sync.PERIODIC_SYNC_TAG
+import utils.Logg
 import utils.getServiceContainer
 import kotlin.js.Promise
 
@@ -26,12 +27,12 @@ suspend fun registerPeriodicSync() {
 
             try {
                 manager.register("periodic-sync-db", options).await()
-                println("[INFO-App] Periodic Sync registered")
+                Logg.debug { "Periodic Sync registered" }
             } catch (_: Throwable) {
-                println("[WARN-App] Periodic Sync registration failed (Needs PWA installed & high engagement)")
+                Logg.warn { "Periodic Sync registration failed (Needs PWA installed & high engagement)" }
             }
         }
     } else {
-        println("[WARN-App] Can't register periodic sync – there is no serviceWorker")
+        Logg.error { "Can't register periodic sync – there is no serviceWorker" }
     }
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cacheflow-mesr'+Date.now();
+const CACHE_NAME = 'cacheflow-q'+Date.now();
 
 console.log('[SW] Запущен с версией кэша:', CACHE_NAME);
 

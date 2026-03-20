@@ -31,10 +31,10 @@ async function init() {
         const savedData = await getDbBuffer();
         db = savedData ? new SQL.Database(new Uint8Array(savedData)) : new SQL.Database();
 
-        console.log('[Worker] Database ready');
+        console.debug('[WebWorker] DEBUG: Database ready');
         return db;
     } catch (err) {
-        console.error('[Worker] Init error:', err);
+        console.error('[WebWorker] ERROR: Init error:', err);
         throw err;
     }
 }

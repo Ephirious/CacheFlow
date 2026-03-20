@@ -2,14 +2,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.promise
 import sync.repositories.SyncManager
+import utils.Logg
 
 @OptIn(ExperimentalJsExport::class)
 fun serviceSyncPromise() = CoroutineScope(Dispatchers.Default).promise {
-    println("[INFO-ServiceWorker] ServiceSync started!")
+    Logg.debug { "SyncPromise started" }
     val koin = initKoinForWorker()
 
 //    koin.get<CustomSqlDriver>().reloadDb()
     koin.get<SyncManager>().forceSync()
 //    koin.get<RefreshWeatherUseCase>().invoke()
-    println("[INFO-ServiceWorker] ServiceSync done!")
+    Logg.debug { "SyncPromise done!" }
 }

@@ -12,6 +12,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
+import utils.Logg
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -43,10 +44,11 @@ class SqlJsServiceWorkerDriver(
 
         db = if (savedData != null) {
             val uint8 = Uint8Array(savedData.toTypedArray())
-            println("[INFO-ServiceWorker] Restoring DB from ${uint8.byteLength} bytes")
+
+            Logg.debug { "Restoring DB from ${uint8.byteLength} bytes" }
             js("new jsScopedSql.Database(uint8)")
         } else {
-            println("[INFO-ServiceWorker] Creating fresh database: $jsScopedSql")
+            Logg.debug { "Creating fresh database: $jsScopedSql" }
             js("new jsScopedSql.Database()")
         }
 
@@ -101,7 +103,7 @@ class SqlJsServiceWorkerDriver(
                 store.put(data, DB_NAME)
             }
             request.onerror = { cont.resume(Unit) }
-        } catch (e: dynamic) {
+        } catch (_: dynamic) {
             cont.resume(Unit)
         }
     }
@@ -143,7 +145,7 @@ class SqlJsServiceWorkerDriver(
             binders?.invoke(ps)
             val params = ps.params()
 
-            println("[INFO-ServiceWorker] Executing '$sql' with params: ${JSON.stringify(params)}")
+            Logg.debug { "Executing '$sql' with params: ${JSON.stringify(params)}" }
 
             if (parameters > 0) db.run(sql, params) else db.run(sql)
 
@@ -177,9 +179,7 @@ class SqlJsServiceWorkerDriver(
                     try {
                         if (successful) db.run("COMMIT") else db.run("ROLLBACK")
                         saveDbToIndexedDB()
-                    } catch (e: dynamic) {
-
-                    }
+                    } catch (_: dynamic) { }
                 }
                 transaction = parent
             }

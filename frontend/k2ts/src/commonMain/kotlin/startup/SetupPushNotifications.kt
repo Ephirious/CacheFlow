@@ -12,6 +12,7 @@ import utils.AppConfig.pushVapidPublicKey
 import utils.AppConfig.serverIP
 import utils.AppConfig.serverPort
 import utils.AppConfig.urlSchemeString
+import utils.Logg
 import utils.getServiceContainer
 import kotlin.js.json
 
@@ -31,7 +32,7 @@ suspend fun setupPushNotifications() {
             }
         }
     } catch (e: Exception) {
-        println("[ERROR-App] Push setup failed: ${e.message}")
+        Logg.error { "Push setup failed: ${e.message}" }
     }
 }
 

@@ -2,6 +2,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.promise
 import org.w3c.dom.events.Event
+import utils.Logg
 
 external class PushEvent : Event {
     val data: PushMessageData
@@ -10,14 +11,14 @@ external class PushEvent : Event {
 
 external interface PushMessageData {
     fun text(): String
-    fun json(): dynamic
+//    fun json(): dynamic
 }
 
 @OptIn(ExperimentalJsExport::class)
 fun servicePushPromise(pushEvent: PushEvent) = CoroutineScope(Dispatchers.Default).promise {
     val data = try {
         pushEvent.data.text()
-    } catch (e: Throwable) {
+    } catch (_: Throwable) {
         "Новое уведомление"
     }
 
@@ -29,6 +30,6 @@ fun servicePushPromise(pushEvent: PushEvent) = CoroutineScope(Dispatchers.Defaul
             tag: 'weekly-reminder'+Date.now()
         }"""
     )
-    println("[INFO-ServiceWorker] Try to push: $data")
+    Logg.debug { "Try to push: $data" }
     self.registration.showNotification("CacheFlow", options)
 }

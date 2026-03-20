@@ -2,6 +2,7 @@ package sync
 
 import kotlinx.coroutines.await
 import org.w3c.workers.ServiceWorkerRegistration
+import utils.Logg
 import utils.getServiceContainer
 import kotlin.js.Promise
 
@@ -27,10 +28,10 @@ actual suspend fun registerBackgroundSync() {
 
         if (!tags.contains(SYNC_TAG)) {
             syncManager.register(SYNC_TAG).await()
-            println("[INFO-App] Registered new background sync")
+            Logg.debug { "Registered new background sync" }
         }
-        println("[INFO-App] Background sync already registered")
+        Logg.warn { "Background sync already registered" }
     } else {
-        println("[INFO-App] Can't register background sync: there is no serviceWorker")
+        Logg.error { "Can't register background sync – there is no serviceWorker" }
     }
 }

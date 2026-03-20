@@ -9,13 +9,13 @@ import com.arkivanov.essenty.lifecycle.stop
 import kotlinx.browser.document
 import root.RealRootComponent
 import root.RootComponent
+import utils.Logg
 import utils.Url
 
 
 @OptIn(ExperimentalDecomposeApi::class)
 fun initRealRootComponent(): RootComponent {
     val lifecycle = LifecycleRegistry()
-
     val root =
         withWebHistory { stateKeeper, deepLink ->
             RealRootComponent(
@@ -28,6 +28,9 @@ fun initRealRootComponent(): RootComponent {
         }
 
     lifecycle.attachToDocument()
+
+
+    Logg.debug { "RealRootComponent initialized" }
 
     return root
 }

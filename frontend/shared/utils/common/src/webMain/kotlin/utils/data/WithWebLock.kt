@@ -4,6 +4,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.promise
+import utils.Logg
 import kotlin.js.Promise
 
 suspend fun <T> withWebLock(
@@ -15,7 +16,7 @@ suspend fun <T> withWebLock(
     val navigator = js("globalThis.navigator")
 
     if (navigator.locks == null) {
-        println("Web Locks API not supported, executing without lock")
+        Logg.warn { "Web Locks API not supported, executing without lock" }
         return block()
     }
 

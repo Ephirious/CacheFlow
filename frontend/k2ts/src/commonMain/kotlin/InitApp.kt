@@ -7,11 +7,13 @@ import startup.observeNetwork
 import startup.sw.registerPeriodicSync
 import startup.sw.registerServiceWorker
 import sync.repositories.SyncManager
+import utils.Logg
 import utils.presentation.AsyncDispatcher
 
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 fun initApp() = CoroutineScope(AsyncDispatcher).promise<RootComponent> {
+    Logg.setup("App")
     registerServiceWorker()
     registerPeriodicSync()
 //    setupPushNotifications() TODO
