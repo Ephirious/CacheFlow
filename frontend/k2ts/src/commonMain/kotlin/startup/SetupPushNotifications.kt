@@ -2,6 +2,8 @@ package startup
 
 import kotlinx.browser.window
 import kotlinx.coroutines.await
+import org.khronos.webgl.Uint8Array
+import org.khronos.webgl.set
 import org.w3c.notifications.DEFAULT
 import org.w3c.notifications.GRANTED
 import org.w3c.notifications.Notification
@@ -11,6 +13,7 @@ import utils.AppConfig.serverIP
 import utils.AppConfig.serverPort
 import utils.AppConfig.urlSchemeString
 import utils.getServiceContainer
+import kotlin.js.json
 
 suspend fun setupPushNotifications() {
     try {
@@ -21,15 +24,18 @@ suspend fun setupPushNotifications() {
                 Notification.permission
         if (permission == NotificationPermission.GRANTED) {
             val registration = getServiceContainer()?.ready?.await()
-            val subscription = subscribeToPush(registration)
-            sendSubscriptionToServer(subscription)
+            subscribeToPush(registration).then { subscription ->
+                if (subscription != null) {
+                    sendSubscriptionToServer(subscription)
+                }
+            }
         }
     } catch (e: Exception) {
         println("[ERROR-App] Push setup failed: ${e.message}")
     }
 }
 
-fun subscribeToPush(reg: dynamic): dynamic {
+private fun subscribeToPush(reg: dynamic): dynamic {
     return reg.pushManager.getSubscription().then { existing ->
         if (existing != null) {
             return@then existing
@@ -38,40 +44,42 @@ fun subscribeToPush(reg: dynamic): dynamic {
         val appKey = urlBase64ToUint8Array(pushVapidPublicKey)
 
         return@then reg.pushManager.subscribe(
-            js(
-                """{
-        userVisibleOnly: true,
-        applicationServerKey: appKey
-    }"""
+            json(
+                "userVisibleOnly" to true,
+                "applicationServerKey" to appKey,
             )
         )
     }
 }
 
 
-fun urlBase64ToUint8Array(base64String: String): dynamic {
+private fun urlBase64ToUint8Array(base64String: String): Uint8Array {
     val padding = "=".repeat((4 - base64String.length % 4) % 4)
-    val base64 = (base64String + padding).replace("-", "+").replace("_", "/")
-    val rawData = window.asDynamic().atob(base64) as String
+    val base64 = (base64String + padding)
+        .replace("-", "+")
+        .replace("_", "/")
 
-    val output = js("new Uint8Array(rawData.length)")
+    val rawData = window.atob(base64)
+    val output = Uint8Array(rawData.length)
+
     for (i in 0 until rawData.length) {
-        output[i] = rawData.asDynamic().charCodeAt(i)
+        output[i] = rawData[i].code.toByte()
     }
     return output
 }
 
-suspend fun sendSubscriptionToServer(
+private fun sendSubscriptionToServer(
     @Suppress("unused")
     subscription: dynamic
 ) {
     window.fetch(
-        "$urlSchemeString$serverIP:$serverPort/subscribe", js(
+        "$urlSchemeString$serverIP:$serverPort/subscribe",
+        js(
             """{
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(subscription)
-    }"""
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(subscription)
+        }"""
         )
-    ).await()
+    )
 }
