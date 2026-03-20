@@ -5,17 +5,19 @@ import root.RootComponent
 import startup.initRealRootComponent
 import startup.observeNetwork
 import startup.registerServiceWorker
+import startup.setupPushNotifications
 import sync.repositories.SyncManager
 import utils.presentation.AsyncDispatcher
 
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 fun initApp() = CoroutineScope(AsyncDispatcher).promise<RootComponent> {
+    registerServiceWorker()
+    setupPushNotifications()
+
     val koin = initKoin()
 
     val syncManager: SyncManager = koin.koin.get()
-
-    registerServiceWorker()
 
     observeNetwork(
         syncManager = syncManager
