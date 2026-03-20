@@ -1,7 +1,6 @@
 package sync.repositories
 
 import core.sqldelight.CustomSqlDriver
-import kotlinx.browser.window
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -10,6 +9,7 @@ import org.koin.core.component.inject
 import sync.cloud.SyncRemoteDataSource
 import sync.registerBackgroundSync
 import utils.data.withWebLock
+import utils.getServiceContainer
 
 class SyncManagerAppImpl(
     remoteDataSource: SyncRemoteDataSource,
@@ -35,7 +35,8 @@ class SyncManagerAppImpl(
                 trySync()
             }
         }
-        window.navigator.serviceWorker.onmessage = { message ->
+        val serviceContainer = getServiceContainer()
+        serviceContainer?.onmessage = { message ->
             (message.data as? String)?.let { data ->
                 scope.launch {
                     println("[INFO-App] Catch from service $data")
@@ -50,6 +51,7 @@ class SyncManagerAppImpl(
                     }
                 }
             }
+
 
         }
     }

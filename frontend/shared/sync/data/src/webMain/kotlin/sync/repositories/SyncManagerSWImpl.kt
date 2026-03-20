@@ -1,6 +1,6 @@
 package sync.repositories
 
-import core.sw.swSendMessagesToClients
+import core.sw.swSendMessageToClients
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json.Default.encodeToString
@@ -22,7 +22,7 @@ class SyncManagerSWImpl(
             AppServiceMessage.serializer(),
             AppServiceMessage.StatusChanged(newStatus)
         )
-        swSendMessagesToClients(encodedStatus)
+        swSendMessageToClients(encodedStatus)
 
         status.value = newStatus
     }

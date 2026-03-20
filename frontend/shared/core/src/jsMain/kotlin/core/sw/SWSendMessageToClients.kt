@@ -2,7 +2,7 @@ package core.sw
 
 external val self: dynamic
 
-fun swSendMessagesToClients(message: String) {
+fun swSendMessageToClients(message: String) {
     self.clients.matchAll(js("{ type: 'window', includeUncontrolled: true }"))
         .then { clients ->
             for (client in clients) {
