@@ -1,5 +1,7 @@
+from uuid import UUID
 from backend.src.models.users import EmailCode, EmailCodeAction, User
 from backend.src.repositories.uow import UnitOfWork
+from backend.src.schemas.auth import TokenModel, UserLogin
 from backend.src.schemas.email_code import EmailCodeCreateInner
 from backend.src.schemas.result import Result, ErrorCode
 from backend.src.schemas.user import UserCreate, UserCreateInner, UserUpdateInner
@@ -11,7 +13,7 @@ class AuthService:
     def __init__(self, uow: UnitOfWork):
         self.uow = uow
 
-    async def register(self, body: UserCreate) -> Result[tuple[EmailCode, str]]:
+    async def register(self, body: UserCreate) -> Result[tuple[User, str]]:
         async with self.uow as uow:
             user = await uow.user_repository.get_by_email(email=body.email)
             if user:
@@ -26,7 +28,7 @@ class AuthService:
                     action = EmailCodeAction.register
                 )
                 if code_exists and not code_exists.is_expired:
-                    return Result.ok((code_exists, "ALREADY_SENT"))
+                    return Result.ok((user, "ALREADY_SENT"))
 
                 await uow.email_code_repository.delete_by_user_id(user.id, action = EmailCodeAction.register)
 
@@ -48,11 +50,19 @@ class AuthService:
                 user_id = user.id,
                 action = EmailCodeAction.register
             )
-            code_obj = await uow.email_code_repository.insert(code)
-            return Result.ok((code_obj, code_plain))
+            await uow.email_code_repository.insert(code)
+            return Result.ok((user, code_plain))
 
-    async def verify_register(self, user: User, plain_code: str) -> Result[User]:
+    async def verify_register(self, user_id: UUID, plain_code: str) -> Result[User]:
         async with self.uow as uow:
+            user = await uow.user_repository.get_by_id(user_id)
+
+            if not user:
+                return Result.err(message = "User not found", error_code = ErrorCode.INVALID_CREDENTIALS)
+
+            if user.verified:
+                return Result.ok(user)
+            
             code = await uow.email_code_repository.get_by_user_id(user.id, action = EmailCodeAction.register)
             if not code or code.is_expired:
                 return Result.err(message = "No codes found", error_code = ErrorCode.NO_ALIVE_CODES)
@@ -61,10 +71,52 @@ class AuthService:
                 return Result.err(message = "Invalid code", error_code = ErrorCode.INVALID_CODE)
 
             update_schema = UserUpdateInner(verified=True)
-            user_in_session = await uow.user_repository.get_by_id(user.id)
-            new_user = await uow.user_repository.update(user_in_session, update_schema)
+            new_user = await uow.user_repository.update(user, update_schema)
             await uow.email_code_repository.delete_by_user_id(
                 user.id,
                 action=EmailCodeAction.register
             )
             return Result.ok(new_user)
+        
+    async def resend_verification_code(self, user_id: UUID) -> Result[tuple[User, str]]:
+        async with self.uow as uow:
+            user = await uow.user_repository.get_by_id(user_id)
+            if not user or user.verified:
+                return Result.err("Request ignored", ErrorCode.ALREADY_VERIFIED)
+            
+            existing_code = await uow.email_code_repository.get_by_user_id(
+                user.id, action=EmailCodeAction.register
+            )
+            if existing_code and not existing_code.is_expired:
+                return Result.ok((user, "ALREADY_SENT"))
+            
+            await uow.email_code_repository.delete_by_user_id(user.id, action=EmailCodeAction.register)
+            
+            code_plain = security.Password.generate_otp()
+            code_hash = security.Password.encrypt(code_plain, ctx="sha256")
+            
+            new_code_data = EmailCodeCreateInner(
+                code_hash=code_hash,
+                user_id=user.id,
+                action=EmailCodeAction.register
+            )
+            await uow.email_code_repository.insert(new_code_data)
+            
+            return Result.ok((user, code_plain))
+
+
+        
+    async def login(self, body: UserLogin) -> Result[TokenModel]:
+        async with self.uow as uow:
+            user = await uow.user_repository.get_by_email(body.email)
+            if not user:
+                return Result.err(message = "Invalid login or password", error_code=ErrorCode.INVALID_CREDENTIALS)
+            
+            if not user.verified:
+                return Result.err(message = "User not verificated", error_code = ErrorCode.FORBIDDEN)
+
+            if not security.Password.verify(body.password, user.password_hash):
+                return Result.err(message = "Invalid login or password", error_code = ErrorCode.INVALID_CREDENTIALS)
+            
+            tokens = security.Token.create_token(user_id = user.id)
+            return Result.ok(TokenModel.model_validate(tokens))

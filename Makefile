@@ -5,3 +5,6 @@ revision:
 
 upgrade:
 	$(ALEMBIC) upgrade head
+
+run:
+	uv run python -m backend.src.main

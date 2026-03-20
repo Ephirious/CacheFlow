@@ -8,6 +8,9 @@ class ErrorCode(str, Enum):
     EMAIL_EXISTS = "email_exists"
     NO_ALIVE_CODES = "no_alive_codes"
     INVALID_CODE = "invalid_code"
+    INVALID_CREDENTIALS = "invalid_credentials"
+    ALREADY_VERIFIED = "already_verified"
+    FORBIDDEN = "forbidden"
 
 @dataclass(frozen=True)
 class Error:

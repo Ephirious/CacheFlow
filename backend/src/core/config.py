@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     smtp_port: int
     smtp_username: str
     smtp_password: str
-    from_email: str
+    smtp_from: str
+
+    access_expire_min: int
+    refresh_expire_min: int
+    token_key: str
 
 settings = Settings()
