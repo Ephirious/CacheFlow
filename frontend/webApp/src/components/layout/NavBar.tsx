@@ -11,7 +11,7 @@ interface RootTabBarProps {
 }
 
 const NavBar = ({component, activeChild}: RootTabBarProps) => {
-    const btnBase = "relative flex flex-col sm:flex-row items-center rounded-2xl text-base font-semibold gap-4 px-5 sm:px-4 py-3 transition-colors duration-300 outline-none";
+    const btnBase = "relative flex flex-col md:flex-row items-center rounded-2xl text-base font-semibold gap-4 px-5 md:px-4 py-3 transition-colors duration-300 outline-none";
     const btnActive = "text-active-fg";
     const btnInActive = "text-slate-500 hover:text-slate-700";
 
@@ -34,26 +34,26 @@ const NavBar = ({component, activeChild}: RootTabBarProps) => {
             child: RootChild.SettingsChild,
             output: RootOutput.NavigateToSettings
         },
-
     ];
 
     return (
         <nav className="
+        z-50
         bottom-0 w-full fixed
-        sm:flex sm:h-full sm:w-72 sm:flex-col sm:relative sm:p-6
+        md:flex md:h-full md:w-96 md:flex-col md:relative md:p-6
         bg-sidebar-bg p-2 gap-8 border-r border-black/5
         ">
             <h1 className="
             hidden
-            sm:flex
-            items-center justify-center gap-3 font-bold text-2xl">
+            md:flex
+            items-center gap-3 font-bold text-2xl">
                 <LuWallet className="w-12 h-12 p-2.5 bg-sidebar-active rounded-2xl text-active-fg" />
                 CashFlow
             </h1>
 
             <div className="
             flex
-            sm:flex sm:flex-col
+            md:flex md:flex-col
             gap-2
             justify-center
             ">
@@ -70,6 +70,7 @@ const NavBar = ({component, activeChild}: RootTabBarProps) => {
                                 <motion.div
                                     layoutId="nav-active-bg"
                                     className="
+                                    pointer-events-none
                                     absolute inset-0 bg-sidebar-active rounded-2xl
                                     "
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -77,7 +78,7 @@ const NavBar = ({component, activeChild}: RootTabBarProps) => {
                             )}
 
                             <span className="relative z-10">{item.icon}</span>
-                            <span className="relative z-10 text-xs sm:text-base w-18">{item.label}</span>
+                            <span className="relative z-10 text-xs md:text-base w-18">{item.label}</span>
                         </button>
                     );
                 })}
