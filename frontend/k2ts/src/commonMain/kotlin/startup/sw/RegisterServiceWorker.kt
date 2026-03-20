@@ -1,4 +1,4 @@
-package startup
+package startup.sw
 
 import kotlinx.coroutines.await
 import org.w3c.dom.CLASSIC

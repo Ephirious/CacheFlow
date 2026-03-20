@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cacheflow-mxчr'+Date.now();
+const CACHE_NAME = 'cacheflow-mesr'+Date.now();
 
 console.log('[SW] Запущен с версией кэша:', CACHE_NAME);
 
@@ -12,7 +12,6 @@ const ASSETS_TO_CACHE = [
     '/db/sql-wasm.js',
     '/db/sql-wasm.wasm',
     '/db/sqljs.worker.js',
-    '/db/worker.sql-wasm.js',
     // icons
     '/ico/icon-192.png',
     '/ico/icon-512.png',

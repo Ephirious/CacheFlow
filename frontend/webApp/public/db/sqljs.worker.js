@@ -9,8 +9,6 @@ let idbInstance = null;
 let isTransactionActive = false;
 let SQL = null;
 
-let sqlModuleReady = init();
-
 async function init() {
     try {
         if (!SQL) {
@@ -31,15 +29,17 @@ async function init() {
         }
 
         const savedData = await getDbBuffer();
-        const newDb = savedData ? new SQL.Database(new Uint8Array(savedData)) : new SQL.Database();
+        db = savedData ? new SQL.Database(new Uint8Array(savedData)) : new SQL.Database();
 
         console.log('[Worker] Database ready');
-        return newDb;
+        return db;
     } catch (err) {
         console.error('[Worker] Init error:', err);
         throw err;
     }
 }
+
+let sqlModuleReady = init();
 
 async function getDbBuffer() {
     return new Promise((resolve, reject) => {
@@ -68,6 +68,8 @@ async function saveDb() {
 }
 async function handleMessage(event) {
   const { id, action, sql, params } = event.data;
+
+  if (!db) await sqlModuleReady;
 
   switch (action) {
     case "begin_transaction":
@@ -106,9 +108,7 @@ async function handleMessage(event) {
         db = null;
       }
       isTransactionActive = false;
-      sqlModuleReady = init().then(newDb => {
-                db = newDb;
-      });
+      sqlModuleReady = init();
       await sqlModuleReady;
       return { id, results: { values: [] } };
 
@@ -119,7 +119,7 @@ async function handleMessage(event) {
 
 self.onmessage = async (event) => {
   try {
-    if (!db) db = await sqlModuleReady;
+    await sqlModuleReady;
     const response = await handleMessage(event);
     postMessage(response);
   } catch (err) {
