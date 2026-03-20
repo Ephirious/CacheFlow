@@ -1,0 +1,28 @@
+{
+  "short_name": "CacheFlow",
+  "name": "CacheFlow: Личные финансы",
+  "description": "Приложение для ведения личных финансов",
+  "icons": [
+    {
+      "src": "/ico/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/ico/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "id": "/",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "theme_color": "#5a4694",
+  "orientation": "portrait-primary",
+  "categories": [
+    "finance",
+    "productivity"
+  ]
+}

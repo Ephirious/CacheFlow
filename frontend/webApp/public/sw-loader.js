@@ -1,5 +1,6 @@
-const CACHE_NAME = 'cacheflow-v1';
+const CACHE_NAME = 'cacheflow-v14';
 
+console.log('[SW] Запущен с версией кэша:', CACHE_NAME);
 
 const ASSETS_TO_CACHE = [
     '/',
@@ -12,7 +13,9 @@ const ASSETS_TO_CACHE = [
     '/db/sql-wasm.wasm',
     '/db/sqljs.worker.js',
     '/db/worker.sql-wasm.js',
-    // icons: TODO
+    // icons
+    '/ico/icon-192.png',
+    '/ico/icon-512.png',
 ];
 
 
@@ -51,6 +54,13 @@ self.addEventListener('fetch', (event) => {
     if (req.method !== 'GET') return;
 
     const url = new URL(req.url);
+
+
+    if (url.pathname.startsWith('/@vite') || url.search.includes('token=')) {
+        return;
+    }
+
+
     if (url.origin !== location.origin) return;
 
     const isApiRequest = url.pathname.includes('/api/') ||
@@ -64,39 +74,25 @@ self.addEventListener('fetch', (event) => {
 });
 
 async function dynamicCacheFirst(request) {
-    const cached = await caches.match(request);
+    const cache = await caches.open(CACHE_NAME);
 
-    if (cached) {
-        return cached;
-    }
+    const cached = await cache.match(request);
+    if (cached) return cached;
 
     try {
         const response = await fetch(request);
 
-        const contentType = response.headers.get('content-type');
-        const isStaticAsset = contentType && (
-            contentType.includes('javascript') ||
-            contentType.includes('wasm') ||
-            contentType.includes('html') ||
-            contentType.includes('css') ||
-            contentType.includes('image')
-        );
-
-        if (response.status === 200 && isStaticAsset) {
-            const cache = await caches.open(CACHE_NAME);
+        if (response && response.status === 200 && response.type === 'basic') {
             cache.put(request, response.clone());
         }
         return response;
     } catch (e) {
         if (request.mode === 'navigate') {
-            const offlineShell = await caches.match('/index.html');
+            const offlineShell = await cache.match('/index.html');
             if (offlineShell) return offlineShell;
         }
-        // hi from lighthouse!!
-        return new Response('Network error occurred', {
-            status: 408,
-            statusText: 'Network error occurred'
-        });
+
+        throw e;
     }
 }
 
@@ -109,5 +105,5 @@ if (typeof localStorage === 'undefined') {
     };
 }
 
-importScripts('db/worker.sql-wasm.js');
-importScripts('./k2ts-service.js');
+importScripts('/db/worker.sql-wasm.js');
+importScripts('/k2ts-service.js');

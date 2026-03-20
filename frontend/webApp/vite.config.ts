@@ -5,6 +5,7 @@ import copy from 'rollup-plugin-copy'
 
 export default defineConfig({
     root: '.',
+    publicDir: 'public',
     base: '/',
     plugins: [
         react(),
