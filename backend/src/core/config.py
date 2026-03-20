@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     pool_timeout: int
     pool_recycle: int
     pool_pre_ping: bool
+
     email_code_expire_min: int
+    smtp_server: str
+    smtp_port: int
+    smtp_username: str
+    smtp_password: str
+    from_email: str
 
 settings = Settings()

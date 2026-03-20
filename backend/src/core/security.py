@@ -23,3 +23,14 @@ class Password:
     @staticmethod
     def generate_otp(length: int = 6) -> str:
         return "".join(secrets.choice(string.digits) for _ in range(length))
+
+class Email:
+    @staticmethod
+    def mask(email: str) -> str:
+        try:
+            user_part, domain = email.split("@")
+            if len(user_part) <= 2:
+                return f"{user_part[0]}***@{domain}"
+            return f"{user_part[:2]}***{user_part[-1]}@{domain}"
+        except Exception:
+            return "***@***"

@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.so
 .dump
+logs
 # Distribution / packaging
 build/
 dist/
