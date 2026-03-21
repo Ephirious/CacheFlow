@@ -1,14 +1,15 @@
 package core.sw
 
 import kotlinx.browser.window
+import utils.Logg
 
 fun appSendMessageToService(message: String) {
     val controller = window.navigator.serviceWorker.controller
 
     if (controller != null) {
         controller.postMessage(message)
-        println("[INFO-ServiceWorker] Sent: $message")
+        Logg.debug { "Sent: $message" }
     } else {
-        println("[INFO-ServiceWorker] Can't send message: there is no service")
+        Logg.error { "Can't send message: there is no service" }
     }
 }

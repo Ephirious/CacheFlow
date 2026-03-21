@@ -1,48 +1,75 @@
 importScripts('/db/sql-wasm.js');
 
-let db = null;
-let isTransactionActive = false;
 const DB_NAME = 'app_db';
 const STORE_NAME = 'table';
+const STORAGE_NAME = "CacheFlowSqlStorage";
 
-const STORAGE_NAME = "CacheFlowSqlStorage"
-
+let db = null;
+let idbInstance = null;
+let isTransactionActive = false;
 let SQL = null;
-let sqlModuleReady = createDatabase();
 
-async function createDatabase() {
-  if (!SQL) {
-    SQL = await initSqlJs({ locateFile: file => '/db/sql-wasm.wasm' });
-  }
-  const savedData = await getDbBuffer();
-  db = savedData ? new SQL.Database(new Uint8Array(savedData)) : new SQL.Database();
+async function init() {
+    try {
+        if (!SQL) {
+            SQL = await initSqlJs({ locateFile: file => `/db/${file}` });
+        }
+
+        if (!idbInstance) {
+            idbInstance = await new Promise((resolve, reject) => {
+                const request = indexedDB.open(STORAGE_NAME, 1);
+                request.onupgradeneeded = (e) => {
+                    if (!e.target.result.objectStoreNames.contains(STORE_NAME)) {
+                        e.target.result.createObjectStore(STORE_NAME);
+                    }
+                };
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        const savedData = await getDbBuffer();
+        db = savedData ? new SQL.Database(new Uint8Array(savedData)) : new SQL.Database();
+
+        console.debug('[WebWorker] DEBUG: Database ready');
+        return db;
+    } catch (err) {
+        console.error('[WebWorker] ERROR: Init error:', err);
+        throw err;
+    }
 }
 
+let sqlModuleReady = init();
+
 async function getDbBuffer() {
-  return new Promise((resolve) => {
-    const request = indexedDB.open(STORAGE_NAME, 1);
-    request.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
-    request.onsuccess = (e) => {
-      const dbInstance = e.target.result;
-      const tx = dbInstance.transaction(STORE_NAME, "readonly");
-      const getReq = tx.objectStore(STORE_NAME).get(DB_NAME);
-      getReq.onsuccess = () => resolve(getReq.result || null);
-    };
-  });
+    return new Promise((resolve, reject) => {
+        const tx = idbInstance.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.get(DB_NAME);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
 }
 
 async function saveDb() {
-  const data = db.export();
-  const request = indexedDB.open(STORAGE_NAME, 1);
-  request.onsuccess = (e) => {
-    const dbInstance = e.target.result;
-    const tx = dbInstance.transaction(STORE_NAME, "readwrite");
-    tx.objectStore(STORE_NAME).put(data, DB_NAME);
-  };
-}
+    if (!db || !idbInstance) return;
 
+    const data = db.export();
+
+    return new Promise((resolve, reject) => {
+        const tx = idbInstance.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+
+        store.put(data, DB_NAME);
+    });
+}
 async function handleMessage(event) {
   const { id, action, sql, params } = event.data;
+
+  if (!db) await sqlModuleReady;
 
   switch (action) {
     case "begin_transaction":
@@ -81,7 +108,7 @@ async function handleMessage(event) {
         db = null;
       }
       isTransactionActive = false;
-      sqlModuleReady = createDatabase();
+      sqlModuleReady = init();
       await sqlModuleReady;
       return { id, results: { values: [] } };
 

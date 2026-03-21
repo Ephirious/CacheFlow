@@ -9,6 +9,7 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.bundles.core.ktor.client)
             implementation(libs.bundles.settings)
+            implementation(projects.shared.utils.pure)
         }
         jsMain.dependencies {
             implementation(libs.sqldelight.web.worker)

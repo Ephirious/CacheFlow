@@ -1,5 +1,7 @@
 package core.sw
 
+import utils.Logg
+
 external val self: dynamic
 
 fun swSendMessageToClients(message: String) {
@@ -7,7 +9,7 @@ fun swSendMessageToClients(message: String) {
         .then { clients ->
             for (client in clients) {
                 client.postMessage(message)
-                println("[INFO-ServiceWorker] Sent: $message")
+                Logg.debug { "Sent: $message" }
             }
         }
 }

@@ -15,6 +15,10 @@ kotlin {
     }
 
     compilerOptions {
+        freeCompilerArgs.addAll(
+            "-Xexpect-actual-classes",
+            "-Xir-property-lazy-initialization"
+        )
         optIn.addAll(
             "kotlin.js.ExperimentalJsExport"
         )

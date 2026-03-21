@@ -1,10 +1,14 @@
 package sync.repositories
 
+import io.ktor.client.*
+import io.ktor.client.request.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import sync.cloud.SyncRemoteDataSource
+import utils.Logg
 import utils.presentation.AsyncDispatcher
 
 abstract class SyncManagerImplABC(
@@ -30,7 +34,10 @@ abstract class SyncManagerImplABC(
     }
 
     private suspend fun sync() {
-        println("TODO SYNC METHOD")
+        Logg.debug { "Syncing start" }
+        // TODO
+        get<HttpClient>().get(urlString = "http://localhost:8000/sync")
+        Logg.debug { "Syncing end" }
 //        val allTrans = getTransactionsFlowUseCase().firstOrNull() ?: listOf()
 //        val allCats = getCategoriesFlowUseCase().firstOrNull() ?: listOf()
 //        val allAccounts = getAccountsFlowUseCase().firstOrNull() ?: listOf()
