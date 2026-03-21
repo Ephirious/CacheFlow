@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cacheflow-q'+Date.now();
+const CACHE_NAME = 'cacheflow-hac433288'; // changes dynamically on every build
 
 console.log('[SW] Запущен с версией кэша:', CACHE_NAME);
 
