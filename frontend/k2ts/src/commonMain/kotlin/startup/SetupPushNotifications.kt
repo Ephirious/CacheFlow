@@ -16,23 +16,29 @@ import utils.Logg
 import utils.getServiceContainer
 import kotlin.js.json
 
+
+// should be setuped on click! (Safari ругается, да и так будет правильнее в любом случае)
 suspend fun setupPushNotifications() {
-    try {
-        val permission =
-            if (Notification.permission == NotificationPermission.DEFAULT)
-                Notification.requestPermission().await()
-            else
-                Notification.permission
-        if (permission == NotificationPermission.GRANTED) {
-            val registration = getServiceContainer()?.ready?.await()
-            subscribeToPush(registration).then { subscription ->
-                if (subscription != null) {
-                    sendSubscriptionToServer(subscription)
+    if (window.asDynamic().Notification != undefined) {
+        try {
+            val permission =
+                if (Notification.permission == NotificationPermission.DEFAULT)
+                    Notification.requestPermission().await()
+                else
+                    Notification.permission
+            if (permission == NotificationPermission.GRANTED) {
+                val registration = getServiceContainer()?.ready?.await()
+                subscribeToPush(registration).then { subscription ->
+                    if (subscription != null) {
+                        sendSubscriptionToServer(subscription)
+                    }
                 }
             }
+        } catch (e: Exception) {
+            Logg.error { "Push setup failed: ${e.message}" }
         }
-    } catch (e: Exception) {
-        Logg.error { "Push setup failed: ${e.message}" }
+    } else {
+        Logg.error { "There is no notification object! (Probably, iOS without PWA)" }
     }
 }
 
