@@ -9,6 +9,9 @@
 
 * [/k2ts-service](./k2ts-service) – ServiceWorker, написанный на Kotlin
 
+### Документация
+- [Работа ServiceWorker: от инициализации до синхронизации](./docs/service_app.excalidraw.png)
+
 ### Билд и запуск
 
 Чтобы сбилдить и запустить веб-приложение, следуйте следующим шагам:
