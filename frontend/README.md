@@ -9,8 +9,8 @@
 
 * [/k2ts-service](./k2ts-service) – ServiceWorker, написанный на Kotlin
 
-### Документация
-- [Работа ServiceWorker: от инициализации до синхронизации](./docs/service_app.excalidraw.png)
+### Внутренняя документация
+- [Взаимодействие WebApp и ServiceWorker. (кэширование, пуши, синхронизация)](docs/WebApp_ServiceWorker.md)
 
 ### Билд и запуск
 
