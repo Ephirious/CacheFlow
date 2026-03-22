@@ -4,6 +4,8 @@ import utils.Logg
 
 external val self: dynamic
 
+@OptIn(ExperimentalJsExport::class)
+@JsExport
 fun main() {
     Logg.setup("SW")
     self.addEventListener("sync") { event ->

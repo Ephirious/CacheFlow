@@ -1,4 +1,5 @@
-importScripts('/db/sql-wasm.js');
+import initSqlJs from 'sql.js/dist/sql-wasm.js';
+import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 
 const DB_NAME = 'app_db';
 const STORE_NAME = 'table';
@@ -12,7 +13,7 @@ let SQL = null;
 async function init() {
     try {
         if (!SQL) {
-            SQL = await initSqlJs({ locateFile: file => `/db/${file}` });
+            SQL = await initSqlJs({locateFile: file => `${sqlWasmUrl}`});
         }
 
         if (!idbInstance) {
@@ -66,63 +67,67 @@ async function saveDb() {
         store.put(data, DB_NAME);
     });
 }
+
 async function handleMessage(event) {
-  const { id, action, sql, params } = event.data;
+    const {id, action, sql, params} = event.data;
 
-  if (!db) await sqlModuleReady;
+    if (!db) await sqlModuleReady;
 
-  switch (action) {
-    case "begin_transaction":
-      if (!isTransactionActive) {
-        db.exec("BEGIN TRANSACTION;");
-        isTransactionActive = true;
-      }
-      return { id, results: { values: [] } };
+    switch (action) {
+        case "begin_transaction":
+            if (!isTransactionActive) {
+                db.exec("BEGIN TRANSACTION;");
+                isTransactionActive = true;
+            }
+            return {id, results: {values: []}};
 
-    case "end_transaction":
-      if (isTransactionActive) {
-        db.exec("COMMIT;");
-        isTransactionActive = false;
-        await saveDb();
-      }
-      return { id, results: { values: [] } };
+        case "end_transaction":
+            if (isTransactionActive) {
+                db.exec("COMMIT;");
+                isTransactionActive = false;
+                await saveDb();
+            }
+            return {id, results: {values: []}};
 
-    case "rollback_transaction":
-      if (isTransactionActive) {
-        db.exec("ROLLBACK;");
-        isTransactionActive = false;
-      }
-      return { id, results: { values: [] } };
+        case "rollback_transaction":
+            if (isTransactionActive) {
+                db.exec("ROLLBACK;");
+                isTransactionActive = false;
+            }
+            return {id, results: {values: []}};
 
-    case "exec":
-      const results = db.exec(sql, params)[0] ?? { values: [] };
-      const isWrite = /^\s*(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER)/i.test(sql);
-      if (isWrite && !isTransactionActive) {
-        await saveDb();
-      }
-      return { id, results };
+        case "exec":
+            const results = db.exec(sql, params)[0] ?? {values: []};
+            const isWrite = /^\s*(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER)/i.test(sql);
+            if (isWrite && !isTransactionActive) {
+                await saveDb();
+            }
+            return {id, results};
 
-    case "reload_db":
-      if (db) {
-        try { db.close(); } catch (e) {}
-        db = null;
-      }
-      isTransactionActive = false;
-      sqlModuleReady = init();
-      await sqlModuleReady;
-      return { id, results: { values: [] } };
+        case "reload_db":
+            if (db) {
+                try {
+                    db.close();
+                } catch (e) {
+                }
+                db = null;
+            }
+            isTransactionActive = false;
+            sqlModuleReady = init();
+            await sqlModuleReady;
+            return {id, results: {values: []}};
 
-    default:
-      throw new Error(`Unsupported action: ${action}`);
-  }
+        default:
+            throw new Error(`Unsupported action: ${action}`);
+    }
 }
 
 self.onmessage = async (event) => {
-  try {
-    await sqlModuleReady;
-    const response = await handleMessage(event);
-    postMessage(response);
-  } catch (err) {
-    postMessage({ id: event.data.id, error: err.toString() });
-  }
+    try {
+        await sqlModuleReady;
+        const response = await handleMessage(event);
+        postMessage(response);
+    } catch (err) {
+        postMessage({id: event.data.id, error: err.toString()});
+    }
 };

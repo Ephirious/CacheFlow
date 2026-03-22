@@ -26,7 +26,7 @@ suspend fun registerPeriodicSync() {
             options["minInterval"] = 12 * 60 * 60 * 1000 // 12 hours (по идее)
 
             try {
-                manager.register("periodic-sync-db", options).await()
+                manager.register(PERIODIC_SYNC_TAG, options).await()
                 Logg.debug { "Periodic Sync registered" }
             } catch (_: Throwable) {
                 Logg.warn { "Periodic Sync registration failed (Needs PWA installed & high engagement)" }

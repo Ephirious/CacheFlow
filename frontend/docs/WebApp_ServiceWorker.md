@@ -23,7 +23,7 @@
 
 Используется библиотека sql.js. Бинарные файлы (.js и .wasm) лежат в папке /db.
 
-- **WebApp:** Работает через выделенный WebWorker ([`sqljs.worker.js`](../webApp/public/db/sqljs.worker.js)) (тяжелые
+- **WebApp:** Работает через выделенный WebWorker ([`sqljs.worker.js`](../webApp/src/workers/sqljs.worker.js)) (тяжелые
   запросы не блокируют UI).
 - **Service Worker:** Имеет собственный механизм доступа к БД ([
   `SqlJsServiceWorkerDriver.kt`](../shared/core/src/jsMain/kotlin/core/sqldelight/SqlJsServiceWorkerDriver.kt)) для

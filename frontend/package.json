@@ -5,13 +5,14 @@
   "workspaces": [
     "webApp",
     "k2ts/build/dist/js/productionLibrary",
-    "k2ts-service/build/dist/js/productionExecutable"
+    "k2ts-service/build/dist/js/productionLibrary"
   ],
   "scripts": {
     "build": "cd webApp && npm run build",
     "start": "cd webApp && npm run start",
-    "preview": "cd webApp && npm run preview",
-    "buildStart": "cd webApp && npm run build && npm run start",
-    "buildPreview": "cd webApp && npm run build && npm run preview"
+    "preview": "cd webApp && npm run build && npm run preview"
+  },
+  "dependencies": {
+    "sql.js": "^1.14.1"
   }
 }

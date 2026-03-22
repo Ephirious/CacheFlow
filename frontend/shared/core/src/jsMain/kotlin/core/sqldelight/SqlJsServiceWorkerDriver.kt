@@ -37,16 +37,14 @@ class SqlJsServiceWorkerDriver(
 
         val initSqlJs = js("self.initSqlJs")
         if (sql == null) {
-            sql = await(initSqlJs(js("{ locateFile: f => '/db/sql-wasm.wasm' }")))
+            sql = await(initSqlJs(js($$"{locateFile: file => `${self.sqlWasmUrl}`}")))
         }
         val jsScopedSql = sql
         val savedData = getDbFromIndexedDB()
 
         db = if (savedData != null) {
-            val uint8 = Uint8Array(savedData.toTypedArray())
-
-            Logg.debug { "Restoring DB from ${uint8.byteLength} bytes" }
-            js("new jsScopedSql.Database(uint8)")
+            Logg.debug { "Restoring DB" }
+            js("new jsScopedSql.Database(savedData)")
         } else {
             Logg.debug { "Creating fresh database: $jsScopedSql" }
             js("new jsScopedSql.Database()")
@@ -58,36 +56,44 @@ class SqlJsServiceWorkerDriver(
 
     }
 
-    private suspend fun getDbFromIndexedDB(): ByteArray? = suspendCancellableCoroutine { cont ->
+    private suspend fun openIDB(): dynamic = suspendCancellableCoroutine { cont ->
         val request = js("indexedDB").open(STORAGE_NAME, 1)
-        request.onerror = { cont.resume(null) }
-        request.onsuccess = { e: dynamic ->
+
+        request.onupgradeneeded = { e: dynamic ->
             val idb = e.target.result
             if (!idb.objectStoreNames.contains(STORE_NAME)) {
+                idb.createObjectStore(STORE_NAME)
+            }
+        }
+
+        request.onsuccess = { e: dynamic -> cont.resume(e.target.result) }
+        request.onerror = { _: dynamic -> cont.resumeWithException(RuntimeException("IDB Open Error")) }
+    }
+
+    private suspend fun getDbFromIndexedDB(): dynamic {
+        val idb = openIDB()
+        return suspendCancellableCoroutine { cont ->
+            val tx = idb.transaction(STORE_NAME, "readonly")
+            val store = tx.objectStore(STORE_NAME)
+            val req = store.get(DB_NAME)
+
+            req.onsuccess = {
+                idb.close()
+                cont.resume(req.result)
+            }
+            req.onerror = {
                 idb.close()
                 cont.resume(null)
-            } else {
-                val tx = idb.transaction(STORE_NAME, "readonly")
-                val store = tx.objectStore(STORE_NAME)
-                val req = store.get(DB_NAME)
-                req.onsuccess = {
-                    idb.close()
-                    cont.resume(req.result.unsafeCast<ByteArray?>())
-                }
-                req.onerror = {
-                    idb.close()
-                    cont.resume(null)
-                }
             }
         }
     }
 
-    private suspend fun saveDbToIndexedDB() = suspendCancellableCoroutine<Unit> { cont ->
+    private suspend fun saveDbToIndexedDB() {
         try {
             val data = db.export()
-            val request = js("indexedDB").open(STORAGE_NAME, 1)
-            request.onsuccess = { e: dynamic ->
-                val idb = e.target.result
+            val idb = openIDB()
+
+            suspendCancellableCoroutine { cont ->
                 val tx = idb.transaction(STORE_NAME, "readwrite")
                 val store = tx.objectStore(STORE_NAME)
 
@@ -102,9 +108,8 @@ class SqlJsServiceWorkerDriver(
                 }
                 store.put(data, DB_NAME)
             }
-            request.onerror = { cont.resume(Unit) }
-        } catch (_: dynamic) {
-            cont.resume(Unit)
+        } catch (e: Exception) {
+            Logg.error { "Failed to save DB: ${e.message}" }
         }
     }
 
@@ -179,7 +184,8 @@ class SqlJsServiceWorkerDriver(
                     try {
                         if (successful) db.run("COMMIT") else db.run("ROLLBACK")
                         saveDbToIndexedDB()
-                    } catch (_: dynamic) { }
+                    } catch (_: dynamic) {
+                    }
                 }
                 transaction = parent
             }
