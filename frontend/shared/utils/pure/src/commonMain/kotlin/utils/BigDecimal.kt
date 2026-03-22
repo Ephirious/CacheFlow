@@ -12,20 +12,32 @@ import kotlinx.serialization.json.JsonPrimitive
 
 @JsExport
 @Serializable(with = BigDecimalSerializer::class)
-expect class BigDecimal(value: String) {
+expect class BigDecimal : Comparable<BigDecimal> {
 
-    @JsName("BigDecimalFromDouble")
-    constructor(value: Double)
+    @JsName("from")
+    constructor(value: String)
 
-    @JsName("BigDecimalFromInt")
-    constructor(value: Int)
+    @JsExport.Ignore
+    constructor(value: Number)
 
-    fun plus(other: BigDecimal): BigDecimal
-    fun minus(other: BigDecimal): BigDecimal
-    fun multiply(other: BigDecimal): BigDecimal
-    fun divide(other: BigDecimal): BigDecimal
-    fun toFormattedString(dp: Int): String
+
+    operator fun plus(other: BigDecimal): BigDecimal
+    operator fun minus(other: BigDecimal): BigDecimal
+    operator fun times(other: BigDecimal): BigDecimal
+    operator fun div(other: BigDecimal): BigDecimal
+    fun formattedString(dp: Int): String
+
     override fun toString(): String
+
+    fun isGreater(other: BigDecimal): Boolean
+    fun isLower(other: BigDecimal): Boolean
+    fun eq(other: BigDecimal): Boolean
+    val isPositive: Boolean
+    val isNegative: Boolean
+    val isZero: Boolean
+    fun abs(): BigDecimal
+
+    override fun compareTo(other: BigDecimal): Int
 }
 
 object BigDecimalSerializer : KSerializer<BigDecimal> {
