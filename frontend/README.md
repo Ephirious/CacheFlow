@@ -38,7 +38,7 @@
 > [!NOTE]
 > **Про сборку**
 > - **Kotlin:** `buildAll` билдит клиент и сервис. Можно разделить с помощью `buildClient` и `buildService`
-> - **TS** : `npm run start` `npm run build`, `npm run preview`
+> - **TS** : `npm run start`, `npm run build`, `npm run preview`
 >    - `start` – используется для реактивной разработки, т.е. поддерживает hotReload основной логики (`k2ts`), сервиса (`k2ts-service`) и других файлов _(UI)_.\
      Не поддерживает offline-first, т.к. кэширование отключено. _(порт 8080)_
 >    - `build` – билдит проект в папочку `dist`
