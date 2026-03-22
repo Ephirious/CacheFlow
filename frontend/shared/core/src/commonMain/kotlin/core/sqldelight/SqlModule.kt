@@ -1,6 +1,7 @@
 package core.sqldelight
 
 import app.cash.sqldelight.async.coroutines.awaitCreate
+import data.WeatherEntity
 import data.WeatherQueries
 import org.cacheflow.db.Database
 import org.koin.core.module.Module
@@ -25,7 +26,14 @@ suspend fun getSqlDriverModule(isSW: Boolean): Module {
 internal val sqlModule = module {
     // SqlDriver creating in initKoin!!
 
-    single<Database> { Database(get<CustomSqlDriver>()) }
+    single<Database> {
+        Database(
+            driver = get<CustomSqlDriver>(),
+            WeatherEntityAdapter = WeatherEntity.Adapter(
+                temperatureAdapter = bigDecimalAdapter
+            )
+        )
+    }
 
     single<WeatherQueries> { get<Database>().weatherQueries }
 

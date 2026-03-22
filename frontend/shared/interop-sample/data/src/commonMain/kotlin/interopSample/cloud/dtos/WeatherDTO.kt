@@ -2,6 +2,7 @@ package interopSample.cloud.dtos
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import utils.BigDecimal
 
 @Serializable
 internal data class WeatherDTO(
@@ -13,7 +14,7 @@ internal data class WeatherDTO(
     @Serializable
     internal data class CurrentWeatherDTO(
         @SerialName("temperature")
-        val temperature: Double
+        val temperature: BigDecimal,
     )
 
     @Serializable
