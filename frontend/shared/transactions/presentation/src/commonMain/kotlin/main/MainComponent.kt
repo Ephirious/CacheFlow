@@ -1,25 +1,83 @@
 package main
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.childContext
+import kotlinx.coroutines.launch
+import main.mvi.MainContainer
+import main.mvi.MainIntent
+import main.mvi.MainState
+import pro.respawn.flowmvi.api.Store
+import pro.respawn.flowmvi.essenty.dsl.retainedStore
+import summary.RealSummaryComponent
+import summary.SummaryComponent
+import summary.mvi.SummaryContainer
+import transactions.RealTransactionsComponent
+import transactions.TransactionsComponent
+import transactions.mvi.TransactionsContainer
+import utils.interop.JsValue
+import utils.interop.jsStateSubscribe
+import utils.presentation.componentCoroutineScope
 
 @JsExport
 interface MainComponent : ComponentContext {
 
-//    @JsName("state")
-//    val jsState: JsValue<MainState>
+    val transactionsComponent: TransactionsComponent
+    val summaryComponent: SummaryComponent
 
-//    @Suppress("unused")
-//    fun intent(intent: MainIntent)
+    @JsName("state")
+    val jsState: JsValue<MainState>
+
+    @Suppress("unused")
+    fun intent(intent: MainIntent)
+
+    fun restartAllComponents()
 }
 
 class RealMainComponent(
     componentCtx: ComponentContext,
-//    container: () -> MainContainer,
-) : MainComponent, ComponentContext by componentCtx {
-//    Store<MainState, MainIntent, Nothing> by componentCtx.retainedStore(factory = container)
+    container: () -> MainContainer,
+) : MainComponent, ComponentContext by componentCtx,
+    Store<MainState, MainIntent, Nothing> by componentCtx.retainedStore(factory = container) {
 
-//    @OptIn(InternalFlowMVIAPI::class)
-//    override val jsState: JsValue<MainState> by lazy {
-//        jsStateSubscribe(scope = componentCoroutineScope, lifecycleOwner = this)
-//    }
+    override val jsState: JsValue<MainState> by lazy {
+        jsStateSubscribe(scope = componentCoroutineScope, lifecycleOwner = this)
+    }
+
+
+    private fun throwErrorFromChild(message: () -> String) {
+        intent(MainIntent.ThrowError(message()))
+    }
+
+    override val transactionsComponent: TransactionsComponent =
+        RealTransactionsComponent(
+            componentCtx.childContext("Transactions"),
+            container = {
+                TransactionsContainer(
+                    throwErrorToParent = ::throwErrorFromChild
+                )
+            }
+        )
+    override val summaryComponent: SummaryComponent =
+        RealSummaryComponent(
+            componentCtx.childContext("Summary"),
+            container = {
+                SummaryContainer(
+                    throwErrorToParent = ::throwErrorFromChild
+                )
+            }
+        )
+
+
+    // стрельнет?
+    override fun restartAllComponents() {
+        componentCoroutineScope.launch {
+            (transactionsComponent as RealTransactionsComponent).close()
+            transactionsComponent.start(transactionsComponent.componentCoroutineScope)
+
+            (summaryComponent as RealSummaryComponent).close()
+            summaryComponent.start(summaryComponent.componentCoroutineScope)
+        }
+    }
+
+
 }

@@ -20,7 +20,8 @@ internal class PersistentRootComponents(ctx: ComponentContext) : KoinComponent {
     val main =
         ctx.persistent { ctx ->
             RealMainComponent(
-                componentCtx = ctx
+                componentCtx = ctx,
+                container = get()
             )
         }
 
