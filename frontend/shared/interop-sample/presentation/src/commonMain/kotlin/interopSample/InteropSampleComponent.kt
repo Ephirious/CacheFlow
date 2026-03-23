@@ -10,6 +10,8 @@ import pro.respawn.flowmvi.essenty.dsl.retainedStore
 import utils.interop.JsValue
 import utils.interop.jsStateSubscribe
 import utils.presentation.componentCoroutineScope
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 @JsExport
 interface InteropSampleComponent : ComponentContext {

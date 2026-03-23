@@ -4,11 +4,9 @@ import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
-import pro.respawn.flowmvi.plugins.enableLogging
-import pro.respawn.flowmvi.plugins.recover
-import pro.respawn.flowmvi.plugins.resetStateOnStop
-import utils.AppConfig
 import utils.BigDecimal
+import utils.orUnknown
+import utils.presentation.flowMVI.fastConfig
 
 private typealias Ctx = PipelineContext<SummaryState, Nothing, Nothing>
 
@@ -25,17 +23,11 @@ class SummaryContainer(
                 accounts = emptyList(),
             ),
         ) {
-            configure {
-                name = "Summary"
-                debuggable = AppConfig.isDebuggable
-            }
-            enableLogging()
-            resetStateOnStop()
-
-            recover {
-                throwErrorToParent { it.message ?: "unknown error!" }
-                null
-            }
+            fastConfig(
+                name = "Summary",
+                resetOnStop = true,
+                doOnRecover = { throwErrorToParent { it.message.orUnknown }; this }
+            )
 
             // subscribe on flow here TODO
         }

@@ -10,3 +10,7 @@ fun String.snakeCase(): String =
             append(c.lowercaseChar())
         }
     }
+
+fun String?.orUnknown(fallback: String = "Unknown error!"): String = this ?: fallback
+val String?.orUnknown: String
+    get() = this.orUnknown()

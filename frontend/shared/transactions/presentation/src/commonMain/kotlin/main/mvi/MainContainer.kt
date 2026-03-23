@@ -3,9 +3,8 @@ package main.mvi
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
-import pro.respawn.flowmvi.plugins.enableLogging
 import pro.respawn.flowmvi.plugins.reduce
-import utils.AppConfig
+import utils.presentation.flowMVI.fastConfig
 
 class MainContainer(
 ) : Container<MainState, MainIntent, Nothing> {
@@ -13,11 +12,11 @@ class MainContainer(
         store(
             initial = MainState.OK
         ) {
-            configure {
-                name = "Main"
-                debuggable = AppConfig.isDebuggable
-            }
-            enableLogging()
+            fastConfig(
+                name = "Main",
+                resetOnStop = false,
+                doOnRecover = null
+            )
 
 
             reduce { intent ->

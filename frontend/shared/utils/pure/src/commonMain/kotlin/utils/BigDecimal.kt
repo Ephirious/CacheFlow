@@ -9,6 +9,8 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonPrimitive
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 @JsExport
 @Serializable(with = BigDecimalSerializer::class)

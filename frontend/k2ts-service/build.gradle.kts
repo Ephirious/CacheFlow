@@ -9,7 +9,8 @@ kotlin {
         binaries.library()
         compilerOptions {
             target = "es2015"
-            freeCompilerArgs.addAll(listOf("-Xir-per-module=false"))
+            freeCompilerArgs.addAll(listOf("-Xir-per-module=false",
+                "-Xir-property-lazy-initialization"))
         }
         useEsModules()
     }

@@ -17,6 +17,8 @@ import transactions.mvi.TransactionsContainer
 import utils.interop.JsValue
 import utils.interop.jsStateSubscribe
 import utils.presentation.componentCoroutineScope
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 @JsExport
 interface MainComponent : ComponentContext {
@@ -32,6 +34,7 @@ interface MainComponent : ComponentContext {
 
     fun restartAllComponents()
 }
+
 
 class RealMainComponent(
     componentCtx: ComponentContext,

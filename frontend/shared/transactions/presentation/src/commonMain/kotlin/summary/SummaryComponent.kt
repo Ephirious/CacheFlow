@@ -8,6 +8,8 @@ import summary.mvi.SummaryState
 import utils.interop.JsValue
 import utils.interop.jsStateSubscribe
 import utils.presentation.componentCoroutineScope
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 
 @JsExport

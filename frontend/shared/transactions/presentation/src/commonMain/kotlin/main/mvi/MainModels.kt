@@ -2,6 +2,7 @@ package main.mvi
 
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
+import kotlin.js.JsExport
 
 @JsExport
 sealed class MainState : MVIState {
