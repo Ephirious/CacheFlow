@@ -7,6 +7,8 @@ import interopSampleFlow.mvi.InteropSampleFlowState
 import kotlinx.serialization.Serializable
 import utils.interop.JsValue
 import utils.presentation.DefaultStack
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 @JsExport
 interface InteropSampleFlowComponent : ComponentContext, DefaultStack<InteropSampleFlowConfig, InteropSampleFlowChild> {

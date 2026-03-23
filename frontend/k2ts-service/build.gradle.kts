@@ -6,10 +6,11 @@ kotlin {
     js(IR) {
         outputModuleName = "k2ts-service"
         browser()
-        binaries.executable()
+        binaries.library()
         compilerOptions {
             target = "es2015"
-            freeCompilerArgs.addAll(listOf("-Xir-per-module=false"))
+            freeCompilerArgs.addAll(listOf("-Xir-per-module=false",
+                "-Xir-property-lazy-initialization"))
         }
         useEsModules()
     }

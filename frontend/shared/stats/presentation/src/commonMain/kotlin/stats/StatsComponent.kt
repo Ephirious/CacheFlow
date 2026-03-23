@@ -1,6 +1,7 @@
 package stats
 
 import com.arkivanov.decompose.ComponentContext
+import kotlin.js.JsExport
 
 @JsExport
 interface StatsComponent : ComponentContext {

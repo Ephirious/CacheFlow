@@ -4,16 +4,19 @@ import kotlinx.coroutines.promise
 import root.RootComponent
 import startup.initRealRootComponent
 import startup.observeNetwork
-import startup.registerServiceWorker
-import startup.setupPushNotifications
+import startup.sw.registerPeriodicSync
+import startup.sw.registerServiceWorker
 import sync.repositories.SyncManager
+import utils.Logg
 import utils.presentation.AsyncDispatcher
 
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 fun initApp() = CoroutineScope(AsyncDispatcher).promise<RootComponent> {
+    Logg.setup("App")
     registerServiceWorker()
-    setupPushNotifications()
+    registerPeriodicSync()
+//    setupPushNotifications() TODO
 
     val koin = initKoin()
 

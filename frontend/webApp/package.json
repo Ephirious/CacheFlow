@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "k2ts": "0.0.0-unspecified",
+    "k2ts-service": "0.0.0-unspecified",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rollup-plugin-copy": "^3.5.0",

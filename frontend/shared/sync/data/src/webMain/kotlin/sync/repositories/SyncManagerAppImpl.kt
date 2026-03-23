@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json.Default.decodeFromString
 import org.koin.core.component.inject
 import sync.cloud.SyncRemoteDataSource
 import sync.registerBackgroundSync
+import utils.Logg
 import utils.data.withWebLock
 import utils.getServiceContainer
 
@@ -22,6 +23,8 @@ class SyncManagerAppImpl(
     override suspend fun requestSync() {
         scheduler.schedule()
     }
+
+    override suspend fun forceSync() = trySync()
 
     private val scheduler =
         SyncScheduler(scope, listOf(/*todo*/))
@@ -39,7 +42,7 @@ class SyncManagerAppImpl(
         serviceContainer?.onmessage = { message ->
             (message.data as? String)?.let { data ->
                 scope.launch {
-                    println("[INFO-App] Catch from service $data")
+                    Logg.debug { "Catch from service $data" }
                     when (val msg = decodeFromString<AppServiceMessage>(data)) {
                         AppServiceMessage.DBUpdated -> {
                             sqlDriver.reloadDb()

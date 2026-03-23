@@ -1,36 +1,50 @@
 package utils.data
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.promise
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
+import utils.Logg
 import kotlin.js.Promise
 
-suspend fun <T> withWebLock(scope: CoroutineScope, lockName: String = "db", block: suspend () -> T): T {
+suspend fun <T> withWebLock(
+    scope: CoroutineScope,
+    lockName: String = "db",
+    skipIfLocked: Boolean = true,
+    block: suspend () -> T
+): T? {
     val navigator = js("globalThis.navigator")
 
     if (navigator.locks == null) {
-        println("Web Locks API not supported, executing without lock")
+        Logg.warn { "Web Locks API not supported, executing without lock" }
         return block()
     }
 
-    return suspendCancellableCoroutine { continuation ->
-        navigator.locks.request(lockName) { _ ->
-            val promise = Promise { resolve, reject ->
-                scope.promise {
-                    try {
-                        val result = block()
-                        resolve(result)
-                    } catch (e: Throwable) {
-                        reject(e)
-                    }
-                }
+    val deferred = CompletableDeferred<T?>()
+
+    val options = js("{}")
+    options["ifAvailable"] = skipIfLocked
+
+    navigator.locks.request(lockName, options) { lock ->
+        if (lock == null) {
+            deferred.complete(null)
+            return@request Promise.resolve(null)
+        }
+
+        val promise = scope.promise {
+            try {
+                val result = block()
+                deferred.complete(result)
+            } catch (e: Throwable) {
+                deferred.completeWith(Result.failure(e))
             }
-            promise
-        }.then { result ->
-            continuation.resume(result as T)
-        }.catch { err ->
-            continuation.resumeWith(Result.failure(err))
+        }
+        promise
+    }.catch { err ->
+        if (!deferred.isCompleted) {
+            deferred.completeWith(Result.failure(err as Throwable))
         }
     }
+
+    return deferred.await()
 }

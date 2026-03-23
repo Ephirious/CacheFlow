@@ -3,7 +3,10 @@ package core.sqldelight
 import app.cash.sqldelight.Query
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.worker.WebWorkerDriver
+import org.w3c.dom.MODULE
 import org.w3c.dom.Worker
+import org.w3c.dom.WorkerOptions
+import org.w3c.dom.WorkerType
 
 
 class CustomWebWorkerDriver(
@@ -36,4 +39,9 @@ class CustomWebWorkerDriver(
     }
 }
 
-fun getWebWorkerDriver() = CustomWebWorkerDriver(worker = Worker("/db/sqljs.worker.js"))
+fun getWebWorkerDriver() = CustomWebWorkerDriver(
+    worker = Worker(
+        "/src/workers/sqljs.worker.js",
+        options = WorkerOptions(type = WorkerType.MODULE)
+    )
+)

@@ -2,13 +2,17 @@ package core.sqldelight
 
 import app.cash.sqldelight.Query
 import app.cash.sqldelight.Transacter
-import app.cash.sqldelight.db.*
+import app.cash.sqldelight.db.QueryResult
+import app.cash.sqldelight.db.SqlCursor
+import app.cash.sqldelight.db.SqlPreparedStatement
+import app.cash.sqldelight.db.SqlSchema
 import core.sw.swSendMessageToClients
-import kotlinx.coroutines.*
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
+import utils.Logg
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -19,86 +23,94 @@ class SqlJsServiceWorkerDriver(
     private companion object {
         const val DB_NAME = "app_db"
         const val STORE_NAME = "table"
-
         const val STORAGE_NAME = "CacheFlowSqlStorage"
     }
 
     private var db: dynamic = null
     private val mutex = Mutex()
-
     private var transaction: Transaction? = null
-
     private var sql: dynamic = null
 
 
     private suspend fun ensureDb() {
         if (db != null) return
 
-        mutex.withLock {
-            if (db != null) return@withLock
-
-            val initSqlJs = js("self.initSqlJs")
-            if (sql == null) {
-                sql = await(initSqlJs(js("{ locateFile: f => '/db/sql-wasm.wasm' }")))
-            }
-            val jsScopedSql = sql
-            val savedData = getDbFromIndexedDB()
-
-            db = if (savedData != null) {
-                val uint8 = Uint8Array(savedData.toTypedArray())
-                println("[INFO-ServiceWorker] Restoring DB from ${uint8.byteLength} bytes")
-                js("new jsScopedSql.Database(uint8)")
-            } else {
-                println("[INFO-ServiceWorker] Creating fresh database: $jsScopedSql")
-                js("new jsScopedSql.Database()")
-            }
-
-
-            if (savedData == null) {
-                schema.create(this)
-            }
+        val initSqlJs = js("self.initSqlJs")
+        if (sql == null) {
+            sql = await(initSqlJs(js($$"{locateFile: file => `${self.sqlWasmUrl}`}")))
         }
+        val jsScopedSql = sql
+        val savedData = getDbFromIndexedDB()
+
+        db = if (savedData != null) {
+            Logg.debug { "Restoring DB" }
+            js("new jsScopedSql.Database(savedData)")
+        } else {
+            Logg.debug { "Creating fresh database: $jsScopedSql" }
+            js("new jsScopedSql.Database()")
+        }
+
+        if (savedData == null) {
+            schema.create(this)
+        }
+
     }
 
-    private suspend fun getDbFromIndexedDB(): ByteArray? = suspendCancellableCoroutine { cont ->
+    private suspend fun openIDB(): dynamic = suspendCancellableCoroutine { cont ->
         val request = js("indexedDB").open(STORAGE_NAME, 1)
 
-        request.onerror = { cont.resume(null) }
-        request.onsuccess = { e: dynamic ->
-            val dbWrapper = e.target.result
-
-            run {
-                if (!dbWrapper.objectStoreNames.contains(STORE_NAME)) {
-                    cont.resume(null)
-                    return@run
-                }
+        request.onupgradeneeded = { e: dynamic ->
+            val idb = e.target.result
+            if (!idb.objectStoreNames.contains(STORE_NAME)) {
+                idb.createObjectStore(STORE_NAME)
             }
+        }
 
-            val tx = dbWrapper.transaction(STORE_NAME, "readonly")
+        request.onsuccess = { e: dynamic -> cont.resume(e.target.result) }
+        request.onerror = { _: dynamic -> cont.resumeWithException(RuntimeException("IDB Open Error")) }
+    }
+
+    private suspend fun getDbFromIndexedDB(): dynamic {
+        val idb = openIDB()
+        return suspendCancellableCoroutine { cont ->
+            val tx = idb.transaction(STORE_NAME, "readonly")
             val store = tx.objectStore(STORE_NAME)
             val req = store.get(DB_NAME)
 
             req.onsuccess = {
-                val result = req.result
-                if (result != null) {
-                    cont.resume(result.unsafeCast<ByteArray>())
-                } else {
-                    println("[INFO-ServiceWorker] Key '$DB_NAME' not found in IndexedDB")
-                    cont.resume(null)
-                }
+                idb.close()
+                cont.resume(req.result)
             }
-            req.onerror = { cont.resume(null) }
+            req.onerror = {
+                idb.close()
+                cont.resume(null)
+            }
         }
     }
 
-    private fun saveDbToIndexedDB() {
-        val data = db.export()
-        val request = js("indexedDB").open(STORAGE_NAME, 1)
-        request.onsuccess = { e: dynamic ->
-            val tx = e.target.result.transaction(STORE_NAME, "readwrite")
-            tx.objectStore(STORE_NAME).put(data, DB_NAME)
+    private suspend fun saveDbToIndexedDB() {
+        try {
+            val data = db.export()
+            val idb = openIDB()
+
+            suspendCancellableCoroutine { cont ->
+                val tx = idb.transaction(STORE_NAME, "readwrite")
+                val store = tx.objectStore(STORE_NAME)
+
+                tx.oncomplete = {
+                    idb.close()
+                    swSendMessageToClients("{\"type\":\"db_updated\"}")
+                    cont.resume(Unit)
+                }
+                tx.onerror = {
+                    idb.close()
+                    cont.resume(Unit)
+                }
+                store.put(data, DB_NAME)
+            }
+        } catch (e: Exception) {
+            Logg.error { "Failed to save DB: ${e.message}" }
         }
-        swSendMessageToClients("{\"type\":\"db_updated\"}")
     }
 
     private suspend fun await(promise: dynamic): dynamic =
@@ -116,21 +128,14 @@ class SqlJsServiceWorkerDriver(
         parameters: Int,
         binders: (SqlPreparedStatement.() -> Unit)?
     ): QueryResult<R> = QueryResult.AsyncValue {
-
-        ensureDb()
-
-        val ps = JsPrepared(parameters)
-        binders?.invoke(ps)
-
-        val results = db.exec(sql, ps.params())
-
-        val cursor =
-            if (results.length > 0)
-                JsCursor(results[0])
-            else
-                JsCursor(null)
-
-        mapper(cursor).await()
+        mutex.withLock {
+            ensureDb()
+            val ps = JsPrepared(parameters)
+            binders?.invoke(ps)
+            val results = db.exec(sql, ps.params())
+            val cursor = if (results.length > 0) JsCursor(results[0]) else JsCursor(null)
+            mapper(cursor).await()
+        }
     }
 
     override fun execute(
@@ -139,52 +144,51 @@ class SqlJsServiceWorkerDriver(
         parameters: Int,
         binders: (SqlPreparedStatement.() -> Unit)?
     ): QueryResult<Long> = QueryResult.AsyncValue {
+        mutex.withLock {
+            ensureDb()
+            val ps = JsPrepared(parameters)
+            binders?.invoke(ps)
+            val params = ps.params()
 
-        ensureDb()
+            Logg.debug { "Executing '$sql' with params: ${JSON.stringify(params)}" }
 
-        val ps = JsPrepared(parameters)
-        binders?.invoke(ps)
+            if (parameters > 0) db.run(sql, params) else db.run(sql)
 
-        val params = ps.params()
-        println("[INFO-ServiceWorker] Executing '$sql' with params: ${JSON.stringify(params)}")
-
-        if (parameters > 0)
-            db.run(sql, params)
-        else
-            db.run(sql)
-
-        0L
+            if (transaction == null) {
+                saveDbToIndexedDB()
+            }
+            0L
+        }
     }
 
     override fun newTransaction(): QueryResult<Transacter.Transaction> =
         QueryResult.AsyncValue {
-
-            ensureDb()
-
-            val tx = Transaction(transaction)
-            transaction = tx
-
-            if (tx.parent == null)
-                db.run("BEGIN")
-
-            tx
+            mutex.withLock {
+                ensureDb()
+                val tx = Transaction(transaction)
+                transaction = tx
+                if (tx.parent == null) db.run("BEGIN")
+                tx
+            }
         }
 
     override fun currentTransaction(): Transacter.Transaction? = transaction
 
     private inner class Transaction(val parent: Transaction?) : Transacter.Transaction() {
         override val enclosingTransaction: Transacter.Transaction? = parent
-
         override fun endTransaction(successful: Boolean): QueryResult<Unit> = QueryResult.AsyncValue {
-            if (parent == null) {
-                try {
-                    if (successful) db.run("COMMIT") else db.run("ROLLBACK")
-                    saveDbToIndexedDB()
-                } catch (_: dynamic) {
+            mutex.withLock {
+                if (transaction != this@Transaction) return@AsyncValue
 
+                if (parent == null) {
+                    try {
+                        if (successful) db.run("COMMIT") else db.run("ROLLBACK")
+                        saveDbToIndexedDB()
+                    } catch (_: dynamic) {
+                    }
                 }
+                transaction = parent
             }
-            transaction = parent
         }
     }
 

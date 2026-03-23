@@ -10,7 +10,7 @@ tasks.register("buildAll") {
     description = "Сборка клиента и ServiceWorker"
 
     dependsOn(":k2ts:jsBrowserProductionLibraryDistribution")
-    dependsOn(":k2ts-service:jsBrowserDistribution")
+    dependsOn(":k2ts-service:jsBrowserProductionLibraryDistribution")
 
     doLast {
         println("Собраны клиент и ServiceWorker!!")
@@ -32,7 +32,7 @@ tasks.register("buildService") {
     group = "k2ts"
     description = "Сборка ServiceWorker"
 
-    dependsOn(":k2ts-service:jsBrowserDistribution")
+    dependsOn(":k2ts-service:jsBrowserProductionLibraryDistribution")
 
     doLast {
         println("Собран ServiceWorker!!")
