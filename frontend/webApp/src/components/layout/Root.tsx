@@ -3,6 +3,7 @@ import {RootChild, RootComponent} from "k2ts";
 import { motion, AnimatePresence } from "framer-motion";
 import InteropSampleFlowScreen from "../../features/interopSampleFlow/InteropSampleFlow.tsx";
 import NavBar from "./NavBar.tsx";
+import Main from "./Main.tsx";
 
 
 const RootScreen = ({component}: { component: RootComponent }) => {
@@ -23,12 +24,12 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="h-full w-full p-8"
+                    className="h-full w-full"
                 >
                     {
                         when(activeChild)
                             .on(RootChild.MainChild, (_child) => (
-                                <>Main</>
+                                <Main/>
                             ))
                             .on(RootChild.StatsChild, (_child) => (
                                 <>Stats</>

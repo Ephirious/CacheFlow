@@ -12,7 +12,7 @@ interface RootTabBarProps {
 
 const NavBar = ({component, activeChild}: RootTabBarProps) => {
     const btnBase = "relative flex flex-col md:flex-row items-center rounded-2xl text-base font-semibold gap-4 px-5 md:px-4 py-3 transition-colors duration-300 outline-none";
-    const btnActive = "text-active-fg";
+    const btnActive = "text-brand-indigo";
     const btnInActive = "text-slate-500 hover:text-slate-700";
 
     const menuItems = [
@@ -39,7 +39,7 @@ const NavBar = ({component, activeChild}: RootTabBarProps) => {
     return (
         <nav className="
         z-50
-        bottom-0 w-full fixed
+        bottom-0 fixed w-full
         md:flex md:h-full md:w-96 md:flex-col md:relative md:p-6
         bg-sidebar-bg p-2 gap-8 border-r border-black/5
         ">
@@ -47,7 +47,7 @@ const NavBar = ({component, activeChild}: RootTabBarProps) => {
             hidden
             md:flex
             items-center gap-3 font-bold text-2xl">
-                <LuWallet className="w-12 h-12 p-2.5 bg-sidebar-active rounded-2xl text-active-fg" />
+                <LuWallet className="w-12 h-12 p-2.5 bg-sidebar-active rounded-2xl text-brand-indigo" />
                 CashFlow
             </h1>
 
