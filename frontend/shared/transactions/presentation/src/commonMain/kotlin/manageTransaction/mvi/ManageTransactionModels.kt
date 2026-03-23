@@ -28,6 +28,6 @@ sealed class ManageTransactionState : MVIState {
 
 @JsExport
 sealed class ManageTransactionIntent : ManageTransactionBaseIntent() {
-    data object Save : ManageTransactionIntent()
-    data object Delete : ManageTransactionIntent()
+    data object ClickedSave : ManageTransactionIntent()
+    data object ClickedDelete : ManageTransactionIntent()
 }

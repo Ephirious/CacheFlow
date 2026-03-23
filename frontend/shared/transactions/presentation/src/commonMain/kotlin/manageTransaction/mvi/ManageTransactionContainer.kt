@@ -40,11 +40,11 @@ class ManageTransactionContainer(
             reduce { intent ->
                 withType<ManageTransactionState.OK, _> {
                     when (intent) {
-                        ManageTransactionIntent.Delete -> if (!isCreateMode) {
+                        ManageTransactionIntent.ClickedDelete -> if (!isCreateMode) {
                             TODO()
                         }
 
-                        ManageTransactionIntent.Save -> if (isCreateMode) {
+                        ManageTransactionIntent.ClickedSave -> if (isCreateMode) {
                             TODO()
                         } else {
                             TODO()
