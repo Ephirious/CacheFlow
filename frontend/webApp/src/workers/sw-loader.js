@@ -134,11 +134,11 @@ if (typeof localStorage === 'undefined') {
     };
 }
 
-import initSqlJs from 'sql.js/dist/sql-wasm.js';
-import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
+import sqlite3InitModule from "@sqlite.org/sqlite-wasm";
+import {openDB} from 'idb';
 import * as KService from 'k2ts-service';
 
-self.initSqlJs = initSqlJs;
-self.sqlWasmUrl = sqlWasmUrl;
+self.sqlite3InitModule = sqlite3InitModule;
+self.openDB = openDB;
 
 KService.main();

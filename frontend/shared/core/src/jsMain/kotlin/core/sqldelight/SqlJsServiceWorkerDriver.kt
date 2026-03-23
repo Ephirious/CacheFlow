@@ -7,119 +7,112 @@ import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.db.SqlPreparedStatement
 import app.cash.sqldelight.db.SqlSchema
 import core.sw.swSendMessageToClients
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.await
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 import utils.Logg
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
+import kotlin.js.Promise
 
 class SqlJsServiceWorkerDriver(
     private val schema: SqlSchema<QueryResult.AsyncValue<Unit>>
 ) : CustomSqlDriver {
 
     private companion object {
-        const val DB_NAME = "app_db"
+        const val DB_KEY = "app_db"
         const val STORE_NAME = "table"
-        const val STORAGE_NAME = "CacheFlowSqlStorage"
+        const val IDB_NAME = "CacheFlowSqlStorage"
     }
 
     private var db: dynamic = null
+    private var sqlite3: dynamic = null
+    private var currentDbFileName: String? = null
     private val mutex = Mutex()
     private var transaction: Transaction? = null
-    private var sql: dynamic = null
 
+    private suspend fun withIDB(block: suspend (dynamic) -> dynamic): dynamic {
+        val openDB = js("self.openDB")
+        val dbPromise: Promise<dynamic> = openDB(
+            IDB_NAME, 1, js(
+                """{
+            upgrade(db) {
+                if (!db.objectStoreNames.contains('$STORE_NAME')) {
+                    db.createObjectStore('$STORE_NAME');
+                }
+            },
+            blocking() { this.close(); }
+        }"""
+            )
+        )
+
+        val idb = dbPromise.await()
+        return try {
+            block(idb)
+        } finally {
+            idb.close()
+        }
+    }
 
     private suspend fun ensureDb() {
         if (db != null) return
 
-        val initSqlJs = js("self.initSqlJs")
-        if (sql == null) {
-            sql = await(initSqlJs(js($$"{locateFile: file => `${self.sqlWasmUrl}`}")))
-        }
-        val jsScopedSql = sql
-        val savedData = getDbFromIndexedDB()
-
-        db = if (savedData != null) {
-            Logg.debug { "Restoring DB" }
-            js("new jsScopedSql.Database(savedData)")
+        val s3 = if (sqlite3 == null) {
+            val initFn = js("self.sqlite3InitModule")
+            val result = (initFn() as Promise<dynamic>).await()
+            sqlite3 = result
+            result
         } else {
-            Logg.debug { "Creating fresh database: $jsScopedSql" }
-            js("new jsScopedSql.Database()")
+            sqlite3
         }
+
+        val savedData = withIDB { idb ->
+            idb.get(STORE_NAME, DB_KEY).unsafeCast<Promise<dynamic>>().await()
+        }
+
+        currentDbFileName?.let { oldFile ->
+            try {
+                s3.capi.sqlite3_js_posix_unlink(oldFile)
+            } catch (_: dynamic) {
+            }
+        }
+
+        db = if (savedData != null && savedData.byteLength.unsafeCast<Int>() > 100) {
+            Logg.debug { "SQL:  IDB mode" }
+            val tempName = "sw_live_${js("Date.now()")}.db"
+            currentDbFileName = tempName
+            s3.capi.sqlite3_js_posix_create_file(tempName, savedData)
+            js("new s3.oo1.DB(tempName, 'c')")
+        } else {
+            Logg.debug { "SQL: IDB mode (fresh)" }
+            currentDbFileName = null
+            js("new s3.oo1.DB(':memory:', 'c')")
+        }
+
+        db.exec("PRAGMA journal_mode=DELETE; PRAGMA synchronous=OFF; PRAGMA auto_vacuum=INCREMENTAL;")
 
         if (savedData == null) {
-            schema.create(this)
-        }
-
-    }
-
-    private suspend fun openIDB(): dynamic = suspendCancellableCoroutine { cont ->
-        val request = js("indexedDB").open(STORAGE_NAME, 1)
-
-        request.onupgradeneeded = { e: dynamic ->
-            val idb = e.target.result
-            if (!idb.objectStoreNames.contains(STORE_NAME)) {
-                idb.createObjectStore(STORE_NAME)
-            }
-        }
-
-        request.onsuccess = { e: dynamic -> cont.resume(e.target.result) }
-        request.onerror = { _: dynamic -> cont.resumeWithException(RuntimeException("IDB Open Error")) }
-    }
-
-    private suspend fun getDbFromIndexedDB(): dynamic {
-        val idb = openIDB()
-        return suspendCancellableCoroutine { cont ->
-            val tx = idb.transaction(STORE_NAME, "readonly")
-            val store = tx.objectStore(STORE_NAME)
-            val req = store.get(DB_NAME)
-
-            req.onsuccess = {
-                idb.close()
-                cont.resume(req.result)
-            }
-            req.onerror = {
-                idb.close()
-                cont.resume(null)
-            }
+            schema.create(this).await()
         }
     }
 
     private suspend fun saveDbToIndexedDB() {
+        val currentDb = db ?: return
+        val s3 = sqlite3 ?: return
         try {
-            val data = db.export()
-            val idb = openIDB()
+            currentDb.exec("PRAGMA incremental_vacuum(0); PRAGMA shrink_memory;")
+            val bytes = s3.capi.sqlite3_js_db_export(currentDb.pointer)
 
-            suspendCancellableCoroutine { cont ->
-                val tx = idb.transaction(STORE_NAME, "readwrite")
-                val store = tx.objectStore(STORE_NAME)
-
-                tx.oncomplete = {
-                    idb.close()
-                    swSendMessageToClients("{\"type\":\"db_updated\"}")
-                    cont.resume(Unit)
+            if (bytes != null) {
+                withIDB { idb ->
+                    idb.put(STORE_NAME, bytes, DB_KEY).unsafeCast<Promise<Unit>>().await()
                 }
-                tx.onerror = {
-                    idb.close()
-                    cont.resume(Unit)
-                }
-                store.put(data, DB_NAME)
+                swSendMessageToClients("{\"type\":\"db_updated\"}")
             }
         } catch (e: Exception) {
-            Logg.error { "Failed to save DB: ${e.message}" }
+            Logg.error { "SQL: Save failed: ${e.message}" }
         }
     }
-
-    private suspend fun await(promise: dynamic): dynamic =
-        suspendCancellableCoroutine { cont ->
-            promise.then(
-                { r: dynamic -> cont.resume(r) },
-                { e: dynamic -> cont.resumeWithException(RuntimeException(e.toString())) }
-            )
-        }
 
     override fun <R> executeQuery(
         identifier: Int?,
@@ -130,11 +123,21 @@ class SqlJsServiceWorkerDriver(
     ): QueryResult<R> = QueryResult.AsyncValue {
         mutex.withLock {
             ensureDb()
-            val ps = JsPrepared(parameters)
-            binders?.invoke(ps)
-            val results = db.exec(sql, ps.params())
-            val cursor = if (results.length > 0) JsCursor(results[0]) else JsCursor(null)
-            mapper(cursor).await()
+            val prepared = JsPrepared(parameters)
+            binders?.invoke(prepared)
+            val actualParams = prepared.params()
+            val resultRows = db.exec(
+                js(
+                    """{
+                sql: sql,
+                bind: actualParams,
+                rowMode: 'array',
+                returnValue: 'resultRows'
+            }"""
+                )
+            )
+
+            mapper(JsCursor(resultRows)).await()
         }
     }
 
@@ -146,31 +149,37 @@ class SqlJsServiceWorkerDriver(
     ): QueryResult<Long> = QueryResult.AsyncValue {
         mutex.withLock {
             ensureDb()
-            val ps = JsPrepared(parameters)
-            binders?.invoke(ps)
-            val params = ps.params()
+            val prepared = JsPrepared(parameters)
+            binders?.invoke(prepared)
+            val actualParams = prepared.params()
 
-            Logg.debug { "Executing '$sql' with params: ${JSON.stringify(params)}" }
-
-            if (parameters > 0) db.run(sql, params) else db.run(sql)
+            db.exec(
+                js(
+                    """{
+                sql: sql,
+                bind: actualParams
+            }"""
+                )
+            )
 
             if (transaction == null) {
-                saveDbToIndexedDB()
+                val isWrite =
+                    js("/^\\s*(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|REPLACE)/i.test(sql)").unsafeCast<Boolean>()
+                if (isWrite) saveDbToIndexedDB()
             }
             0L
         }
     }
 
-    override fun newTransaction(): QueryResult<Transacter.Transaction> =
-        QueryResult.AsyncValue {
-            mutex.withLock {
-                ensureDb()
-                val tx = Transaction(transaction)
-                transaction = tx
-                if (tx.parent == null) db.run("BEGIN")
-                tx
-            }
+    override fun newTransaction(): QueryResult<Transacter.Transaction> = QueryResult.AsyncValue {
+        mutex.withLock {
+            ensureDb()
+            val tx = Transaction(transaction)
+            transaction = tx
+            if (tx.parent == null) db.exec("BEGIN TRANSACTION;")
+            tx
         }
+    }
 
     override fun currentTransaction(): Transacter.Transaction? = transaction
 
@@ -179,46 +188,39 @@ class SqlJsServiceWorkerDriver(
         override fun endTransaction(successful: Boolean): QueryResult<Unit> = QueryResult.AsyncValue {
             mutex.withLock {
                 if (transaction != this@Transaction) return@AsyncValue
-
                 if (parent == null) {
-                    try {
-                        if (successful) db.run("COMMIT") else db.run("ROLLBACK")
-                        saveDbToIndexedDB()
-                    } catch (_: dynamic) {
-                    }
+                    if (successful) db.exec("COMMIT;") else db.exec("ROLLBACK;")
+                    saveDbToIndexedDB()
                 }
                 transaction = parent
             }
         }
     }
 
+    override suspend fun reloadDb() {
+        mutex.withLock {
+            if (db != null) {
+                try {
+                    db.close()
+                } catch (_: dynamic) {
+                }
+                db = null
+            }
+            ensureDb()
+        }
+    }
 
     override fun addListener(vararg queryKeys: String, listener: Query.Listener) {}
-
     override fun removeListener(vararg queryKeys: String, listener: Query.Listener) {}
-
     override fun notifyListeners(vararg queryKeys: String) {}
-
     override fun close() {
         db?.close()
         db = null
-    }
-
-    override suspend fun reloadDb() {
-        if (db != null) {
-            try {
-                db.close()
-            } catch (_: dynamic) {
-            }
-            db = null
-        }
-
-        ensureDb()
+        currentDbFileName?.let { sqlite3?.capi?.sqlite3_js_posix_unlink(it) }
     }
 }
 
 private class JsPrepared(count: Int) : SqlPreparedStatement {
-
     private val params = arrayOfNulls<Any>(count)
 
     override fun bindLong(index: Int, long: Long?) {
@@ -238,7 +240,12 @@ private class JsPrepared(count: Int) : SqlPreparedStatement {
     }
 
     override fun bindBytes(index: Int, bytes: ByteArray?) {
-        params[index] = bytes
+        if (bytes == null) {
+            params[index] = null
+            return
+        }
+        val u8 = Uint8Array(bytes.toTypedArray())
+        params[index] = u8
     }
 
     fun params(): dynamic {
@@ -250,39 +257,18 @@ private class JsPrepared(count: Int) : SqlPreparedStatement {
     }
 }
 
-private class JsCursor(
-    result: dynamic
-) : SqlCursor {
-
-    private val rows =
-        if (result != null && result.values != null)
-            result.values
-        else
-            emptyArray<dynamic>()
-
+private class JsCursor(private val rows: dynamic) : SqlCursor {
     private var index = -1
+    private val size = if (rows != null) rows.length.unsafeCast<Int>() else 0
 
-    override fun next(): QueryResult<Boolean> {
-        index++
-        val size = rows.length.unsafeCast<Int>()
-        return QueryResult.Value(index < size)
-    }
+    override fun next(): QueryResult<Boolean> = QueryResult.Value(++index < size)
 
-    override fun getString(index: Int): String? =
-        rows[this.index][index] as? String
-
-    override fun getLong(index: Int): Long? =
-        (rows[this.index][index] as? Double)?.toLong()
-
-    override fun getDouble(index: Int): Double? =
-        rows[this.index][index] as? Double
-
-    override fun getBoolean(index: Int): Boolean =
-        (rows[this.index][index] as? Double) == 1.0
-
+    override fun getString(index: Int): String? = rows[this.index][index] as? String
+    override fun getLong(index: Int): Long? = (rows[this.index][index] as? Double)?.toLong()
+    override fun getDouble(index: Int): Double? = rows[this.index][index] as? Double
+    override fun getBoolean(index: Int): Boolean = (rows[this.index][index] as? Double) == 1.0
     override fun getBytes(index: Int): ByteArray? {
-        val v = rows[this.index][index] ?: return null
-        val u = v.unsafeCast<Uint8Array>()
+        val u = rows[this.index][index]?.unsafeCast<Uint8Array>() ?: return null
         return ByteArray(u.length) { i -> u[i] }
     }
 }

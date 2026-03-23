@@ -1,79 +1,105 @@
-import initSqlJs from 'sql.js/dist/sql-wasm.js';
-import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
+import sqlite3InitModule from "@sqlite.org/sqlite-wasm";
+import {openDB} from 'idb';
 
-const DB_NAME = 'app_db';
+const DB_KEY = 'app_db';
 const STORE_NAME = 'table';
-const STORAGE_NAME = "CacheFlowSqlStorage";
+const IDB_NAME = "CacheFlowSqlStorage";
 
 let db = null;
-let idbInstance = null;
+let sqlite3 = null;
 let isTransactionActive = false;
-let SQL = null;
+let initPromise = null;
+
+async function withIDB(mode, callback) {
+    const idb = await openDB(IDB_NAME, 1, {
+        upgrade(db) {
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME);
+            }
+        },
+        blocking() {
+            idb.close();
+        }
+    });
+
+    try {
+        return await callback(idb);
+    } finally {
+        idb.close();
+    }
+}
+
+let currentDbFileName = null;
 
 async function init() {
     try {
-        if (!SQL) {
-            SQL = await initSqlJs({locateFile: file => `${sqlWasmUrl}`});
+        if (!sqlite3) sqlite3 = await sqlite3InitModule();
+
+        const bytes = await withIDB('readonly', (idb) => idb.get(STORE_NAME, DB_KEY));
+
+        if (currentDbFileName) {
+            try {
+                sqlite3.capi.sqlite3_js_posix_unlink(currentDbFileName);
+            } catch (e) {
+            }
         }
 
-        if (!idbInstance) {
-            idbInstance = await new Promise((resolve, reject) => {
-                const request = indexedDB.open(STORAGE_NAME, 1);
-                request.onupgradeneeded = (e) => {
-                    if (!e.target.result.objectStoreNames.contains(STORE_NAME)) {
-                        e.target.result.createObjectStore(STORE_NAME);
-                    }
-                };
-                request.onsuccess = (e) => resolve(e.target.result);
-                request.onerror = (e) => reject(e.target.error);
-            });
+        if (bytes && bytes.byteLength > 100) {
+            currentDbFileName = `live_db_${Date.now()}.db`;
+            sqlite3.capi.sqlite3_js_posix_create_file(currentDbFileName, bytes);
+            db = new sqlite3.oo1.DB(currentDbFileName, "c");
+            console.debug('[App] SQL: IDB mode');
+        } else {
+            currentDbFileName = null;
+            db = new sqlite3.oo1.DB(":memory:", "c");
+            console.debug('[App] SQL: IDB mode (fresh)');
         }
 
-        const savedData = await getDbBuffer();
-        db = savedData ? new SQL.Database(new Uint8Array(savedData)) : new SQL.Database();
+        db.exec("PRAGMA journal_mode=DELETE; PRAGMA synchronous=OFF; PRAGMA auto_vacuum=INCREMENTAL;");
 
-        console.debug('[WebWorker] DEBUG: Database ready');
-        return db;
     } catch (err) {
-        console.error('[WebWorker] ERROR: Init error:', err);
+        console.error('[App] SQL: Init error:', err);
         throw err;
     }
 }
 
-let sqlModuleReady = init();
-
-async function getDbBuffer() {
-    return new Promise((resolve, reject) => {
-        const tx = idbInstance.transaction(STORE_NAME, "readonly");
-        const store = tx.objectStore(STORE_NAME);
-        const request = store.get(DB_NAME);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-}
+initPromise = init();
 
 async function saveDb() {
-    if (!db || !idbInstance) return;
+    if (!db || !sqlite3) return;
 
-    const data = db.export();
+    try {
+        db.exec("PRAGMA incremental_vacuum(0); PRAGMA shrink_memory;");
 
-    return new Promise((resolve, reject) => {
-        const tx = idbInstance.transaction(STORE_NAME, "readwrite");
-        const store = tx.objectStore(STORE_NAME);
+        const bytes = sqlite3.capi.sqlite3_js_db_export(db.pointer);
 
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-
-        store.put(data, DB_NAME);
-    });
+        if (bytes) {
+            await withIDB('readwrite', (idb) => idb.put(STORE_NAME, bytes, DB_KEY));
+        }
+    } catch (e) {
+        console.error('[App] SQL: Save error:', e);
+    }
 }
 
-async function handleMessage(event) {
-    const {id, action, sql, params} = event.data;
-
-    if (!db) await sqlModuleReady;
+async function handleAction(data) {
+    const {id, action, sql, params} = data;
 
     switch (action) {
+        case "exec":
+            const rows = db.exec({
+                sql: sql,
+                bind: params || [],
+                rowMode: "array",
+                returnValue: "resultRows"
+            });
+
+            const isWrite = /^\s*(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|REPLACE)/i.test(sql);
+            if (isWrite && !isTransactionActive) {
+                await saveDb();
+            }
+
+            return {id, results: {values: rows || []}};
+
         case "begin_transaction":
             if (!isTransactionActive) {
                 db.exec("BEGIN TRANSACTION;");
@@ -96,25 +122,12 @@ async function handleMessage(event) {
             }
             return {id, results: {values: []}};
 
-        case "exec":
-            const results = db.exec(sql, params)[0] ?? {values: []};
-            const isWrite = /^\s*(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER)/i.test(sql);
-            if (isWrite && !isTransactionActive) {
-                await saveDb();
-            }
-            return {id, results};
-
         case "reload_db":
-            if (db) {
-                try {
-                    db.close();
-                } catch (e) {
-                }
-                db = null;
-            }
+            if (db) db.close();
+            db = null;
             isTransactionActive = false;
-            sqlModuleReady = init();
-            await sqlModuleReady;
+            initPromise = init();
+            await initPromise;
             return {id, results: {values: []}};
 
         default:
@@ -124,10 +137,14 @@ async function handleMessage(event) {
 
 self.onmessage = async (event) => {
     try {
-        await sqlModuleReady;
-        const response = await handleMessage(event);
+        await initPromise;
+
+        const response = await handleAction(event.data);
         postMessage(response);
     } catch (err) {
-        postMessage({id: event.data.id, error: err.toString()});
+        postMessage({
+            id: event.data.id,
+            error: err.message || err.toString()
+        });
     }
 };
