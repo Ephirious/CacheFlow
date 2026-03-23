@@ -28,9 +28,9 @@ sealed class ManageTransactionBaseIntent : MVIIntent {
 
     sealed interface Internal
 
-    data class ChangeValue(val value: BigDecimal) : ManageTransactionBaseIntent(), Internal
-    data class ChangeNote(val note: String) : ManageTransactionBaseIntent(), Internal
-    data class ChangeType(val type: Any) : ManageTransactionBaseIntent(), Internal
+    data class ChangedValue(val value: BigDecimal) : ManageTransactionBaseIntent(), Internal
+    data class ChangedNote(val note: String) : ManageTransactionBaseIntent(), Internal
+    data class ChangedType(val type: Any) : ManageTransactionBaseIntent(), Internal
 }
 
 @FlowMVIDSL
@@ -44,9 +44,9 @@ fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction> manageTransac
             updateState {
                 if (this@updateState !is ManageTransactionFormBaseState) return@updateState this@updateState
                 when (baseIntent) {
-                    is ManageTransactionBaseIntent.ChangeValue -> copyBase(value = baseIntent.value)
-                    is ManageTransactionBaseIntent.ChangeNote -> copyBase(note = baseIntent.note)
-                    is ManageTransactionBaseIntent.ChangeType -> copyBase(transactionType = baseIntent.type)
+                    is ManageTransactionBaseIntent.ChangedValue -> copyBase(value = baseIntent.value)
+                    is ManageTransactionBaseIntent.ChangedNote -> copyBase(note = baseIntent.note)
+                    is ManageTransactionBaseIntent.ChangedType -> copyBase(transactionType = baseIntent.type)
                 }
             }
             null
