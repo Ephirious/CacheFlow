@@ -1,4 +1,4 @@
-package startup.sw
+package startup
 
 import kotlinx.coroutines.await
 import org.w3c.dom.MODULE
@@ -12,7 +12,7 @@ suspend fun registerServiceWorker() {
 
     container
         ?.register(
-            "/src/workers/sw-loader.js",
+            "/src/workers/sw.js",
             options = RegistrationOptions(type = WorkerType.MODULE, scope = "/")
         )
         ?.await()

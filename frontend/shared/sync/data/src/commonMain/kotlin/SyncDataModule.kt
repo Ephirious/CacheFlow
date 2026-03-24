@@ -1,12 +1,10 @@
-import org.koin.core.module.Module
 import org.koin.dsl.module
 import sync.cloud.SyncRemoteDataSource
 import sync.repositories.SyncManager
+import sync.repositories.SyncManagerImpl
 
-val syncDataModule: ((SyncRemoteDataSource) -> SyncManager) -> Module = { getSyncManager ->
-    module {
-        single<SyncRemoteDataSource> { SyncRemoteDataSource(get()) }
+val syncDataModule = module {
+    single<SyncRemoteDataSource> { SyncRemoteDataSource(get()) }
 
-        single<SyncManager> { getSyncManager(get()) }
-    }
+    single<SyncManager> { SyncManagerImpl(remoteDataSource = get()) }
 }

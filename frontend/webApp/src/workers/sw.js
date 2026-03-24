@@ -1,3 +1,6 @@
+import { networkFirst, dynamicCacheFirst } from './sw/strategies.js';
+import { showPushNotification, handleNotificationClick } from './sw/notifications.js';
+
 const BUILD_HASH = typeof __BUILD_HASH__ !== 'undefined' ? __BUILD_HASH__ : null;
 const CACHE_NAME = BUILD_HASH ? `cacheflow-h${BUILD_HASH}` : null;
 
@@ -10,14 +13,13 @@ const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
     '/manifest.json',
-
     '/ico/icon-192.png',
     '/ico/icon-512.png',
-
-    '/src/workers/sw-loader.js',
+    '/src/workers/sw.js',
+    '/src/workers/sw/notifications.js',
+    '/src/workers/sw/strategies.js',
     '/src/workers/sqljs.worker.js',
 ];
-
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
@@ -52,17 +54,10 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
     const req = event.request;
-
     if (req.method !== 'GET') return;
 
     const url = new URL(req.url);
-
-
-    if (url.pathname.startsWith('/@vite') || url.search.includes('token=')) {
-        return;
-    }
-
-
+    if (url.pathname.startsWith('/@vite') || url.search.includes('token=')) return;
     if (url.origin !== location.origin) return;
 
     const isApiRequest = url.pathname.includes('/api/') ||
@@ -70,75 +65,21 @@ self.addEventListener('fetch', (event) => {
         url.pathname.includes('/sync') ||
         url.port === '8000';
 
-    if (isApiRequest) return;
-
-    if (!CACHE_NAME) {
-        event.respondWith(fetch(req));
+    if (isApiRequest || !CACHE_NAME) {
         return;
     }
 
     if (req.mode === 'navigate') {
-        event.respondWith(networkFirst(req));
-        return;
+        event.respondWith(networkFirst(req, CACHE_NAME));
+    } else {
+        event.respondWith(dynamicCacheFirst(req, CACHE_NAME));
     }
-
-    event.respondWith(dynamicCacheFirst(req));
 });
 
-async function networkFirst(request) {
-    const cache = await caches.open(CACHE_NAME);
-    try {
-        const response = await fetch(request);
-        if (response.status === 200) {
-            cache.put(request, response.clone());
-        }
-        return response;
-    } catch (e) {
-        return await cache.match(request) || await cache.match('/index.html');
-    }
-}
+self.addEventListener('push', (event) => {
+    event.waitUntil(showPushNotification(event));
+});
 
-async function dynamicCacheFirst(request) {
-    const cache = await caches.open(CACHE_NAME);
-
-    const cached = await cache.match(request);
-    if (cached) return cached;
-
-    try {
-        const response = await fetch(request);
-
-        if (response && response.status === 200 && response.type === 'basic') {
-            cache.put(request, response.clone());
-        }
-        return response;
-    } catch (e) {
-        if (request.mode === 'navigate') {
-            const offlineShell = await cache.match('/index.html');
-            if (offlineShell) return offlineShell;
-        }
-
-        throw e;
-    }
-}
-
-
-if (typeof localStorage === 'undefined') {
-    self.localStorage = {
-        getItem: function () {
-            return null;
-        },
-        setItem: function () {
-        },
-        removeItem: function () {
-        }
-    };
-}
-
-import sqlite3InitModule from "@sqlite.org/sqlite-wasm";
-import {openDB} from 'idb';
-import * as KService from 'k2ts-service';
-
-self.sqlite3InitModule = sqlite3InitModule;
-self.openDB = openDB;
-
-KService.main();
+self.addEventListener('notificationclick', (event) => {
+    handleNotificationClick(event);
+});

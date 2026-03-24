@@ -27,7 +27,7 @@ export default defineConfig({
             name: 'sw-headers',
             configureServer(server) {
                 server.middlewares.use((req, res, next) => {
-                    if (req.url?.includes('sw-loader.js')) {
+                    if (req.url?.includes('sw.js')) {
                         res.setHeader('Service-Worker-Allowed', '/');
                     }
                     next();
@@ -35,7 +35,7 @@ export default defineConfig({
             },
             configurePreviewServer(server) {
                 server.middlewares.use((req, res, next) => {
-                    if (req.url?.includes('sw-loader.js')) {
+                    if (req.url?.includes('sw.js')) {
                         res.setHeader('Service-Worker-Allowed', '/');
                     }
                     next();
@@ -55,12 +55,12 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: path.resolve(__dirname, 'index.html'),
-                'sw-loader': './src/workers/sw-loader.js',
+                'sw': './src/workers/sw.js',
                 'sqljs.worker': './src/workers/sqljs.worker.js'
             },
             output: {
                 entryFileNames: (chunkInfo) => {
-                    if (chunkInfo.name === 'sw-loader' || chunkInfo.name === 'sqljs.worker') {
+                    if (chunkInfo.name === 'sw' || chunkInfo.name === 'sqljs.worker') {
                         return 'src/workers/[name].js';
                     }
                     return 'assets/[name]-[hash].js';

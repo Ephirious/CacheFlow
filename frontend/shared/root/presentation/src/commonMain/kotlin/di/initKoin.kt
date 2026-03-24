@@ -36,10 +36,7 @@ suspend fun initKoin(
 
             settingsPresentationModule,
 
-
-            syncDataModule { remoteDataSource ->
-                getSyncManagerApp(remoteDataSource)
-            }
+            syncDataModule
         )
     }
 }

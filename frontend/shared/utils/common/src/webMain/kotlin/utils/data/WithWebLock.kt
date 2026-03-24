@@ -7,10 +7,10 @@ import kotlinx.coroutines.promise
 import utils.Logg
 import kotlin.js.Promise
 
-suspend fun <T> withWebLock(
+actual suspend fun <T> withWebLock(
     scope: CoroutineScope,
-    lockName: String = "db",
-    skipIfLocked: Boolean = true,
+    lockName: String,
+    skipIfLocked: Boolean,
     block: suspend () -> T
 ): T? {
     val navigator = js("globalThis.navigator")
