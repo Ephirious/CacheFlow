@@ -1,14 +1,29 @@
 import sqlite3InitModule from "@sqlite.org/sqlite-wasm";
-import {openDB} from 'idb';
+import { openDB } from 'idb';
 
 const DB_KEY = 'app_db';
 const STORE_NAME = 'table';
 const IDB_NAME = "CacheFlowSqlStorage";
+const OPFS_FILE_NAME = "cacheflow.db";
 
 let db = null;
 let sqlite3 = null;
 let isTransactionActive = false;
 let initPromise = null;
+
+const syncChannel = new BroadcastChannel('sqlite_sync_channel');
+
+let workerId = null;
+
+function notifySQLSync() {
+    if (workerId != null) {
+        syncChannel.postMessage({
+            action: 'db_updated',
+            senderId: workerId
+        });
+    }
+}
+
 
 async function withIDB(mode, callback) {
     const idb = await openDB(IDB_NAME, 1, {
@@ -16,12 +31,8 @@ async function withIDB(mode, callback) {
             if (!db.objectStoreNames.contains(STORE_NAME)) {
                 db.createObjectStore(STORE_NAME);
             }
-        },
-        blocking() {
-            idb.close();
         }
     });
-
     try {
         return await callback(idb);
     } finally {
@@ -29,33 +40,29 @@ async function withIDB(mode, callback) {
     }
 }
 
-let currentDbFileName = null;
-
 async function init() {
     try {
         if (!sqlite3) sqlite3 = await sqlite3InitModule();
 
-        const bytes = await withIDB('readonly', (idb) => idb.get(STORE_NAME, DB_KEY));
+        const isOpfsSupported = !!sqlite3.opfs;
 
-        if (currentDbFileName) {
-            try {
-                sqlite3.capi.sqlite3_js_posix_unlink(currentDbFileName);
-            } catch (e) {
+        if (isOpfsSupported) {
+            console.debug('[App] SQL: OPFS mode');
+            db = new sqlite3.oo1.OpfsDb(OPFS_FILE_NAME, "c");
+        } else {
+            console.warn('[App] SQL: IDB fallback mode');
+            const bytes = await withIDB('readonly', (idb) => idb.get(STORE_NAME, DB_KEY));
+
+            if (bytes && bytes.byteLength > 100) {
+                const tempName = `restore_${Date.now()}.db`;
+                sqlite3.capi.sqlite3_js_posix_create_file(tempName, bytes);
+                db = new sqlite3.oo1.DB(tempName, "c");
+            } else {
+                db = new sqlite3.oo1.DB(":memory:", "c");
             }
         }
 
-        if (bytes && bytes.byteLength > 100) {
-            currentDbFileName = `live_db_${Date.now()}.db`;
-            sqlite3.capi.sqlite3_js_posix_create_file(currentDbFileName, bytes);
-            db = new sqlite3.oo1.DB(currentDbFileName, "c");
-            console.debug('[App] SQL: IDB mode');
-        } else {
-            currentDbFileName = null;
-            db = new sqlite3.oo1.DB(":memory:", "c");
-            console.debug('[App] SQL: IDB mode (fresh)');
-        }
-
-        db.exec("PRAGMA journal_mode=DELETE; PRAGMA synchronous=OFF; PRAGMA auto_vacuum=INCREMENTAL;");
+        db.exec("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA auto_vacuum=INCREMENTAL;");
 
     } catch (err) {
         console.error('[App] SQL: Init error:', err);
@@ -67,12 +74,12 @@ initPromise = init();
 
 async function saveDb() {
     if (!db || !sqlite3) return;
+        const isOpfsDb = sqlite3.oo1.OpfsDb && db instanceof sqlite3.oo1.OpfsDb;
 
+        if (isOpfsDb) return;
     try {
         db.exec("PRAGMA incremental_vacuum(0); PRAGMA shrink_memory;");
-
         const bytes = sqlite3.capi.sqlite3_js_db_export(db.pointer);
-
         if (bytes) {
             await withIDB('readwrite', (idb) => idb.put(STORE_NAME, bytes, DB_KEY));
         }
@@ -82,7 +89,7 @@ async function saveDb() {
 }
 
 async function handleAction(data) {
-    const {id, action, sql, params} = data;
+    const { id, action, sql, params } = data;
 
     switch (action) {
         case "exec":
@@ -96,39 +103,33 @@ async function handleAction(data) {
             const isWrite = /^\s*(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|REPLACE)/i.test(sql);
             if (isWrite && !isTransactionActive) {
                 await saveDb();
+                notifySQLSync();
             }
 
-            return {id, results: {values: rows || []}};
+            return { id, results: { values: rows || [] } };
 
         case "begin_transaction":
             if (!isTransactionActive) {
                 db.exec("BEGIN TRANSACTION;");
                 isTransactionActive = true;
             }
-            return {id, results: {values: []}};
+            return { id, results: { values: [] } };
 
         case "end_transaction":
             if (isTransactionActive) {
                 db.exec("COMMIT;");
                 isTransactionActive = false;
                 await saveDb();
+                notifySQLSync();
             }
-            return {id, results: {values: []}};
+            return { id, results: { values: [] } };
 
         case "rollback_transaction":
             if (isTransactionActive) {
                 db.exec("ROLLBACK;");
                 isTransactionActive = false;
             }
-            return {id, results: {values: []}};
-
-        case "reload_db":
-            if (db) db.close();
-            db = null;
-            isTransactionActive = false;
-            initPromise = init();
-            await initPromise;
-            return {id, results: {values: []}};
+            return { id, results: { values: [] } };
 
         default:
             throw new Error(`Unsupported action: ${action}`);
@@ -136,14 +137,20 @@ async function handleAction(data) {
 }
 
 self.onmessage = async (event) => {
+    const data = event.data;
+    if (data.action === 'set_worker_id') {
+        workerId = data.workerId;
+        console.debug(`[App] WorkerID: ${workerId}`);
+        return;
+    }
+
     try {
         await initPromise;
-
-        const response = await handleAction(event.data);
+        const response = await handleAction(data);
         postMessage(response);
     } catch (err) {
         postMessage({
-            id: event.data.id,
+            id: data.id,
             error: err.message || err.toString()
         });
     }
