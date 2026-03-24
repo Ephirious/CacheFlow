@@ -13,6 +13,7 @@
     "preview": "cd webApp && npm run build && npm run preview"
   },
   "dependencies": {
-    "sql.js": "^1.14.1"
+    "@sqlite.org/sqlite-wasm": "^3.51.2-build8",
+    "idb": "^8.0.3"
   }
 }
