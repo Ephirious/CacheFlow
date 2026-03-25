@@ -1,17 +1,21 @@
-import { RootChild, RootComponent, RootOutput } from "k2ts";
-import { LuWallet } from "react-icons/lu";
-import { FiHome } from "react-icons/fi";
-import { GrLineChart } from "react-icons/gr";
-import { LuSettings } from "react-icons/lu";
-import { motion } from "framer-motion";
+import {RootChild, RootComponent, RootOutput} from "k2ts";
+import {LuWallet} from "react-icons/lu";
+import {FiHome} from "react-icons/fi";
+import {GrLineChart} from "react-icons/gr";
+import {LuSettings} from "react-icons/lu";
+import {LuSquareActivity} from "react-icons/lu";
+import {motion} from "framer-motion";
 
 interface RootTabBarProps {
     component: RootComponent;
     activeChild: RootChild
 }
 
+
 const NavBar = ({component, activeChild}: RootTabBarProps) => {
-    const btnBase = "relative flex flex-col md:flex-row items-center rounded-2xl text-base font-semibold gap-4 px-5 md:px-4 py-3 transition-colors duration-300 outline-none";
+    const btnBase = "relative flex flex-col items-center justify-center rounded-2xl text-base font-semibold transition-colors duration-300 outline-none " +
+        "md:flex-row md:justify-start md:px-4 md:py-3 md:gap-4 md:w-full";
+
     const btnActive = "text-brand-indigo";
     const btnInActive = "text-slate-500 hover:text-slate-700";
 
@@ -34,28 +38,29 @@ const NavBar = ({component, activeChild}: RootTabBarProps) => {
             child: RootChild.SettingsChild,
             output: RootOutput.NavigateToSettings
         },
+        {
+            label: "Interop",
+            icon: <LuSquareActivity/>,
+            child: RootChild.InteropSampleFlowChild,
+            output: RootOutput.NavigateToInteropTest
+        }
     ];
 
     return (
         <nav className="
-        z-50
-        bottom-0 fixed w-full
-        md:flex md:h-full md:w-96 md:flex-col md:relative md:p-6
-        bg-sidebar-bg p-2 gap-8 border-r border-black/5
+            z-50 fixed bottom-0 left-0 right-0
+            bg-white border-t border-black/5
+            pb-[env(safe-area-inset-bottom)]
+            md:relative md:flex md:h-full md:w-96 md:flex-col md:border-r md:border-t-0 md:p-6 md:bg-transparent
         ">
-            <h1 className="
-            hidden
-            md:flex
-            items-center gap-3 font-bold text-2xl">
-                <LuWallet className="w-12 h-12 p-2.5 bg-sidebar-active rounded-2xl text-brand-indigo" />
+            <h1 className="hidden md:flex items-center gap-3 font-bold text-2xl mb-8">
+                <LuWallet className="w-12 h-12 p-2.5 bg-sidebar-active rounded-2xl text-brand-indigo"/>
                 CashFlow
             </h1>
 
             <div className="
-            flex
-            md:flex md:flex-col
-            gap-2
-            justify-center
+                flex justify-around items-center p-2
+                md:flex-col md:justify-start md:gap-2 md:p-0
             ">
                 {menuItems.map((item, index) => {
                     const isActive = activeChild instanceof item.child;
@@ -63,22 +68,29 @@ const NavBar = ({component, activeChild}: RootTabBarProps) => {
                     return (
                         <button
                             key={index}
-                            className={`${btnBase} ${isActive ? btnActive : btnInActive}`}
-                            onClick={() => { component.onOutput(item.output) }}
+                            className={`${btnBase} ${isActive ? btnActive : btnInActive} p-2`}
+                            onClick={() => {
+                                component.onOutput(item.output)
+                            }}
                         >
                             {isActive && (
                                 <motion.div
                                     layoutId="nav-active-bg"
-                                    className="
-                                    pointer-events-none
-                                    absolute inset-0 bg-sidebar-active rounded-2xl
-                                    "
-                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                    className="hidden md:block absolute inset-0 bg-sidebar-active rounded-2xl pointer-events-none"
+                                    transition={{type: "spring", stiffness: 300, damping: 30}}
                                 />
                             )}
 
                             <span className="relative z-10">{item.icon}</span>
-                            <span className="relative z-10 text-xs md:text-base w-18">{item.label}</span>
+                            <span className="relative z-10 text-[10px] md:text-base font-medium mt-1 md:mt-0">
+                                {item.label}
+                            </span>
+                            {isActive && (
+                                <motion.div
+                                    layoutId="nav-dot"
+                                    className="md:hidden absolute -bottom-1 w-1 h-1 bg-brand-indigo rounded-full"
+                                />
+                            )}
                         </button>
                     );
                 })}

@@ -10,7 +10,7 @@ const RootScreen = ({component}: { component: RootComponent }) => {
     const stack = useValue(component.childStack)
     const activeChild = stack.active;
 
-    return <>
+    return (
         <div className={
             "flex flex-col h-screen w-screen" +
             "sm:flex sm:flex-row"
@@ -28,8 +28,8 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                 >
                     {
                         when(activeChild)
-                            .on(RootChild.MainChild, (_child) => (
-                                <Main/>
+                            .on(RootChild.MainChild, (child) => (
+                                <Main component={child.component}/>
                             ))
                             .on(RootChild.StatsChild, (_child) => (
                                 <>Stats</>
@@ -45,7 +45,7 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                 </motion.div>
             </AnimatePresence>
         </div>
-    </>
+    )
 }
 
 export default RootScreen;

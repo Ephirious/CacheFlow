@@ -4,10 +4,26 @@
     --color-sidebar-bg: rgba(255, 255, 255, 0.8);
     --color-sidebar-active: rgba(97, 95, 255, 0.1);
     --color-brand-indigo: #4F39F6;
-    --color-logo-white: rgba(255, 255, 255, 0.2);
     --color-account-orange: #F59E0B;
+    --color-filter-button: #D1D5DC;
+    --color-on-brand: #FFFFFF;
+    --color-transaction-up: #00A63E;
+    --color-transaction-up-bg: rgba(0, 201, 80, 0.1);
+    --color-transaction-down: #E7000B;
+    --color-transaction-down-bg: rgba(251, 44, 54, 0.1);
+    --color-transaction-transfer-bg: rgba(97, 95, 255, 0.1);
+    --color-transaction: #6A7282;
 }
 
+body{
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+}
+#root{
+    height: 100vh;
+}
 #root{
     font-family: Inter, sans-serif;
 }
+

@@ -1,9 +1,18 @@
 import {LuWallet} from "react-icons/lu";
 import AccountCard from "./AccountCard.tsx";
+import {BigDecimal} from "k2ts";
+import {Account} from "../../types/types.ts";
 
+interface MainCardData{
+    accounts: Account[],
+    balance: BigDecimal,
+    percentage: BigDecimal
+}
 
-
-const MainCard = ({ accounts }: { accounts: any[] }) => {
+const MainCard = ({ data }: { data: MainCardData }) => {
+    const displayBalance = data.balance.toString();
+    const displayPercentage = data.percentage.toString();
+    const accountsList = data.accounts;
     return (
         <div className="p-0 sm:p-6 w-full">
             <div className="
@@ -12,7 +21,7 @@ const MainCard = ({ accounts }: { accounts: any[] }) => {
                 sm:rounded-3xl sm:p-10
             ">
                 <div className="flex gap-3 items-center">
-                    <div className="p-2.5 bg-white/20 rounded-2xl">
+                    <div className="p-2.5 bg-on-brand/20 rounded-2xl">
                         <LuWallet className="w-7 h-7 stroke-white" />
                     </div>
                     <h1 className="text-2xl sm:text-3xl text-white font-bold">
@@ -24,9 +33,9 @@ const MainCard = ({ accounts }: { accounts: any[] }) => {
                 <div className="flex flex-col gap-1">
                     <div className="text-sm text-white/70 font-medium">Общий баланс</div>
                     <div className="text-5xl sm:text-6xl font-bold text-white">
-                        1 844 400 ₽
+                        {displayBalance.toString()} ₽
                     </div>
-                    <div className="text-sm text-white/70 font-medium">+12.5% за месяц</div>
+                    <div className="text-sm text-white/70 font-medium">+{displayPercentage.toString()}% за месяц</div>
                 </div>
                 <div
                     className="
@@ -35,7 +44,7 @@ const MainCard = ({ accounts }: { accounts: any[] }) => {
                         sm:grid-cols-4
                     "
                 >
-                    {accounts.map((acc, index) => (
+                    {accountsList.map((acc, index) => (
                         <AccountCard key={acc.id} account={acc} index={index}/>
                     ))}
                 </div>

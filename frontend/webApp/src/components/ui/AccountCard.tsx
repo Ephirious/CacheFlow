@@ -1,12 +1,5 @@
 import {motion} from "framer-motion";
-
-
-
-interface Account {
-    title: string;
-    balance: string;
-    color: string;
-}
+import {Account} from "../../types/types.ts";
 
 
 const AccountCard = ({ account, index }: { account: Account, index: number }) => {
