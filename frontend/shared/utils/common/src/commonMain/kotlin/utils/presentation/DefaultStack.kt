@@ -8,6 +8,8 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.backhandler.BackHandlerOwner
 import utils.interop.JsChildStack
 import utils.interop.JsValue
+import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlin.reflect.KClass
 
 @JsExport

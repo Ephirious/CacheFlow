@@ -1,29 +1,87 @@
 package sync.repositories
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.serialization.Serializable
+import io.ktor.client.*
+import io.ktor.client.request.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
+import sync.cloud.SyncRemoteDataSource
+import utils.Logg
+import utils.data.withWebLock
+import utils.presentation.AsyncDispatcher
+
+class SyncManagerImpl(
+    override val scope: CoroutineScope = CoroutineScope(AsyncDispatcher + SupervisorJob()),
+    remoteDataSource: SyncRemoteDataSource,
+) : SyncManager, KoinComponent {
+
+    override val status = MutableStateFlow(SyncStatus.Ok)
+
+    private val mutex = Mutex()
 
 
-@Serializable
-data class SyncData(
-    val transactions: List<SampleDBData>,
-    val categories: List<SampleDBData>,
-    val accounts: List<SampleDBData>,
-)
+    private val scheduler =
+        SyncScheduler(scope, listOf(/*todo*/))
 
-@Serializable
-data class SampleDBData(
-    val timestamp: String,
-    val isSynced: Boolean
-)
+    init {
+        scope.launch(AsyncDispatcher) {
+            scheduler.debouncedSyncEvents.collect {
+                trySync()
+            }
+        }
+    }
 
-fun createMockFlow(name: String): Flow<List<SampleDBData>> = flow {
-//    while (true) {
-//        val delaySec = Random.nextLong(5, 20)
-//        delay(delaySec * 1000)
+    override suspend fun requestSync() {
+        scheduler.schedule()
+    }
+
+    override suspend fun forceSync() = trySync()
+
+
+    private suspend fun trySync() {
+        mutex.withLock {
+            withWebLock(scope) {
+
+                runCatching {
+                    status.value = SyncStatus.InProcess
+                    sync()
+                }.fold(
+                    onSuccess = {
+                        status.value = SyncStatus.Ok
+                    },
+                    onFailure = {
+                        status.value = SyncStatus.Failed
+                    }
+                )
+            }
+        }
+    }
+
+    private suspend fun sync() {
+        Logg.debug { "Syncing start" }
+        // TODO
+        get<HttpClient>().get(urlString = "http://localhost:8000/sync")
+        Logg.debug { "Syncing end" }
+//        val allTrans = getTransactionsFlowUseCase().firstOrNull() ?: listOf()
+//        val allCats = getCategoriesFlowUseCase().firstOrNull() ?: listOf()
+//        val allAccounts = getAccountsFlowUseCase().firstOrNull() ?: listOf()
 //
-//        println("[Mock] 🕒 Поток '$name' сгенерировал обновление ($delaySec sec)")
-//        emit(listOf(SampleDBData("timestamp-${Clock.System.now().epochSeconds}", false)))
-//    }
+//        val unsyncedData = SyncData(
+//            transactions = filterUnsynced(allTrans),
+//            categories = filterUnsynced(allCats),
+//            accounts = filterUnsynced(allAccounts)
+//        )
+
+
+//        if (unsyncedData.isEmpty()) {
+//            return
+//        }
+//
+//        remoteDataSource.sync(unsyncedData)
+    }
 }

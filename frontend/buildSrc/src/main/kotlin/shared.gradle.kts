@@ -10,14 +10,13 @@ plugins {
 }
 
 kotlin {
+    jvm()
     js(IR) {
         browser()
     }
-
     compilerOptions {
         freeCompilerArgs.addAll(
-            "-Xexpect-actual-classes",
-            "-Xir-property-lazy-initialization"
+            "-Xexpect-actual-classes"
         )
         optIn.addAll(
             "kotlin.js.ExperimentalJsExport"

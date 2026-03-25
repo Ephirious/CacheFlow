@@ -4,22 +4,26 @@ import interopSample.usecases.GetWeatherFlowUseCase
 import interopSample.usecases.ManageSampleTextUseCases
 import interopSample.usecases.RefreshWeatherUseCase
 import interopSampleFlow.mvi.InteropSampleFlowState.WeatherState
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.dsl.updateStateImmediate
-import pro.respawn.flowmvi.plugins.enableLogging
-import pro.respawn.flowmvi.plugins.recover
+import pro.respawn.flowmvi.plugins.JobManager
 import pro.respawn.flowmvi.plugins.reduce
 import pro.respawn.flowmvi.plugins.whileSubscribed
-import utils.AppConfig
+import utils.orUnknown
 import utils.presentation.AsyncDispatcher
+import utils.presentation.flowMVI.fastConfig
+import utils.presentation.flowMVI.registerOrIgnore
 
 private typealias Ctx = PipelineContext<InteropSampleFlowState, InteropSampleFlowIntent, Nothing>
 
+
+private enum class Jobs {
+    ObserveWeather, RefreshWeather
+}
 
 class InteropSampleFlowContainer(
     private val getWeatherFlowUseCase: GetWeatherFlowUseCase,
@@ -33,25 +37,22 @@ class InteropSampleFlowContainer(
                 sampleText = manageSampleTextUseCases.getSampleText()
             )
         ) {
-            configure {
-                name = "InteropSampleFlow"
-                debuggable = AppConfig.isDebuggable
-            }
-            enableLogging()
+            fastConfig(
+                name = "InteropSampleFlow",
+                resetOnStop = false,
+                doOnRecover = { copy(weatherState = WeatherState.Error(it.message.orUnknown)) }
+            )
 
-            recover {
-                updateState { copy(weatherState = WeatherState.Error(it.message ?: "unknown error!")) }
-                null
-            }
+            val jobs = JobManager<Jobs>()
 
             whileSubscribed {
-                startWeatherSubscription()
+                startWeatherSubscription(jobs)
             }
 
             reduce { intent ->
                 when (intent) {
                     InteropSampleFlowIntent.ClickedRefresh ->
-                        refreshWeather()
+                        refreshWeather(jobs)
 
                     is InteropSampleFlowIntent.ChangedSampleText -> {
                         manageSampleTextUseCases.setSampleText(intent.text)
@@ -62,25 +63,18 @@ class InteropSampleFlowContainer(
         }
 
 
-    private var refreshWeatherJob: Job? = null
-    private fun Ctx.refreshWeather() {
-        if (refreshWeatherJob?.isActive == true) return
-
-        refreshWeatherJob = launch(AsyncDispatcher) {
+    private fun Ctx.refreshWeather(jobs: JobManager<Jobs>) {
+        launch(AsyncDispatcher) {
             updateState {
                 copy(weatherState = WeatherState.Loading)
             }
             refreshWeatherUseCase()
-            startWeatherSubscription()
-        }
+            startWeatherSubscription(jobs)
+        }.registerOrIgnore(jobs, Jobs.RefreshWeather)
     }
 
-    private var weatherSubscriptionJob: Job? = null
-
-
-    private fun Ctx.startWeatherSubscription() {
-        if (weatherSubscriptionJob?.isActive == true) return
-        weatherSubscriptionJob = launch(AsyncDispatcher) {
+    private fun Ctx.startWeatherSubscription(jobs: JobManager<Jobs>) {
+        launch(AsyncDispatcher) {
             try {
                 getWeatherFlowUseCase().collect { weather ->
                     updateState { copy(weatherState = WeatherState.OK(weather)) }
@@ -88,6 +82,7 @@ class InteropSampleFlowContainer(
             } catch (_: NullPointerException) {
                 throw NullPointerException("Нет оффлайн данных (ошибка!!)")
             }
-        }
+        }.registerOrIgnore(jobs, Jobs.ObserveWeather)
     }
+
 }

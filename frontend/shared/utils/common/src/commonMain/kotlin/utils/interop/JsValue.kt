@@ -1,6 +1,7 @@
 package utils.interop
 
 import com.arkivanov.decompose.value.Value
+import kotlin.js.JsExport
 
 @JsExport
 interface JsDisposable {

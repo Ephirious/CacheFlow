@@ -3,6 +3,7 @@ package sync.repositories
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
+import kotlin.js.JsExport
 
 @Serializable
 @JsExport

@@ -9,7 +9,6 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import settingsPresentationModule
 import statsPresentationModule
-import sync.repositories.SyncManagerAppImpl
 import syncDataModule
 import transactionsPresentationModule
 
@@ -37,10 +36,7 @@ suspend fun initKoin(
 
             settingsPresentationModule,
 
-
-            syncDataModule { remoteDataSource ->
-                SyncManagerAppImpl(remoteDataSource)
-            }
+            syncDataModule
         )
     }
 }

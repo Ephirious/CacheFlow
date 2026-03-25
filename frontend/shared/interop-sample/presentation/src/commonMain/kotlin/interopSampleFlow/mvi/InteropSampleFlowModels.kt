@@ -3,6 +3,7 @@ package interopSampleFlow.mvi
 import interopSample.models.Weather
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
+import kotlin.js.JsExport
 
 @JsExport
 data class InteropSampleFlowState(

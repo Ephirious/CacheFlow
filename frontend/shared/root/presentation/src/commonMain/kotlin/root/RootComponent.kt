@@ -7,6 +7,7 @@ import main.MainComponent
 import settings.SettingsComponent
 import stats.StatsComponent
 import utils.presentation.DefaultStack
+import kotlin.js.JsExport
 import kotlinx.serialization.Serializable as Serializable
 
 

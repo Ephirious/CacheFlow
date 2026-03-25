@@ -1,6 +1,7 @@
 package interopSample.models
 
 import utils.BigDecimal
+import kotlin.js.JsExport
 
 @JsExport
 data class Weather(

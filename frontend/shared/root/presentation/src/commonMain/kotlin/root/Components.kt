@@ -2,7 +2,9 @@ package root
 
 import com.arkivanov.decompose.ComponentContext
 import interopSampleFlow.RealInteropSampleFlowComponent
+import interopSampleFlow.mvi.InteropSampleFlowContainer
 import main.RealMainComponent
+import main.mvi.MainContainer
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import settings.RealSettingsComponent
@@ -14,13 +16,14 @@ internal class PersistentRootComponents(ctx: ComponentContext) : KoinComponent {
         ctx.persistent { ctx ->
             RealInteropSampleFlowComponent(
                 componentCtx = ctx,
-                container = get()
+                container = { get<InteropSampleFlowContainer>() }
             )
         }
     val main =
         ctx.persistent { ctx ->
             RealMainComponent(
-                componentCtx = ctx
+                componentCtx = ctx,
+                container = { get<MainContainer>() }
             )
         }
 
