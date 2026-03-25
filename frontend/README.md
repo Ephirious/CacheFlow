@@ -7,11 +7,10 @@
 
 * [/k2ts](./k2ts) содержит настройки для билда библиотеки под JS таргет, занимается инициализацией
 
-* [/k2ts-service](./k2ts-service) – ServiceWorker, написанный на Kotlin
 
 ### Внутренняя документация
 
-- [Взаимодействие WebApp и ServiceWorker. (кэширование, пуши, синхронизация)](docs/WebApp_ServiceWorker.md)
+- ~[Взаимодействие WebApp и ServiceWorker. (кэширование, пуши, синхронизация)](docs/WebApp_ServiceWorker.md)~ Устарело, т.к. ServiceWorker был переписан.
 
 ### Билд и запуск
 
@@ -20,14 +19,14 @@
 1. Скачайте IntelliJ IDEA, установите плагин Kotlin Multiplatform
 2. Откройте этот проект (в IDEA) и установите JAVA 17
 3. Скачайте [Node.js](https://nodejs.org/en/download) (содержит `npm`)
-4. Сбилдите Kotlin/JS код (модули k2ts и k2ts-service):
+4. Сбилдите Kotlin/JS код (модуль k2ts):
     - на macOS/Linux
       ```shell
-      ./gradlew buildAll
+      ./gradlew buildK2ts
       ```
     - на Windows
       ```shell
-      .\gradlew.bat buildAll
+      .\gradlew.bat buildK2ts
       ```
 5. Запустите приложение
    ```shell
@@ -37,9 +36,9 @@
 
 > [!NOTE]
 > **Про сборку**
-> - **Kotlin:** `buildAll` билдит клиент и сервис. Можно разделить с помощью `buildClient` и `buildService`
+> - **Kotlin:** `buildK2ts` билдит JS библиотеку Kotlin логики с биндингами на TS _(Production для лучшей стабильности)_
 > - **TS** : `npm run start`, `npm run build`, `npm run preview`
->    - `start` – используется для реактивной разработки, т.е. поддерживает hotReload основной логики (`k2ts`), сервиса (`k2ts-service`) и других файлов _(UI)_.\
+>    - `start` – используется для реактивной разработки, т.е. поддерживает hotReload основной логики (`k2ts`) и других файлов _(UI)_.\
      Не поддерживает offline-first, т.к. кэширование отключено. _(порт 8080)_
 >    - `build` – билдит проект в папочку `dist`
 >    - `preview` – выполняет `build`, а потом хостится, имитируя поведение настоящего прода. Можно устанавливать как PWA. _(порт 4173)_
