@@ -13,18 +13,6 @@ let initPromise = null;
 
 const syncChannel = new BroadcastChannel('sqlite_sync_channel');
 
-let workerId = null;
-
-function notifySQLSync() {
-    if (workerId != null) {
-        syncChannel.postMessage({
-            action: 'db_updated',
-            senderId: workerId
-        });
-    }
-}
-
-
 async function withIDB(mode, callback) {
     const idb = await openDB(IDB_NAME, 1, {
         upgrade(db) {
@@ -103,10 +91,9 @@ async function handleAction(data) {
             const isWrite = /^\s*(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|REPLACE)/i.test(sql);
             if (isWrite && !isTransactionActive) {
                 await saveDb();
-                notifySQLSync();
             }
 
-            return { id, results: { values: rows || [] } };
+            return { id, results: { values: rows || [] }, isWrite: isWrite };
 
         case "begin_transaction":
             if (!isTransactionActive) {
@@ -120,9 +107,8 @@ async function handleAction(data) {
                 db.exec("COMMIT;");
                 isTransactionActive = false;
                 await saveDb();
-                notifySQLSync();
             }
-            return { id, results: { values: [] } };
+            return { id, results: { values: [] }, isEnd: true };
 
         case "rollback_transaction":
             if (isTransactionActive) {
@@ -138,16 +124,23 @@ async function handleAction(data) {
 
 self.onmessage = async (event) => {
     const data = event.data;
-    if (data.action === 'set_worker_id') {
-        workerId = data.workerId;
-        console.debug(`[App] WorkerID: ${workerId}`);
-        return;
-    }
 
     try {
         await initPromise;
         const response = await handleAction(data);
+        const shouldSync = response.isWrite || response.isEnd;
+
+        delete response.isWrite;
+        delete response.isEnd;
+
         postMessage(response);
+
+        if (shouldSync) {
+            if (data.sql) {
+                response.tables = extractTables(data.sql);
+            }
+            syncChannel.postMessage(response);
+        }
     } catch (err) {
         postMessage({
             id: data.id,
@@ -155,3 +148,14 @@ self.onmessage = async (event) => {
         });
     }
 };
+
+function extractTables(sql) {
+    const tables = [];
+
+    const regex = /(?:FROM|UPDATE|INTO|TABLE|JOIN|DELETE\s+FROM)\s+([a-zA-Z0-9_]+)/gi;
+    let match;
+    while ((match = regex.exec(sql)) !== null) {
+        tables.push(match[1]);
+    }
+    return [...new Set(tables)];
+}
