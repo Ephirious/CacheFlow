@@ -1,7 +1,7 @@
 import { LiaFilterSolid } from "react-icons/lia";
 import {motion} from "framer-motion";
 import TransactionCard from "./TransactionCard.tsx";
-import {Transaction} from "../../types/types.ts"
+import {Transaction} from "../../../types/types.ts"
 
 
 const Transactions = ({ transactions }: {transactions: Transaction[]}) => {

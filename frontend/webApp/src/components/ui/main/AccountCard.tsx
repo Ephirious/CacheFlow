@@ -1,5 +1,5 @@
 import {motion} from "framer-motion";
-import {Account} from "../../types/types.ts";
+import {Account} from "../../../types/types.ts";
 
 
 const AccountCard = ({ account, index }: { account: Account, index: number }) => {

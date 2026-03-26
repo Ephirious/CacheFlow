@@ -1,6 +1,6 @@
 import {Sheet, SheetRef} from 'react-modal-sheet';
 import {useRef, useState} from 'react';
-import {changeMetaThemeColor} from "../../styles/changeMetaThemeColor.ts";
+import {changeMetaThemeColor} from "../../../styles/changeMetaThemeColor.ts";
 import {useMotionValue, useMotionValueEvent, useTransform} from "framer-motion";
 
 
@@ -8,10 +8,8 @@ const BottomSheet = ({children, containerEl}: { children: React.ReactNode, conta
 
 
     const [isOpen, setOpen] = useState(true);
-
-
     const [isFullyOpened, setIsFullyOpened] = useState(false);
-    const lastThemeColor = useRef<"white" | "#4F39F6">("#4F39F6");
+    const lastThemeColor = useRef<"F9FAFF" | "#4F39F6">("#4F39F6");
     const ref = useRef<SheetRef>(null);
 
     const fallbackY = useMotionValue(0);
@@ -21,7 +19,7 @@ const BottomSheet = ({children, containerEl}: { children: React.ReactNode, conta
 
     const updateFullyState = (y: number) => {
         setIsFullyOpened(y < 5);
-        const nextColor = isFullyOpened ? "white" : "#4F39F6";
+        const nextColor = isFullyOpened ? "F9FAFF" : "#4F39F6";
         if (lastThemeColor.current !== nextColor) {
             lastThemeColor.current = nextColor;
             changeMetaThemeColor(containerEl, nextColor);
@@ -36,7 +34,7 @@ const BottomSheet = ({children, containerEl}: { children: React.ReactNode, conta
         updateFullyState(motionY.get())
     };
 
-    const snapPoints = [0, 0.5, 1];
+    const snapPoints = [0, 0.59, 1];
 
     return (
         <Sheet
@@ -48,7 +46,7 @@ const BottomSheet = ({children, containerEl}: { children: React.ReactNode, conta
             initialSnap={1}
             disableDismiss={true}
             style={{
-                zIndex: 40,
+                zIndex: 10,
                 marginTop: 'env(safe-area-inset-top)',
             }}
             detent={"full"}
@@ -57,6 +55,7 @@ const BottomSheet = ({children, containerEl}: { children: React.ReactNode, conta
         >
             <Sheet.Container
                 style={{
+                    backgroundColor: "#F9FAFF",
                     // borderRadius: 0
                     borderTopLeftRadius: borderRadius,
                     borderTopRightRadius: borderRadius

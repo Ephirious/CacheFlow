@@ -1,11 +1,14 @@
-import MainCard from "../ui/MainCard.tsx";
-import Transactions from "../ui/Transactions.tsx";
+import MainCard from "../ui/main/MainCard.tsx";
+import Transactions from "../ui/main/Transactions.tsx";
 import {MainComponent} from "k2ts";
 import {useValue} from "interop";
 import {Transaction} from "../../types/types.ts";
-import BottomSheet from "../ui/BottomSheet.tsx";
+import BottomSheet from "../ui/main/TransactionBottomSheet.tsx";
 import {Account} from "../../types/types.ts";
 import {useState} from "react";
+import CreateTransactionButton from "../ui/main/CreateTransactionButton.tsx";
+import CreateTransactionBottomSheet from "../ui/main/CreateTransactionBottomSheet.tsx";
+
 
 
 const TEST_TRANSACTIONS: Transaction[] = [
@@ -60,8 +63,7 @@ const TEST_TRANSACTIONS: Transaction[] = [
 const TEST_ACCOUNTS: Account[] = [
     {title: "Т-Банк", balance: "100 000", color: "bg-orange-500"},
     {title: "Газпромбанк", balance: "100 000", color: "bg-green-500"},
-    {title: "Сбер", balance: "100 000", color: "bg-blue-500"},
-    {title: "Крипта", balance: "1 000 000", color: "bg-red-500"}
+
 ]
 
 
@@ -71,13 +73,14 @@ const Main = ({component}: { component: MainComponent }) => {
 
     const [themeElement, setThemeElement] = useState<HTMLElement>();
 
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
     return (
         <div ref={(el) => el && setThemeElement(el)}
              className={"fixed h-screen w-screen pt-[env(safe-area-inset-top)]"}
              style={{backgroundColor: "#4F39F6"}}
         >
             <main
-
                 className={"fixed h-screen w-screen"}
                 style={{backgroundColor: "#4F39F6"}}
             >
@@ -90,6 +93,12 @@ const Main = ({component}: { component: MainComponent }) => {
                     <Transactions transactions={TEST_TRANSACTIONS}/>
                 </BottomSheet>
             </main>
+            <CreateTransactionButton onClick={() => setIsCreateModalOpen(true)}/>
+            <CreateTransactionBottomSheet
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                containerEl={themeElement}
+            />
         </div>
     )
 }

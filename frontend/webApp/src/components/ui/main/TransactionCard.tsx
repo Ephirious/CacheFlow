@@ -1,6 +1,6 @@
 import {FaArrowTrendUp, FaArrowTrendDown} from "react-icons/fa6";
 import {LuArrowRightLeft} from "react-icons/lu";
-import {Transaction} from "../../types/types.ts";
+import {Transaction} from "../../../types/types.ts";
 import {FaArrowRight} from "react-icons/fa";
 
 
