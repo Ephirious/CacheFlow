@@ -67,8 +67,9 @@ const BottomSheet = ({children, containerEl}: { children: React.ReactNode, conta
                 </Sheet.Header>
 
                 <Sheet.Content
-                    disableScroll={(state) => state.currentSnap !== 2}
+                    disableScroll={!isFullyOpened}
                     scrollStyle={{
+                        touchAction: !isFullyOpened ? "none": "auto",
                         paddingBottom: 'calc(70px + env(safe-area-inset-bottom))', // TODO: щас 70 стоит на рандом (нужно чекать высоту bottomBar)
                     }}
                     // scrollClassName="no-scrollbar" TODO: ??
