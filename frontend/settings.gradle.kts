@@ -29,7 +29,6 @@ dependencyResolutionManagement {
 }
 
 include(":k2ts") // entryPoint for ts-kotlin
-include(":k2ts-service") // entryPoint for kotlin service-worker
 
 include(":ksp-processor")
 

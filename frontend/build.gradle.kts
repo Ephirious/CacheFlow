@@ -5,19 +5,7 @@ plugins {
     alias(libs.plugins.sqldelight) apply false
 }
 
-tasks.register("buildAll") {
-    group = "k2ts"
-    description = "Сборка клиента и ServiceWorker"
-
-    dependsOn(":k2ts:jsBrowserProductionLibraryDistribution")
-    dependsOn(":k2ts-service:jsBrowserProductionLibraryDistribution")
-
-    doLast {
-        println("Собраны клиент и ServiceWorker!!")
-    }
-}
-
-tasks.register("buildClient") {
+tasks.register("buildK2ts") {
     group = "k2ts"
     description = "Сборка клиента"
 
@@ -25,16 +13,5 @@ tasks.register("buildClient") {
 
     doLast {
         println("Собран клиент!!")
-    }
-}
-
-tasks.register("buildService") {
-    group = "k2ts"
-    description = "Сборка ServiceWorker"
-
-    dependsOn(":k2ts-service:jsBrowserProductionLibraryDistribution")
-
-    doLast {
-        println("Собран ServiceWorker!!")
     }
 }
