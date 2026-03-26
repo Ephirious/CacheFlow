@@ -10,7 +10,8 @@
   "scripts": {
     "build": "cd webApp && npm run build",
     "start": "cd webApp && npm run start",
-    "preview": "cd webApp && npm run build && npm run preview"
+    "preview": "cd webApp && npm run build && npm run preview",
+    "previewerror": "cd webApp && npm run builderror && npm run preview"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",

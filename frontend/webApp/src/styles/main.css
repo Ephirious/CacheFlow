@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+/**/
 @theme {
     --color-sidebar-bg: rgba(255, 255, 255, 0.8);
     --color-sidebar-active: rgba(97, 95, 255, 0.1);
@@ -15,15 +15,27 @@
     --color-transaction: #6A7282;
 }
 
-body{
-    padding: 0;
+html, body {
+    height: 100vh;
     margin: 0;
-    height: 100vh;
+    padding: 0;
+    overflow: hidden;
 }
-#root{
+
+#root {
     height: 100vh;
-}
-#root{
     font-family: Inter, sans-serif;
 }
 
+
+/*TODO: Apply only for mobile*/
+@layer utilities {
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}

@@ -5,6 +5,7 @@ import {useValue} from "interop";
 import {Transaction} from "../../types/types.ts";
 import BottomSheet from "../ui/BottomSheet.tsx";
 import {Account} from "../../types/types.ts";
+import {useState} from "react";
 
 
 const TEST_TRANSACTIONS: Transaction[] = [
@@ -68,18 +69,28 @@ const Main = ({component}: { component: MainComponent }) => {
     const summaryState = useValue(component.summaryComponent.state)
     const transactionsState = useValue(component.transactionsComponent.state)
 
+    const [themeElement, setThemeElement] = useState<HTMLElement>();
 
     return (
-        <main className="w-full h-screen bg-brand-indigo">
-            <MainCard data={{
-                accounts: TEST_ACCOUNTS,
-                balance: summaryState.overallBalance,
-                percentage: summaryState.profitPercentage
-            }}/>
-            <BottomSheet>
-                <Transactions transactions={TEST_TRANSACTIONS}/>
-            </BottomSheet>
-        </main>
+        <div ref={(el) => el && setThemeElement(el)}
+             className={"fixed h-screen w-screen pt-[env(safe-area-inset-top)]"}
+             style={{backgroundColor: "#4F39F6"}}
+        >
+            <main
+
+                className={"fixed h-screen w-screen"}
+                style={{backgroundColor: "#4F39F6"}}
+            >
+                <MainCard data={{
+                    accounts: TEST_ACCOUNTS,
+                    balance: summaryState.overallBalance,
+                    percentage: summaryState.profitPercentage
+                }}/>
+                <BottomSheet containerEl={themeElement}>
+                    <Transactions transactions={TEST_TRANSACTIONS}/>
+                </BottomSheet>
+            </main>
+        </div>
     )
 }
 

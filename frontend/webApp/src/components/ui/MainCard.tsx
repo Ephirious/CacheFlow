@@ -25,7 +25,7 @@ const MainCard = ({ data }: { data: MainCardData }) => {
                         <LuWallet className="w-7 h-7 stroke-white" />
                     </div>
                     <h1 className="text-2xl sm:text-3xl text-white font-bold">
-                        <span className="sm:hidden">CashFlow</span>
+                        <span className="sm:hidden">CacheFlow</span>
                         <span className="hidden sm:inline text-3xl">Добро пожаловать!</span>
                     </h1>
                 </div>

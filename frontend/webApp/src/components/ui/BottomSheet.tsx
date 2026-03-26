@@ -1,52 +1,78 @@
 import {Sheet, SheetRef} from 'react-modal-sheet';
 import {useRef, useState} from 'react';
 import {changeMetaThemeColor} from "../../styles/changeMetaThemeColor.ts";
+import {useMotionValue, useMotionValueEvent, useTransform} from "framer-motion";
 
 
-const BottomSheet = ({children}: { onFullOpen?: () => void, children: React.ReactNode }) => {
+const BottomSheet = ({children, containerEl}: { children: React.ReactNode, containerEl: HTMLElement | undefined }) => {
+
+
     const [isOpen, setOpen] = useState(true);
 
-    const [currentIndex, setCurrentIndex] = useState(1);
 
+    const [isFullyOpened, setIsFullyOpened] = useState(false);
+    const lastThemeColor = useRef<"white" | "#4F39F6">("#4F39F6");
     const ref = useRef<SheetRef>(null);
-    const snapTo = (i: number) => ref.current?.snapTo(i);
 
-    let prevIndex = 1;
+    const fallbackY = useMotionValue(0);
 
-    const handleSnap = (index: number) => {
-        setCurrentIndex(index);
+    const motionY = ref.current?.y ?? fallbackY;
 
-        if (index == 2) {
-            changeMetaThemeColor("black")
-        } else {
-            changeMetaThemeColor("white")
+
+    const updateFullyState = (y: number) => {
+        setIsFullyOpened(y < 5);
+        const nextColor = isFullyOpened ? "white" : "#4F39F6";
+        if (lastThemeColor.current !== nextColor) {
+            lastThemeColor.current = nextColor;
+            changeMetaThemeColor(containerEl, nextColor);
         }
-        const themeColorMetaTag = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-        console.log(themeColorMetaTag)
     }
+    const borderRadius = useTransform(motionY, [0, 40], [0, 32]);
+    useMotionValueEvent(motionY, "change", (y) => {
+        updateFullyState(y);
+    });
+
+    const handleSnap = () => {
+        updateFullyState(motionY.get())
+    };
+
+    const snapPoints = [0, 0.5, 1];
+
     return (
         <Sheet
             ref={ref}
             isOpen={isOpen}
+            onSnap={handleSnap}
             onClose={() => setOpen(false)}
-            snapPoints={[0, 0.4, 1]}
+            snapPoints={snapPoints}
             initialSnap={1}
             disableDismiss={true}
             style={{
-                zIndex: 40
+                zIndex: 40,
+                marginTop: 'env(safe-area-inset-top)',
             }}
-            onSnap={handleSnap}
             detent={"full"}
             className="sm:hidden"
+            mountPoint={containerEl}
         >
             <Sheet.Container
-                style={{borderRadius: currentIndex === 1 ? "32px" : "0px", transition: "border-radius 0.5s"}}
+                style={{
+                    // borderRadius: 0
+                    borderTopLeftRadius: borderRadius,
+                    borderTopRightRadius: borderRadius
+                }}
             >
                 <Sheet.Header>
                     <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mt-4"/>
                 </Sheet.Header>
 
-                <Sheet.Content dragElastic={{}}>
+                <Sheet.Content
+                    disableScroll={(state) => state.currentSnap !== 2}
+                    scrollStyle={{
+                        paddingBottom: 'calc(70px + env(safe-area-inset-bottom))', // TODO: щас 70 стоит на рандом (нужно чекать высоту bottomBar)
+                    }}
+                    // scrollClassName="no-scrollbar" TODO: ??
+                >
                     {children}
                 </Sheet.Content>
             </Sheet.Container>

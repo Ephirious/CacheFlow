@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc && vite build",
     "start": "vite --host",
-    "preview": "vite preview --host"
+    "preview": "vite preview --host",
+    "builderror": "vite build"
   },
   "dependencies": {
     "k2ts": "0.0.0-unspecified",

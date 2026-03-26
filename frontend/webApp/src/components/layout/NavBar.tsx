@@ -48,14 +48,14 @@ const NavBar = ({component, activeChild}: RootTabBarProps) => {
 
     return (
         <nav className="
-            z-50 fixed bottom-0 left-0 right-0
+            z-50 bottom-0 left-0 right-0
             bg-white border-t border-black/5
             pb-[env(safe-area-inset-bottom)]
             md:relative md:flex md:h-full md:w-96 md:flex-col md:border-r md:border-t-0 md:p-6 md:bg-transparent
         ">
             <h1 className="hidden md:flex items-center gap-3 font-bold text-2xl mb-8">
                 <LuWallet className="w-12 h-12 p-2.5 bg-sidebar-active rounded-2xl text-brand-indigo"/>
-                CashFlow
+                CacheFlow
             </h1>
 
             <div className="

@@ -8,7 +8,7 @@ const Transactions = ({ transactions }: {transactions: Transaction[]}) => {
 
 
     return (
-        <div className="flex flex-col w-full p-6 pt-0 gap-4 overflow-scroll">
+        <div className="flex flex-col w-full p-6 pt-0 gap-4">
             <div className="flex w-full items-center justify-between">
                 <span className="text-xl font-bold">Транзакции</span>
                 <motion.div
