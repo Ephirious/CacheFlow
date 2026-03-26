@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Generic, TypeVar, Type, Optional, Sequence
 from uuid import UUID
 
@@ -30,6 +31,8 @@ class GenericRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         data = body.model_dump()
         obj = self._model(**data)
         self._session.add(obj)
+        await self._session.flush()
+        await self._session.refresh(obj)
         return obj
 
     async def delete(self, entity_id: UUID):
@@ -41,4 +44,6 @@ class GenericRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         for field in update_data:
             setattr(db_obj, field, update_data[field])
         self._session.add(db_obj)
+        await self._session.flush()
+        await self._session.refresh(db_obj)
         return db_obj
