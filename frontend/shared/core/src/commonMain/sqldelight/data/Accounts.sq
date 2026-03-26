@@ -1,0 +1,22 @@
+import utils.BigDecimal;
+import kotlin.time.Instant;
+
+CREATE TABLE Accounts (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    funds TEXT AS BigDecimal NOT NULL,
+    created_at TEXT AS Instant NOT NULL,
+    updated_at TEXT AS Instant NOT NULL
+);
+
+selectAll:
+SELECT * FROM Accounts ORDER BY name ASC;
+
+selectById:
+SELECT * FROM Accounts WHERE id = ? ORDER BY name ASC;
+
+upsert:
+INSERT OR REPLACE INTO Accounts VALUES ?;
+
+delete:
+DELETE FROM Accounts WHERE id = ?;

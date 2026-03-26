@@ -1,0 +1,10 @@
+-- import kotlin.time.Instant;
+
+-- CREATE TABLE SyncDB (
+--     id TEXT NOT NULL PRIMARY KEY,
+--     processing_id TEXT NOT NULL,
+--     action TEXT AS Action NOT NULL,
+--     table_type TEXT AS TableType NOT NULL,
+--     created_at TEXT AS Instant NOT NULL,
+--     updated_at TEXT AS Instant NOT NULL
+-- );

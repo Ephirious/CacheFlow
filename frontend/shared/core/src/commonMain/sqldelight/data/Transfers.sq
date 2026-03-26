@@ -1,0 +1,23 @@
+import kotlin.time.Instant;
+
+CREATE TABLE Transfers (
+    id TEXT NOT NULL PRIMARY KEY,
+    account_from_id TEXT NOT NULL,
+    account_to_id TEXT NOT NULL,
+    created_at TEXT AS Instant NOT NULL,
+    updated_at TEXT AS Instant NOT NULL,
+    FOREIGN KEY (account_from_id) REFERENCES Accounts(id),
+    FOREIGN KEY (account_to_id) REFERENCES Accounts(id)
+);
+
+selectAll:
+SELECT * FROM Transfers;
+
+selectById:
+SELECT * FROM Transfers WHERE id = ?;
+
+upsert:
+INSERT OR REPLACE INTO Transfers VALUES ?;
+
+delete:
+DELETE FROM Transfers WHERE id = ?;

@@ -1,0 +1,27 @@
+import kotlin.time.Instant;
+import utils.BigDecimal;
+
+CREATE TABLE Operations (
+    id TEXT NOT NULL PRIMARY KEY,
+    account_uuid TEXT NOT NULL,
+    transfer_id TEXT,
+    amount TEXT AS BigDecimal NOT NULL,
+    date TEXT AS Instant NOT NULL,
+    notes TEXT NOT NULL,
+    created_at TEXT AS Instant NOT NULL,
+    updated_at TEXT AS Instant NOT NULL,
+    FOREIGN KEY (account_uuid) REFERENCES Accounts(id),
+    FOREIGN KEY (transfer_id) REFERENCES Transfers(id)
+);
+
+selectAll:
+SELECT * FROM Operations ORDER BY date DESC, created_at DESC;
+
+selectById:
+SELECT * FROM Operations WHERE id = ?;
+
+upsert:
+INSERT OR REPLACE INTO Operations VALUES ?;
+
+delete:
+DELETE FROM Operations WHERE id = ?;
