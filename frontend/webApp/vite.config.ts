@@ -29,7 +29,9 @@ export default defineConfig({
             name: 'sw-headers',
             configureServer(server) {
                 server.middlewares.use((req, res, next) => {
-                    if (req.url?.includes('sw.js')) {
+                    if (req.url?.includes('sqljs.worker.js') || req.url?.includes('sw.js')) {
+                        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+                        res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
                         res.setHeader('Service-Worker-Allowed', '/');
                     }
                     next();
@@ -37,7 +39,9 @@ export default defineConfig({
             },
             configurePreviewServer(server) {
                 server.middlewares.use((req, res, next) => {
-                    if (req.url?.includes('sw.js')) {
+                    if (req.url?.includes('sqljs.worker.js') || req.url?.includes('sw.js')) {
+                        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+                        res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
                         res.setHeader('Service-Worker-Allowed', '/');
                     }
                     next();
