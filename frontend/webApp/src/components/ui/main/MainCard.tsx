@@ -15,7 +15,7 @@ const MainCard = ({data}: { data: MainCardData }) => {
     return (
         <div className="p-0 sm:p-6 w-full">
             <div className="
-                flex flex-col bg-brand-indigo gap-4
+                flex flex-col bg-brand-indigo gap-6
                 w-full p-6
                 sm:rounded-3xl sm:p-10
             ">

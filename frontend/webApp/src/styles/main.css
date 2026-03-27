@@ -13,6 +13,7 @@
     --color-transaction-down-bg: rgba(251, 44, 54, 0.1);
     --color-transaction-transfer-bg: rgba(97, 95, 255, 0.1);
     --color-transaction: #6A7282;
+    --color-sheet-input: #D1D5DC;
 }
 
 html, body {
@@ -38,4 +39,10 @@ html, body {
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+}
+
+[data-rms-content],
+[role="dialog"] [style*="overflow"] {
+    touch-action: pan-down !important;
+    -webkit-overflow-scrolling: touch !important;
 }

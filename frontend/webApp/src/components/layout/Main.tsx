@@ -5,6 +5,10 @@ import {useValue, when} from "interop";
 import BottomSheet from "../ui/BottomSheet.tsx";
 import {useState} from "react";
 
+import CreateTransactionButton from "../ui/main/CreateTransactionButton.tsx";
+import CreateTransactionBottomSheet from "../ui/main/CreateTransactionBottomSheet.tsx";
+
+
 
 const Main = ({component}: { component: MainComponent }) => {
 
@@ -28,6 +32,8 @@ const MainOK = ({component}: { component: MainComponent }) => {
     const summaryState = useValue(component.summaryComponent.state)
     const transactionsState = useValue(component.transactionsComponent.state)
 
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
     const [themeElement, setThemeElement] = useState<HTMLElement>();
 
     return (
@@ -49,6 +55,13 @@ const MainOK = ({component}: { component: MainComponent }) => {
                     <Transactions transactions={transactionsState.transactions.asJsReadonlyArrayView()}/>
                 </BottomSheet>
             </main>
+
+                        <CreateTransactionButton onClick={() => setIsCreateModalOpen(true)}/>
+                        <CreateTransactionBottomSheet
+                            isOpen={isCreateModalOpen}
+                            onClose={() => setIsCreateModalOpen(false)}
+                            containerEl={themeElement}
+                        />
         </div>
     )
 }

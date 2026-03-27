@@ -1,0 +1,48 @@
+import {Category} from "../../../types/types.ts";
+import { IoAdd } from "react-icons/io5";
+
+interface CategorySelectorProps {
+    categories: Category[];
+    selectedId: string | null;
+    onSelect: (id: string) => void;
+    onAdd: () => void;
+}
+
+const CategorySelector = ({
+                              categories,
+                              selectedId,
+                              onSelect,
+                              onAdd
+                          }: CategorySelectorProps) => {
+    return (
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide overflow-hidden">
+            {categories.map((category) => (
+                <button
+                    key={category.id}
+                    onClick={() => onSelect(category.id)}
+                    className={`flex items-center gap-2 px-4 py-3 rounded-2xl border transition-all ${
+                        selectedId === category.id
+                            ? "bg-white border-gray-300 shadow-sm"
+                            : "bg-white border-gray-200"
+                    }`}
+                >
+                    <div
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: category.color }}
+                    />
+                    <span className="text-[15px] font-medium text-gray-700">
+                        {category.name}
+                    </span>
+                </button>
+            ))}
+            <button
+                onClick={onAdd}
+                className="flex items-center justify-center w-12 h-12 p-3 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+            >
+                <IoAdd className="w-6 h-6"/>
+            </button>
+        </div>
+    );
+};
+
+export default CategorySelector;
