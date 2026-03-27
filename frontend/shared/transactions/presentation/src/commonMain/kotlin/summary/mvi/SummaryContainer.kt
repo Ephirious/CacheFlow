@@ -48,7 +48,9 @@ class SummaryContainer(
     private fun Ctx.observeAccounts(jobs: JobManager<Jobs>) {
         launch {
             getAccountsFlowUseCase().collect { accounts ->
-                updateState { copy(accounts = accounts) }
+                var overallSum = BigDecimal.ZERO
+                accounts.forEach { overallSum += it.balance }
+                updateState { copy(accounts = accounts, overallBalance = overallSum) }
             }
         }.registerOrIgnore(jobs, Jobs.ObserveAccounts)
     }

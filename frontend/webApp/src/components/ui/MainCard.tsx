@@ -9,7 +9,7 @@ interface MainCardData {
 }
 
 const MainCard = ({data}: { data: MainCardData }) => {
-    const displayBalance = data.balance.toString();
+    const displayBalance = data.balance.prettyString();
     const displayPercentage = data.percentage.toString();
     const accountsList = data.accounts;
     return (
