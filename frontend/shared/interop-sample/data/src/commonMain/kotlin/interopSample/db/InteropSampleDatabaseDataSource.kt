@@ -1,15 +1,13 @@
 package interopSample.db
 
-import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
+import app.cash.sqldelight.async.coroutines.awaitAsOne
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToOne
 import data.WeatherQueries
 import interopSample.mappers.toDomain
 import interopSample.models.Weather
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import utils.presentation.AsyncDispatcher
 
 class InteropSampleDatabaseDataSource(
@@ -24,12 +22,11 @@ class InteropSampleDatabaseDataSource(
             }
     }
 
-    fun getWeather() {
-        MainScope().launch {
-            println(weatherQueries.selectAll().awaitAsOneOrNull()?.toDomain())
-        }
+    suspend fun getWeather(): Weather {
+        return weatherQueries.selectAll { temperature, unit ->
+            Weather(temperature = temperature, temperatureUnit = unit)
+        }.awaitAsOne()
     }
-
 
     suspend fun saveWeather(weather: Weather) {
         weatherQueries.transaction {

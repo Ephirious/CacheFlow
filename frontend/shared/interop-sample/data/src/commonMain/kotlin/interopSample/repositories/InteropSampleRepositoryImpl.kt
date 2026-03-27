@@ -6,6 +6,7 @@ import interopSample.local.InteropSampleLocalDataSource
 import interopSample.mappers.toDomain
 import interopSample.models.Weather
 import kotlinx.coroutines.flow.Flow
+import utils.bigDecimalExtensions.plus
 
 internal class InteropSampleRepositoryImpl(
     private val remoteDataSource: InteropSampleRemoteDataSource,
@@ -15,17 +16,17 @@ internal class InteropSampleRepositoryImpl(
     override fun getWeatherFlow(): Flow<Weather> =
         dbDataSource.getWeatherFlow()
 
-    override suspend fun refreshWeather() {
-        runCatching {
-            remoteDataSource.fetchWeather()
-        }.fold(
-            onSuccess = { dto ->
-                dbDataSource.saveWeather(dto.toDomain())
+    override suspend fun getWeather(): Weather =
+        dbDataSource.getWeather()
 
-                dbDataSource.getWeather()
-            },
-            onFailure = { throw it }
-        )
+
+    override suspend fun refreshWeather() {
+        dbDataSource.saveWeather(remoteDataSource.fetchWeather().toDomain().let {
+            it.copy(
+                // hehe
+                temperature = it.temperature + (1..10).random()
+            )
+        })
     }
 
     override fun setSampleText(text: String) = localDataSource.setSampleText(text)

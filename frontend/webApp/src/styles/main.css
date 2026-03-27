@@ -1,0 +1,48 @@
+@import "tailwindcss";
+/**/
+@theme {
+    --color-sidebar-bg: rgba(255, 255, 255, 0.8);
+    --color-sidebar-active: rgba(97, 95, 255, 0.1);
+    --color-brand-indigo: #4F39F6;
+    --color-account-orange: #F59E0B;
+    --color-filter-button: #D1D5DC;
+    --color-on-brand: #FFFFFF;
+    --color-transaction-up: #00A63E;
+    --color-transaction-up-bg: rgba(0, 201, 80, 0.1);
+    --color-transaction-down: #E7000B;
+    --color-transaction-down-bg: rgba(251, 44, 54, 0.1);
+    --color-transaction-transfer-bg: rgba(97, 95, 255, 0.1);
+    --color-transaction: #6A7282;
+    --color-sheet-input: #D1D5DC;
+}
+
+html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#root {
+    height: 100vh;
+    font-family: Inter, sans-serif;
+}
+
+
+/*TODO: Apply only for mobile*/
+@layer utilities {
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}
+
+[data-rms-content],
+[role="dialog"] [style*="overflow"] {
+    touch-action: pan-down !important;
+    -webkit-overflow-scrolling: touch !important;
+}

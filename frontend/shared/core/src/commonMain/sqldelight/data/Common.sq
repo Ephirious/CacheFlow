@@ -1,0 +1,37 @@
+-- clearDatabase {
+--     PRAGMA foreign_keys = 'OFF';
+--     DELETE FROM Accounts;
+--     DELETE FROM Categories;
+--     DELETE FROM Transfers;
+--     DELETE FROM Operations;
+--     -- DELETE FROM sync...;
+--     PRAGMA foreign_keys = 'ON';
+--     VACUUM;
+-- }
+
+initDefaultData {
+    INSERT OR IGNORE INTO Accounts (id, name, funds, created_at, updated_at)
+    VALUES
+    (
+        '019d2c71-747c-71a2-9cc9-13829f9abb44',
+        'Наличные',
+        '5000.00',
+        '2024-01-01T00:00:00Z',
+        '2024-01-01T00:00:00Z'
+    ),
+    (
+        '019d2c71-747a-71a2-9cc9-13829f9abb43',
+        'Банковская карта',
+        '5000.00',
+        '2024-01-01T00:00:00Z',
+        '2024-01-01T00:00:00Z'
+    )
+    ;
+    INSERT OR IGNORE INTO Categories (id, name, created_at, updated_at)
+    VALUES
+    ('019d2c71-9374-71e3-b9e6-65a96fc6741e', 'Продукты', '2024-01-01T00:00:00Z', '2024-01-01T00:00:00Z'),
+    ('019d2c71-b5f7-72ad-9ed8-9f78969059d1',  'Транспорт', '2024-01-01T00:00:00Z', '2024-01-01T00:00:00Z'),
+    ('019d2c71-c3f2-70a1-b5bf-c84a967e743d',  'Жилье', '2024-01-01T00:00:00Z', '2024-01-01T00:00:00Z'),
+    ('019d2c71-db55-71b1-9ac6-0b440e1e77f1', 'Развлечения', '2024-01-01T00:00:00Z', '2024-01-01T00:00:00Z'),
+    ('019d2c71-ef32-7e6c-8485-f5770cc2b239',  'Здоровье', '2024-01-01T00:00:00Z', '2024-01-01T00:00:00Z');
+}

@@ -1,6 +1,7 @@
 package settings
 
 import com.arkivanov.decompose.ComponentContext
+import kotlin.js.JsExport
 
 @JsExport
 interface SettingsComponent : ComponentContext {

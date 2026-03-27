@@ -1,0 +1,20 @@
+import kotlin.time.Instant;
+
+CREATE TABLE IF NOT EXISTS Categories (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    created_at TEXT AS Instant NOT NULL,
+    updated_at TEXT AS Instant NOT NULL
+);
+
+selectAll:
+SELECT * FROM Categories ORDER BY name ASC;
+
+selectById:
+SELECT * FROM Categories WHERE id = ? ORDER BY name ASC;
+
+upsert:
+INSERT OR REPLACE INTO Categories VALUES ?;
+
+delete:
+DELETE FROM Categories WHERE id = ?;

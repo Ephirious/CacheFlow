@@ -1,16 +1,17 @@
 package di
 
-import app.cash.sqldelight.db.SqlDriver
 import core.coreModule
-import core.sqldelight.createDriver
+import core.sqldelight.getSqlDriverModule
+import editorsDataModule
 import interopSampleDataModule
 import interopSamplePresentationModule
-import settingsPresentationModule
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
-import org.koin.dsl.module
+import settingsPresentationModule
 import statsPresentationModule
+import syncDataModule
+import transactionsDataModule
 import transactionsPresentationModule
 
 
@@ -18,13 +19,8 @@ import transactionsPresentationModule
 suspend fun initKoin(
     appDeclaration: KoinAppDeclaration = {}
 ): KoinApplication {
-    val driver = createDriver()
 
-    val sqlDriverModule = module { // check sqlModule in core...
-        single<SqlDriver> {
-            driver
-        }
-    }
+    val sqlDriverModule = getSqlDriverModule(isSW = false)
 
     return startKoin {
         appDeclaration()
@@ -37,10 +33,15 @@ suspend fun initKoin(
             interopSamplePresentationModule,
 
             transactionsPresentationModule,
+            transactionsDataModule,
 
             statsPresentationModule,
 
-            settingsPresentationModule
+            settingsPresentationModule,
+
+            editorsDataModule,
+
+            syncDataModule
         )
     }
 }

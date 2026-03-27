@@ -1,5 +1,7 @@
+import utils.types.BigDecimal;
+
 CREATE TABLE IF NOT EXISTS WeatherEntity (
-    temperature REAL NOT NULL,
+    temperature TEXT AS BigDecimal NOT NULL,
     unit TEXT NOT NULL
 );
 

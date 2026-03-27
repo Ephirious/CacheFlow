@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.shared.interopSample.domain)
+            implementation(projects.shared.sync.domain)
         }
     }
 }

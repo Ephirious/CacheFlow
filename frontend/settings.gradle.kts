@@ -28,7 +28,9 @@ dependencyResolutionManagement {
     }
 }
 
-include(":k2ts") // umbrella module for ts
+include(":k2ts") // entryPoint for ts-kotlin
+
+include(":ksp-processor")
 
 include(":shared:core")
 include(":shared:root:presentation")
@@ -55,4 +57,5 @@ include(":shared:sync:data")
 include(":shared:sync:domain")
 
 include(":shared:utils:common")
+include(":shared:utils:pure")
 

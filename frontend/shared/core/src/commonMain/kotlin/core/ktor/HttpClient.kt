@@ -7,7 +7,9 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
+
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -26,6 +28,8 @@ fun getHttpClient(engineFactory: HttpClientEngineFactory<HttpClientEngineConfig>
             json(Json {
                 isLenient = true
                 ignoreUnknownKeys = true
+                classDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC
             })
         }
+
     }

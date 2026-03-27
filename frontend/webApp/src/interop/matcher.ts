@@ -8,11 +8,17 @@ class Matcher<T extends object, R = never> {
     }
 
     on<V extends T, NextR>(
-        type: ClassType<V>,
+        type: ClassType<V> | ClassType<V>[],
         handler: (value: V) => NextR
     ): Matcher<T, R | NextR> {
         const self = this as unknown as Matcher<T, R | NextR>;
-        if (!self.matched && this.value instanceof type) {
+        if (self.matched) return self;
+
+        // Проверяем: массив это или одиночный класс
+        const types = Array.isArray(type) ? type : [type];
+        const isMatch = types.some(t => this.value instanceof t);
+
+        if (isMatch) {
             self.result = handler(this.value as V);
             self.matched = true;
         }

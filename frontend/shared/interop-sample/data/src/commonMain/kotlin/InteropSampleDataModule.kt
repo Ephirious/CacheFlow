@@ -4,6 +4,7 @@ import interopSample.local.InteropSampleLocalDataSource
 import interopSample.repositories.InteropSampleRepository
 import interopSample.repositories.InteropSampleRepositoryImpl
 import interopSample.usecases.GetWeatherFlowUseCase
+import interopSample.usecases.GetWeatherUseCase
 import interopSample.usecases.ManageSampleTextUseCases
 import interopSample.usecases.RefreshWeatherUseCase
 import org.koin.dsl.module
@@ -17,6 +18,9 @@ val interopSampleDataModule = module {
 
     factory<GetWeatherFlowUseCase> {
         GetWeatherFlowUseCase(get())
+    }
+    factory<GetWeatherUseCase> {
+        GetWeatherUseCase(get())
     }
     factory<RefreshWeatherUseCase> {
         RefreshWeatherUseCase(get())

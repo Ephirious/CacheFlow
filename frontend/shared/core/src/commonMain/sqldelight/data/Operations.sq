@@ -1,0 +1,60 @@
+import kotlin.time.Instant;
+import utils.types.BigDecimal;
+
+CREATE TABLE IF NOT EXISTS Operations (
+    id TEXT NOT NULL PRIMARY KEY,
+    account_uuid TEXT NOT NULL,
+    category_uuid TEXT,
+    transfer_id TEXT,
+    amount TEXT AS BigDecimal NOT NULL,
+    date TEXT AS Instant NOT NULL,
+    notes TEXT NOT NULL,
+    created_at TEXT AS Instant NOT NULL,
+    updated_at TEXT AS Instant NOT NULL,
+    FOREIGN KEY (account_uuid) REFERENCES Accounts(id),
+    FOREIGN KEY (category_uuid) REFERENCES Categories(id),
+    FOREIGN KEY (transfer_id) REFERENCES Transfers(id)
+);
+
+selectAll:
+SELECT * FROM Operations ORDER BY date DESC, created_at DESC;
+
+selectAllWithAccountAndCategory:
+SELECT
+    op.id,
+    op.amount,
+    op.date,
+    op.notes,
+    op.created_at,
+    -- account
+    acc.id AS acc_id,
+    acc.name AS acc_name,
+    acc.funds AS acc_funds,
+    -- category (might be null!!)
+    cat.id AS cat_id,
+    cat.name AS cat_name,
+    -- transfer_data (might be null!!)
+    t.id AS transfer_id,
+    acc_to.id AS target_acc_id,
+    acc_to.name AS target_acc_name,
+    acc_to.funds AS target_acc_funds
+FROM Operations op
+JOIN Accounts acc ON op.account_uuid = acc.id
+LEFT JOIN Categories cat ON op.category_uuid = cat.id
+LEFT JOIN Transfers t ON op.transfer_id = t.id
+LEFT JOIN Accounts acc_to ON (
+    CASE
+        WHEN t.account_from_id = op.account_uuid THEN t.account_to_id
+        ELSE t.account_from_id
+    END = acc_to.id
+)
+ORDER BY op.date DESC, op.created_at DESC;
+
+selectById:
+SELECT * FROM Operations WHERE id = ?;
+
+upsert:
+INSERT OR REPLACE INTO Operations VALUES ?;
+
+delete:
+DELETE FROM Operations WHERE id = ?;
