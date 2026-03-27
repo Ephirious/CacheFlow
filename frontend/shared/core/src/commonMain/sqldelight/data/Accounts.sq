@@ -1,4 +1,4 @@
-import utils.BigDecimal;
+import utils.types.BigDecimal;
 import kotlin.time.Instant;
 
 CREATE TABLE Accounts (

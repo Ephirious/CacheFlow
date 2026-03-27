@@ -3,6 +3,7 @@ kotlin = "2.3.20"
 ksp = "2.3.6"
 
 coroutines = "1.10.2"
+datetime = "0.7.1"
 
 #Network
 ktor = "3.4.1"
@@ -31,8 +32,11 @@ flowmvi-essenty = { module = "pro.respawn.flowmvi:essenty", version.ref = "flowm
 
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
+
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }

@@ -53,11 +53,12 @@ export default defineConfig({
         outDir: 'dist',
         emptyOutDir: true,
         minify: "terser",
-        terserOptions: {
-            keep_classnames: true,
-            keep_fnames: true
-        },
-        sourcemap: true,
+//        НЕ ЗАБЫТЬ УБРАТЬ, ЧТОБЫ СТАЛО ВЕСИТЬ МЕНЬШЕ =)))
+//         terserOptions: {
+//             keep_classnames: true,
+//             keep_fnames: true
+//         },
+//         sourcemap: true,
         rollupOptions: {
             input: {
                 main: path.resolve(__dirname, 'index.html'),

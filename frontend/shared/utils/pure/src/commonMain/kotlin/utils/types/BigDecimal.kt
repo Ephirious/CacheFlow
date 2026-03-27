@@ -16,6 +16,10 @@ import kotlin.js.JsName
 @Serializable(with = BigDecimalSerializer::class)
 expect class BigDecimal : Comparable<BigDecimal> {
 
+    companion object {
+        val ZERO: BigDecimal
+    }
+
     @JsName("from")
     constructor(value: String)
 

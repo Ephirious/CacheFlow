@@ -39,6 +39,7 @@ actual class BigDecimal(
 
     actual companion object {
         val ZERO_BIGJS = BigJs(0)
+        actual val ZERO: BigDecimal = BigDecimal(ZERO_BIGJS)
     }
 
 

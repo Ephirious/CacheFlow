@@ -5,7 +5,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.shared.editors.domain)
+            api(projects.shared.editors.domain)
         }
     }
 }

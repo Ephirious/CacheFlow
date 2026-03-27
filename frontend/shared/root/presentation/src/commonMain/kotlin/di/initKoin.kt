@@ -10,6 +10,7 @@ import org.koin.dsl.KoinAppDeclaration
 import settingsPresentationModule
 import statsPresentationModule
 import syncDataModule
+import transactionsDataModule
 import transactionsPresentationModule
 
 
@@ -31,6 +32,7 @@ suspend fun initKoin(
             interopSamplePresentationModule,
 
             transactionsPresentationModule,
+            transactionsDataModule,
 
             statsPresentationModule,
 

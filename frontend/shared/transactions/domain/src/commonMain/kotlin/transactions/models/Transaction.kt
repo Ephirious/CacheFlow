@@ -2,19 +2,18 @@ package transactions.models
 
 import editors.models.Account
 import editors.models.Category
+import kotlinx.datetime.LocalDate
 import utils.types.BigDecimal
 import kotlin.js.JsExport
-import kotlin.time.Instant
 
 @JsExport
 data class Transaction(
     val id: String,
     val value: BigDecimal,
-    val title: String,
     val type: TransactionType,
     val account: Account,
     val note: String,
-    val date: Instant,
+    val date: LocalDate,
 )
 
 @JsExport
