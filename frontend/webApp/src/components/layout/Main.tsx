@@ -1,8 +1,8 @@
-import MainCard from "../ui/MainCard.tsx";
-import Transactions from "../ui/Transactions.tsx";
+import MainCard from "../ui/main/MainCard.tsx";
+import Transactions from "../ui/main/Transactions.tsx";
 import {MainComponent, MainState} from "k2ts";
 import {useValue, when} from "interop";
-import BottomSheet from "../ui/BottomSheet.tsx";
+import TransactionBottomSheet from "../ui/main/TransactionBottomSheet.tsx";
 import {useState} from "react";
 
 import CreateTransactionButton from "../ui/main/CreateTransactionButton.tsx";
@@ -51,9 +51,9 @@ const MainOK = ({component}: { component: MainComponent }) => {
                     balance: summaryState.overallBalance,
                     percentage: summaryState.profitPercentage
                 }}/>
-                <BottomSheet containerEl={themeElement}>
+                <TransactionBottomSheet containerEl={themeElement}>
                     <Transactions transactions={transactionsState.transactions.asJsReadonlyArrayView()}/>
-                </BottomSheet>
+                </TransactionBottomSheet>
             </main>
 
                         <CreateTransactionButton onClick={() => setIsCreateModalOpen(true)}/>
