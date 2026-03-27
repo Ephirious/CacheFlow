@@ -68,7 +68,8 @@ class RealMainComponent(
             componentCtx.childContext("Summary"),
             container = {
                 SummaryContainer(
-                    throwErrorToParent = ::throwErrorFromChild
+                    throwErrorToParent = ::throwErrorFromChild,
+                    getAccountsFlowUseCase = get()
                 )
             }
         )

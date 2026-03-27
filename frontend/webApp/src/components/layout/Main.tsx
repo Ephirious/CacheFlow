@@ -3,15 +3,7 @@ import Transactions from "../ui/Transactions.tsx";
 import {MainComponent, MainState} from "k2ts";
 import {useValue, when} from "interop";
 import BottomSheet from "../ui/BottomSheet.tsx";
-import {Account} from "../../types/types.ts";
 import {useState} from "react";
-
-const TEST_ACCOUNTS: Account[] = [
-    {title: "Т-Банк", balance: "100 000", color: "bg-orange-500"},
-    {title: "Газпромбанк", balance: "100 000", color: "bg-green-500"},
-    {title: "Сбер", balance: "100 000", color: "bg-blue-500"},
-    {title: "Крипта", balance: "1 000 000", color: "bg-red-500"}
-]
 
 
 const Main = ({component}: { component: MainComponent }) => {
@@ -49,7 +41,7 @@ const MainOK = ({component}: { component: MainComponent }) => {
                 style={{backgroundColor: "#4F39F6"}}
             >
                 <MainCard data={{
-                    accounts: TEST_ACCOUNTS,
+                    accounts: summaryState.accounts.asJsReadonlyArrayView(),
                     balance: summaryState.overallBalance,
                     percentage: summaryState.profitPercentage
                 }}/>

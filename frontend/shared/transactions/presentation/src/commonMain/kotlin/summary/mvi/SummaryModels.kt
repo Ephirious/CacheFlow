@@ -1,5 +1,6 @@
 package summary.mvi
 
+import editors.models.Account
 import pro.respawn.flowmvi.api.MVIState
 import utils.types.BigDecimal
 import kotlin.js.JsExport
@@ -8,5 +9,5 @@ import kotlin.js.JsExport
 data class SummaryState(
     val overallBalance: BigDecimal,
     val profitPercentage: BigDecimal,
-    val accounts: List<Any> // TODO
+    val accounts: List<Account>
 ) : MVIState

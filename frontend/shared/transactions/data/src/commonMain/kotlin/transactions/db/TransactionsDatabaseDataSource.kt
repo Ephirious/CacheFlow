@@ -19,7 +19,7 @@ class TransactionsDatabaseDataSource(
 
     // не нашёл лучшего места...
     suspend fun initBase() {
-        commonQueries.initDefaultData()
+        commonQueries.initDefaultData().await()
     }
 
     fun getTransactionsFlow(): Flow<List<Transaction>> {
@@ -39,6 +39,7 @@ class TransactionsDatabaseDataSource(
             val transferId = null
 
             // TODO: Add Transfer and return id
+            // TODO: Update accounts
             transactionsQueries.upsert(
                 transaction.toData(
                     transferId = transferId,

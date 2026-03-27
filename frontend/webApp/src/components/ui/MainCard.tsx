@@ -1,15 +1,14 @@
 import {LuWallet} from "react-icons/lu";
 import AccountCard from "./AccountCard.tsx";
-import {BigDecimal} from "k2ts";
-import {Account} from "../../types/types.ts";
+import {BigDecimal, Account} from "k2ts";
 
-interface MainCardData{
-    accounts: Account[],
+interface MainCardData {
+    accounts: readonly Account[],
     balance: BigDecimal,
     percentage: BigDecimal
 }
 
-const MainCard = ({ data }: { data: MainCardData }) => {
+const MainCard = ({data}: { data: MainCardData }) => {
     const displayBalance = data.balance.toString();
     const displayPercentage = data.percentage.toString();
     const accountsList = data.accounts;
@@ -22,7 +21,7 @@ const MainCard = ({ data }: { data: MainCardData }) => {
             ">
                 <div className="flex gap-3 items-center">
                     <div className="p-2.5 bg-on-brand/20 rounded-2xl">
-                        <LuWallet className="w-7 h-7 stroke-white" />
+                        <LuWallet className="w-7 h-7 stroke-white"/>
                     </div>
                     <h1 className="text-2xl sm:text-3xl text-white font-bold">
                         <span className="sm:hidden">CacheFlow</span>
