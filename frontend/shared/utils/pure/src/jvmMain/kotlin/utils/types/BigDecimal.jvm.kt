@@ -1,9 +1,9 @@
-package utils
+package utils.types
 
 import kotlinx.serialization.Serializable
 
 
-@Serializable(with = utils.BigDecimalSerializer::class)
+@Serializable(with = BigDecimalSerializer::class)
 actual class BigDecimal : Comparable<BigDecimal> {
     actual operator fun plus(other: BigDecimal): BigDecimal {
         TODO("Not yet implemented")

@@ -1,7 +1,7 @@
 package summary.mvi
 
 import pro.respawn.flowmvi.api.MVIState
-import utils.BigDecimal
+import utils.types.BigDecimal
 import kotlin.js.JsExport
 
 @JsExport

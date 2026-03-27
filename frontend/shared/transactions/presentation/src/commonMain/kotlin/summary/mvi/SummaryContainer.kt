@@ -4,7 +4,7 @@ import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
-import utils.BigDecimal
+import utils.types.BigDecimal
 import utils.orUnknown
 import utils.presentation.flowMVI.fastConfig
 

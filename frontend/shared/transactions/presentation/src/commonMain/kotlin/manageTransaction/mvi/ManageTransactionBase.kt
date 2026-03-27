@@ -5,7 +5,7 @@ import pro.respawn.flowmvi.api.MVIAction
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
 import pro.respawn.flowmvi.dsl.plugin
-import utils.BigDecimal
+import utils.types.BigDecimal
 import utils.annotations.DataCopyable
 import kotlin.js.JsExport
 

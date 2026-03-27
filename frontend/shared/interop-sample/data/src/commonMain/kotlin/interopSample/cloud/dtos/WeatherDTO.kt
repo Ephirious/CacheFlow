@@ -2,7 +2,7 @@ package interopSample.cloud.dtos
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import utils.BigDecimal
+import utils.types.BigDecimal
 
 @Serializable
 internal data class WeatherDTO(

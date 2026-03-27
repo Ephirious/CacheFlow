@@ -1,0 +1,10 @@
+package editors.models
+
+import kotlin.js.JsExport
+
+@JsExport
+data class Category(
+    val id: String,
+    val name: String,
+//    val emoji
+)

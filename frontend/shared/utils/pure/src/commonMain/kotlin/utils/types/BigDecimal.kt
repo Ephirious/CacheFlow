@@ -1,4 +1,4 @@
-package utils
+package utils.types
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable

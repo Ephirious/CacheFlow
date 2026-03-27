@@ -6,7 +6,7 @@ import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.plugins.reduce
 import pro.respawn.flowmvi.util.withType
-import utils.BigDecimal
+import utils.types.BigDecimal
 import utils.orUnknown
 import utils.presentation.flowMVI.fastConfig
 

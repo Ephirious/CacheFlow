@@ -1,7 +1,7 @@
 package manageTransaction.mvi
 
 import pro.respawn.flowmvi.api.MVIState
-import utils.BigDecimal
+import utils.types.BigDecimal
 import utils.annotations.DataCopyableNode
 import kotlin.js.JsExport
 

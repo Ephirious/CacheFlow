@@ -1,6 +1,6 @@
 package interopSample.models
 
-import utils.BigDecimal
+import utils.types.BigDecimal
 import kotlin.js.JsExport
 
 @JsExport

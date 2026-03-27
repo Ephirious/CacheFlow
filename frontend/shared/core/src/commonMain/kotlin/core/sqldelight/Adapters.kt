@@ -1,7 +1,7 @@
 package core.sqldelight
 
 import app.cash.sqldelight.ColumnAdapter
-import utils.BigDecimal
+import utils.types.BigDecimal
 import kotlin.time.Instant
 
 val bigDecimalAdapter = object : ColumnAdapter<BigDecimal, String> {
