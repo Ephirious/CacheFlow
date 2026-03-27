@@ -16,7 +16,7 @@ const TransactionCard = ({transaction}: { transaction: Transaction }) => {
         IconColor: isIncome ? "fill-transaction-up" : isTransfer ? "stroke-brand-indigo" : "fill-transaction-down",
         IconBg: isIncome ? "bg-transaction-up-bg" : isTransfer ? "bg-transaction-transfer-bg" : "bg-transaction-down-bg",
         priceColor: isIncome ? "text-transaction-up" : isTransfer ? "text-brand-indigo" : "text-transaction-down",
-        prefix: isIncome ? "+" : isTransfer ? "" : "-",
+        prefix: isIncome ? "+" : isTransfer ? "" : "",
     };
 
     return (

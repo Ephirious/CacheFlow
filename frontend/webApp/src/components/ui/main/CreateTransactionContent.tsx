@@ -102,7 +102,6 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                 <button
                     onClick={() => {
                         component.intent(ManageTransactionIntent.ClickedSave);
-                        close()
                     }}
                     className="bg-brand-indigo py-4 text-base font-bold text-white rounded-2xl">Сохранить
                 </button>

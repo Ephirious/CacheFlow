@@ -46,11 +46,12 @@ class TransactionsDatabaseDataSource(
             // TODO: Add Transfer and return id
             // TODO: Update accounts
 
+            val diff = transaction.value * (if (transaction.type is TransactionType.Income) BigDecimal(
+                "1"
+            ) else BigDecimal("-1"))
 
             val acc = transaction.account.copy(
-                balance = transaction.account.balance + transaction.value * (if (transaction.type is TransactionType.Income) BigDecimal(
-                    "1"
-                ) else BigDecimal("-1"))
+                balance = transaction.account.balance + diff
             )
 
             accountsQueries.upsert(
@@ -63,7 +64,7 @@ class TransactionsDatabaseDataSource(
                 )
             )
             transactionsQueries.upsert(
-                transaction.toData(
+                transaction.copy(value = diff).toData(
                     transferId = transferId,
                     createdAt = null,
                     updatedAt = curTime
