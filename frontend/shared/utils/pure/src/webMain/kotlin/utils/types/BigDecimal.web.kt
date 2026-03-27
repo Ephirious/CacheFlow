@@ -1,6 +1,7 @@
 package utils.types
 
 import kotlinx.serialization.Serializable
+import kotlin.js.json
 
 @JsModule("big.js")
 @JsNonModule
@@ -68,5 +69,16 @@ actual class BigDecimal(
 
     actual override operator fun compareTo(other: BigDecimal): Int {
         return internal.cmp(other.internal)
+    }
+
+    actual fun prettyString(alwaysShowDecimals: Boolean): String {
+        val options = json(
+            "minimumFractionDigits" to if (alwaysShowDecimals) 2 else 0,
+            "maximumFractionDigits" to 2,
+            "useGrouping" to true
+        )
+        val formatter = js("new Intl.NumberFormat('ru-RU', options)")
+
+        return formatter.format(internal) as String
     }
 }

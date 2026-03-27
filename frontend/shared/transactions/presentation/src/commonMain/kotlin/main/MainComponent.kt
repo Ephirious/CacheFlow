@@ -6,6 +6,8 @@ import kotlinx.coroutines.launch
 import main.mvi.MainContainer
 import main.mvi.MainIntent
 import main.mvi.MainState
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.essenty.dsl.retainedStore
 import summary.RealSummaryComponent
@@ -39,7 +41,7 @@ interface MainComponent : ComponentContext {
 class RealMainComponent(
     componentCtx: ComponentContext,
     container: () -> MainContainer,
-) : MainComponent, ComponentContext by componentCtx,
+) : MainComponent, KoinComponent, ComponentContext by componentCtx,
     Store<MainState, MainIntent, Nothing> by componentCtx.retainedStore(factory = container) {
 
     override val jsState: JsValue<MainState> by lazy {
@@ -56,7 +58,8 @@ class RealMainComponent(
             componentCtx.childContext("Transactions"),
             container = {
                 TransactionsContainer(
-                    throwErrorToParent = ::throwErrorFromChild
+                    throwErrorToParent = ::throwErrorFromChild,
+                    getTransactionsFlowUseCase = get()
                 )
             }
         )

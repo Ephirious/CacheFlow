@@ -1,10 +1,10 @@
 import { LiaFilterSolid } from "react-icons/lia";
 import {motion} from "framer-motion";
 import TransactionCard from "./TransactionCard.tsx";
-import {Transaction} from "../../types/types.ts"
+import { Transaction } from "k2ts";
 
 
-const Transactions = ({ transactions }: {transactions: Transaction[]}) => {
+const Transactions = ({ transactions }: {transactions: readonly Transaction[]}) => {
 
 
     return (
@@ -22,8 +22,8 @@ const Transactions = ({ transactions }: {transactions: Transaction[]}) => {
                 </motion.div>
             </div>
             <div className="flex flex-col gap-3">
-                {transactions.map((transaction, index) => (
-                    <TransactionCard transaction={transaction} index={index}/>
+                {transactions.map((transaction) => (
+                    <TransactionCard transaction={transaction}/>
                 ))}
             </div>
         </div>

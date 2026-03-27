@@ -33,6 +33,8 @@ expect class BigDecimal : Comparable<BigDecimal> {
     operator fun div(other: BigDecimal): BigDecimal
     fun formattedString(dp: Int): String
 
+    fun prettyString(alwaysShowDecimals: Boolean = false): String
+
     override fun toString(): String
 
     fun isGreater(other: BigDecimal): Boolean

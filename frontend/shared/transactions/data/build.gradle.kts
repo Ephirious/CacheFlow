@@ -1,5 +1,6 @@
 plugins {
     id("data-sql")
+    id("data-settings")
 }
 
 kotlin {
