@@ -1,3 +1,11 @@
+
+const HOSTS_TO_CACHE = [
+    location.origin,
+    'cdn.tailwindcss.com',
+    'fonts.googleapis.com',
+    'fonts.gstatic.com'
+];
+
 import { networkFirst, dynamicCacheFirst } from './sw/strategies.js';
 import { showPushNotification, handleNotificationClick } from './sw/notifications.js';
 
@@ -56,9 +64,17 @@ self.addEventListener('fetch', (event) => {
     const req = event.request;
     if (req.method !== 'GET') return;
 
+    if (req.destination === "style") {
+        event.respondWith(dynamicCacheFirst(req));
+        return;
+    }
+
     const url = new URL(req.url);
     if (url.pathname.startsWith('/@vite') || url.search.includes('token=')) return;
-    if (url.origin !== location.origin) return;
+
+    const isAllowedHost = HOSTS_TO_CACHE.includes(url.host) || url.origin === location.origin;
+
+    if (!isAllowedHost) return;
 
     const isApiRequest = url.pathname.includes('/api/') ||
         url.pathname.includes('/subscribe') ||
