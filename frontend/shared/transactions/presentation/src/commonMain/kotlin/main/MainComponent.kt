@@ -6,6 +6,9 @@ import kotlinx.coroutines.launch
 import main.mvi.MainContainer
 import main.mvi.MainIntent
 import main.mvi.MainState
+import manageTransaction.ManageTransactionComponent
+import manageTransaction.RealManageTransactionComponent
+import manageTransaction.mvi.ManageTransactionContainer
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import pro.respawn.flowmvi.api.Store
@@ -24,6 +27,8 @@ import kotlin.js.JsName
 
 @JsExport
 interface MainComponent : ComponentContext {
+
+    val manageTransactionComponent: ManageTransactionComponent
 
     val transactionsComponent: TransactionsComponent
     val summaryComponent: SummaryComponent
@@ -52,6 +57,19 @@ class RealMainComponent(
     private fun throwErrorFromChild(message: () -> String) {
         intent(MainIntent.ThrowError(message()))
     }
+
+    override val manageTransactionComponent: ManageTransactionComponent =
+        RealManageTransactionComponent(
+            componentCtx = componentCtx.childContext("ManageTransactionComponent"),
+            container = {
+                ManageTransactionContainer(
+                    transactionId = null,
+                    getAccountsFlowUseCase = get(),
+                    getCategoriesFlowUseCase = get(),
+                    upsertTransactionUseCase = get(),
+                )
+            }
+        )
 
     override val transactionsComponent: TransactionsComponent =
         RealTransactionsComponent(

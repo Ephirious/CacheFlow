@@ -1,32 +1,26 @@
 import SegmentedControl from "./SegmentedControl.tsx";
-import {TransactionType} from "../../../types/types.ts";
-import {useState} from "react";
-import {Category} from "../../../types/types.ts";
 import CategorySelector from "./CategorySelector.tsx";
 import AccountSelector from "./AccountSelector.tsx";
 import DatePicker from "./DatePicker.tsx";
 import TextArea from "./TextArea.tsx";
+import {
+    ManageTransactionState,
+    ManageTransactionComponent,
+    ManageTransactionBaseIntent,
+    ManageTransactionType,
+    BigDecimal,
+    isoString,
+    ManageTransactionIntent
+} from "k2ts";
+import {when} from "interop";
 
-const CATEGORIES: Category[] = [
-    { id: "1", name: "Продукты", color: "#EF4444" },
-    { id: "2", name: "Транспорт", color: "#F59E0B" },
-    { id: "3", name: "Развлечения", color: "#8B5CF6" },
-    { id: "4", name: "Кафе", color: "#10B981" },
-    { id: "5", name: "Одежда", color: "#3B82F6" },
-];
+interface CreateTransactionProps {
+    component: ManageTransactionComponent;
+    state: ManageTransactionState.OK;
+    close: () => void;
+}
 
-const TEST_ACCOUNTS = [
-    { id: "1", title: "Т-Банк", balance: "100 000 ₽", color: "bg-yellow-500" },
-    { id: "2", title: "Сбер", balance: "50 000 ₽", color: "bg-green-500" },
-    { id: "3", title: "Тинькофф", balance: "75 000 ₽", color: "bg-red-500" },
-];
-
-const CreateTransactionContent = () => {
-    const [type, setType] = useState<TransactionType>("expense");
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
-    const [date, setDate] = useState(new Date());
-    const [note, setNote] = useState("");
+const CreateTransactionContent = ({component, state}: CreateTransactionProps) => {
     return (
         <div className="flex w-full flex-col px-6 py-2 gap-4">
             <span className="flex text-2xl font-bold justify-center">Новая транзакция</span>
@@ -34,6 +28,14 @@ const CreateTransactionContent = () => {
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Сумма</span>
                     <input
+                        value={`${state.form.value}`}
+                        onChange={(e) => {
+                            const formatted = e.target.value.replace(/\u00A0/g, "")
+                            const x = formatted.length == 0 ? "0" : formatted
+                            component.intent(new ManageTransactionBaseIntent.ChangedValue(BigDecimal.from(
+                                x
+                            )));
+                        }}
                         type="text"
                         placeholder="0"
                         className="w-full px-4 py-3 bg-white border border-sheet-input rounded-xl"
@@ -41,41 +43,69 @@ const CreateTransactionContent = () => {
                 </div>
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Тип</span>
-                    <SegmentedControl value={type} onChange={setType}/>
+                    <SegmentedControl value={state.form.transactionType.type}
+                                      onChange={(type) => component.intent(new ManageTransactionBaseIntent.ChangedType(type))}/>
                 </div>
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Категория</span>
                     <CategorySelector
-                        categories={CATEGORIES}
-                        selectedId={selectedCategory}
-                        onSelect={setSelectedCategory}
+                        categories={state.form.categories.asJsReadonlyArrayView()}
+                        selectedId={
+                            when(state.form.transactionType)
+                                .on([ManageTransactionType.Outcome, ManageTransactionType.Income], (type) =>
+                                    type.categoryId ?? null
+                                )
+                                .otherwise(() =>
+                                    ""
+                                )
+
+                        }
+                        onSelect={(id: string) => component.intent(new ManageTransactionBaseIntent.ChangedCategory(id))}
                         onAdd={() => console.log("Add category")}
                     />
                 </div>
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Счёт</span>
                     <AccountSelector
-                        accounts={TEST_ACCOUNTS}
-                        selectedId={selectedAccount}
-                        onSelect={setSelectedAccount}
+                        accounts={state.form.accounts.asJsReadonlyArrayView()}
+                        selectedId={
+                            when(state.form.transactionType)
+                                .on([ManageTransactionType.Outcome, ManageTransactionType.Income], (type) =>
+                                    type.accountId ?? null
+                                )
+                                .otherwise(() =>
+                                    ""
+                                )
+                        }
+                        onSelect={(id: string) => component.intent(new ManageTransactionBaseIntent.ChangedAccount(id))}
                     />
                 </div>
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Дата</span>
                     <DatePicker
-                        value={date}
-                        onChange={setDate}
+                        value={new Date(isoString(state.form.date))}
+                        onChange={(newDate) => {
+                            component.intent(new ManageTransactionBaseIntent.ChangedDate(newDate.toISOString()))
+                        }}
                     />
                 </div>
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Заметка (необязательно)</span>
                     <TextArea
-                        value={note}
-                        onChange={setNote}
+                        value={state.form.note}
+                        onChange={(e) => {
+                            component.intent(new ManageTransactionBaseIntent.ChangedNote(e))
+                        }}
                         placeholder="Добавьте описание..."
                     />
                 </div>
-                <button className="bg-brand-indigo py-4 text-base font-bold text-white rounded-2xl">Сохранить</button>
+                <button
+                    onClick={() => {
+                        component.intent(ManageTransactionIntent.ClickedSave);
+                        close()
+                    }}
+                    className="bg-brand-indigo py-4 text-base font-bold text-white rounded-2xl">Сохранить
+                </button>
             </div>
         </div>
     )

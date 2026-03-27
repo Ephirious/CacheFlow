@@ -1,20 +1,14 @@
-import { useState } from "react";
-import { IoChevronDown } from "react-icons/io5";
-
-interface Account {
-    id: string;
-    title: string;
-    balance: string;
-    color: string;
-}
+import {Account} from "k2ts";
+import {useState} from "react";
+import {IoChevronDown} from "react-icons/io5";
 
 interface AccountSelectorProps {
-    accounts: Account[];
+    accounts: readonly Account[];
     selectedId: string | null;
     onSelect: (id: string) => void;
 }
 
-const AccountSelector = ({ accounts, selectedId, onSelect }: AccountSelectorProps) => {
+const AccountSelector = ({accounts, selectedId, onSelect}: AccountSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const selectedAccount = accounts.find(acc => acc.id === selectedId);
 
@@ -40,7 +34,8 @@ const AccountSelector = ({ accounts, selectedId, onSelect }: AccountSelectorProp
                         className="fixed inset-0 z-40"
                         onClick={() => setIsOpen(false)}
                     />
-                    <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+                    <div
+                        className="absolute z-50 w-full mt-2 bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
                         {accounts.map((account) => (
                             <button
                                 key={account.id}
@@ -58,13 +53,16 @@ const AccountSelector = ({ accounts, selectedId, onSelect }: AccountSelectorProp
                                         {account.title}
                                     </div>
                                     <div className="text-gray-500 text-sm">
-                                        {account.balance}
+                                        {account.balance.prettyString()}
                                     </div>
                                 </div>
                                 {selectedId === account.id && (
-                                    <div className="w-5 h-5 rounded-full bg-brand-indigo flex items-center justify-center">
+                                    <div
+                                        className="w-5 h-5 rounded-full bg-brand-indigo flex items-center justify-center">
                                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            <path fillRule="evenodd"
+                                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                  clipRule="evenodd"/>
                                         </svg>
                                     </div>
                                 )}

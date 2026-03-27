@@ -9,7 +9,6 @@ import CreateTransactionButton from "../ui/main/CreateTransactionButton.tsx";
 import CreateTransactionBottomSheet from "../ui/main/CreateTransactionBottomSheet.tsx";
 
 
-
 const Main = ({component}: { component: MainComponent }) => {
 
     const state = useValue(component.state)
@@ -56,12 +55,13 @@ const MainOK = ({component}: { component: MainComponent }) => {
                 </TransactionBottomSheet>
             </main>
 
-                        <CreateTransactionButton onClick={() => setIsCreateModalOpen(true)}/>
-                        <CreateTransactionBottomSheet
-                            isOpen={isCreateModalOpen}
-                            onClose={() => setIsCreateModalOpen(false)}
-                            containerEl={themeElement}
-                        />
+            <CreateTransactionButton onClick={() => setIsCreateModalOpen(true)}/>
+            <CreateTransactionBottomSheet
+                component={component.manageTransactionComponent}
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                containerEl={themeElement}
+            />
         </div>
     )
 }

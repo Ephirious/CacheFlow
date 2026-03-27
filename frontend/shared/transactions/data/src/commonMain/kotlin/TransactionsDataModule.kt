@@ -8,7 +8,7 @@ import transactions.usecases.UpsertTransactionUseCase
 
 val transactionsDataModule = module {
 
-    single<TransactionsDatabaseDataSource> { TransactionsDatabaseDataSource(get(), get()) }
+    single<TransactionsDatabaseDataSource> { TransactionsDatabaseDataSource(get(), get(), get()) }
     single<TransactionsLocalDataSource> { TransactionsLocalDataSource(get()) }
     single<TransactionsRepository> { TransactionsRepositoryImpl(get(), get(), get()) }
 

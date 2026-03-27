@@ -1,8 +1,8 @@
-import {Category} from "../../../types/types.ts";
-import { IoAdd } from "react-icons/io5";
+import {Category} from "k2ts";
+import {IoAdd} from "react-icons/io5";
 
 interface CategorySelectorProps {
-    categories: Category[];
+    categories: readonly Category[];
     selectedId: string | null;
     onSelect: (id: string) => void;
     onAdd: () => void;
@@ -26,10 +26,6 @@ const CategorySelector = ({
                             : "bg-white border-gray-200"
                     }`}
                 >
-                    <div
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: category.color }}
-                    />
                     <span className="text-[15px] font-medium text-gray-700">
                         {category.name}
                     </span>

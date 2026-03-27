@@ -3,14 +3,20 @@ import {useRef, useState} from 'react';
 import {changeMetaThemeColor} from "../../../styles/changeMetaThemeColor.ts";
 import {useMotionValue, useMotionValueEvent, useTransform} from "framer-motion";
 import CreateTransactionContent from "./CreateTransactionContent.tsx";
+import {ManageTransactionComponent, ManageTransactionState} from "k2ts";
+import {useValue, when} from "interop";
 
 interface CreateTransactionModalProps {
+    component: ManageTransactionComponent;
     isOpen: boolean;
     onClose: () => void;
     containerEl?: HTMLElement;
 }
 
-const CreateTransactionBottomSheet = ({isOpen, onClose, containerEl}: CreateTransactionModalProps) => {
+const CreateTransactionBottomSheet = ({component, isOpen, onClose, containerEl}: CreateTransactionModalProps) => {
+
+    const state = useValue(component.state);
+
     const [isFullyOpened, setIsFullyOpened] = useState(false);
     const lastThemeColor = useRef<"#EBEBF0" | "#4F39F6">("#4F39F6");
     const ref = useRef<SheetRef>(null);
@@ -74,7 +80,14 @@ const CreateTransactionBottomSheet = ({isOpen, onClose, containerEl}: CreateTran
                     }}
                     scrollClassName="no-scrollbar"
                 >
-                <CreateTransactionContent/>
+                    {when(state)
+                        .on(ManageTransactionState.OK, (okState) =>
+                            <CreateTransactionContent component={component} state={okState} close={onClose} />
+                        ).otherwise(
+                            () => <div>error</div>
+                        )
+                    }
+
                 </Sheet.Content>
             </Sheet.Container>
             <Sheet.Backdrop
