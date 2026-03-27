@@ -29,7 +29,9 @@ export default defineConfig({
             name: 'sw-headers',
             configureServer(server) {
                 server.middlewares.use((req, res, next) => {
-                    if (req.url?.includes('sw.js')) {
+                    if (req.url?.includes('sqljs.worker.js') || req.url?.includes('sw.js')) {
+                        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+                        res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
                         res.setHeader('Service-Worker-Allowed', '/');
                     }
                     next();
@@ -37,7 +39,9 @@ export default defineConfig({
             },
             configurePreviewServer(server) {
                 server.middlewares.use((req, res, next) => {
-                    if (req.url?.includes('sw.js')) {
+                    if (req.url?.includes('sqljs.worker.js') || req.url?.includes('sw.js')) {
+                        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+                        res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
                         res.setHeader('Service-Worker-Allowed', '/');
                     }
                     next();
@@ -49,11 +53,12 @@ export default defineConfig({
         outDir: 'dist',
         emptyOutDir: true,
         minify: "terser",
-        terserOptions: {
-            keep_classnames: true,
-            keep_fnames: true
-        },
-        sourcemap: true,
+//        НЕ ЗАБЫТЬ УБРАТЬ, ЧТОБЫ СТАЛО ВЕСИТЬ МЕНЬШЕ =)))
+//         terserOptions: {
+//             keep_classnames: true,
+//             keep_fnames: true
+//         },
+//         sourcemap: true,
         rollupOptions: {
             input: {
                 main: path.resolve(__dirname, 'index.html'),

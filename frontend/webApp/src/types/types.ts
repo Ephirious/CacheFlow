@@ -1,6 +1,7 @@
 export interface Category {
-    id: number;
+    id: string;
     name: string;
+    color: string;
 }
 
 interface BaseTransaction {
@@ -23,3 +24,5 @@ export interface Account {
     balance: string;
     color: string;
 }
+export type TransactionType = "income" | "expense" | "transfer";
+

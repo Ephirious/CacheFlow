@@ -1,5 +1,5 @@
 {
-  "name": "webApp",
+  "name": "webapp",
   "version": "1.0.0",
   "description": "Web application that uses Kotlin Multiplatform Library",
   "type": "module",
@@ -11,10 +11,9 @@
   },
   "dependencies": {
     "k2ts": "0.0.0-unspecified",
-    "k2ts-service": "0.0.0-unspecified",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-copy": "^2.0.1",
     "vite-tsconfig-paths": "^6.1.1"
   },
   "devDependencies": {

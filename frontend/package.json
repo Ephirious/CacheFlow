@@ -1,11 +1,10 @@
 {
-  "name": "CacheFlow",
+  "name": "cacheflow",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
     "webApp",
-    "k2ts/build/dist/js/productionLibrary",
-    "k2ts-service/build/dist/js/productionLibrary"
+    "k2ts/build/dist/js/productionLibrary"
   ],
   "scripts": {
     "build": "cd webApp && npm run build",

@@ -2,6 +2,7 @@ package di
 
 import core.coreModule
 import core.sqldelight.getSqlDriverModule
+import editorsDataModule
 import interopSampleDataModule
 import interopSamplePresentationModule
 import org.koin.core.KoinApplication
@@ -10,6 +11,7 @@ import org.koin.dsl.KoinAppDeclaration
 import settingsPresentationModule
 import statsPresentationModule
 import syncDataModule
+import transactionsDataModule
 import transactionsPresentationModule
 
 
@@ -31,10 +33,13 @@ suspend fun initKoin(
             interopSamplePresentationModule,
 
             transactionsPresentationModule,
+            transactionsDataModule,
 
             statsPresentationModule,
 
             settingsPresentationModule,
+
+            editorsDataModule,
 
             syncDataModule
         )

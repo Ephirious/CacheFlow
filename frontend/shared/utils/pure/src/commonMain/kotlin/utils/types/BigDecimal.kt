@@ -1,4 +1,4 @@
-package utils
+package utils.types
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -16,6 +16,10 @@ import kotlin.js.JsName
 @Serializable(with = BigDecimalSerializer::class)
 expect class BigDecimal : Comparable<BigDecimal> {
 
+    companion object {
+        val ZERO: BigDecimal
+    }
+
     @JsName("from")
     constructor(value: String)
 
@@ -28,6 +32,8 @@ expect class BigDecimal : Comparable<BigDecimal> {
     operator fun times(other: BigDecimal): BigDecimal
     operator fun div(other: BigDecimal): BigDecimal
     fun formattedString(dp: Int): String
+
+    fun prettyString(alwaysShowDecimals: Boolean = false): String
 
     override fun toString(): String
 

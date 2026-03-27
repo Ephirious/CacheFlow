@@ -1,33 +1,40 @@
 import {Sheet, SheetRef} from 'react-modal-sheet';
 import {useRef, useState} from 'react';
-import {changeMetaThemeColor} from "../../styles/changeMetaThemeColor.ts";
+import {changeMetaThemeColor} from "../../../styles/changeMetaThemeColor.ts";
 import {useMotionValue, useMotionValueEvent, useTransform} from "framer-motion";
+import CreateTransactionContent from "./CreateTransactionContent.tsx";
+import {ManageTransactionComponent, ManageTransactionState} from "k2ts";
+import {useValue, when} from "interop";
 
+interface CreateTransactionModalProps {
+    component: ManageTransactionComponent;
+    isOpen: boolean;
+    onClose: () => void;
+    containerEl?: HTMLElement;
+}
 
-const BottomSheet = ({children, containerEl}: { children: React.ReactNode, containerEl: HTMLElement | undefined }) => {
+const CreateTransactionBottomSheet = ({component, isOpen, onClose, containerEl}: CreateTransactionModalProps) => {
 
-
-    const [isOpen, setOpen] = useState(true);
-
+    const state = useValue(component.state);
 
     const [isFullyOpened, setIsFullyOpened] = useState(false);
-    const lastThemeColor = useRef<"white" | "#4F39F6">("#4F39F6");
+    const lastThemeColor = useRef<"#EBEBF0" | "#4F39F6">("#4F39F6");
     const ref = useRef<SheetRef>(null);
 
     const fallbackY = useMotionValue(0);
-
     const motionY = ref.current?.y ?? fallbackY;
-
 
     const updateFullyState = (y: number) => {
         setIsFullyOpened(y < 5);
-        const nextColor = isFullyOpened ? "white" : "#4F39F6";
+        const nextColor = isFullyOpened ? "#EBEBF0" : "#4F39F6";
         if (lastThemeColor.current !== nextColor) {
             lastThemeColor.current = nextColor;
             changeMetaThemeColor(containerEl, nextColor);
         }
     }
+
     const borderRadius = useTransform(motionY, [0, 40], [0, 32]);
+
     useMotionValueEvent(motionY, "change", (y) => {
         updateFullyState(y);
     });
@@ -36,28 +43,27 @@ const BottomSheet = ({children, containerEl}: { children: React.ReactNode, conta
         updateFullyState(motionY.get())
     };
 
-    const snapPoints = [0, 0.5, 1];
+    const snapPoints = [0, 1];
 
     return (
         <Sheet
             ref={ref}
             isOpen={isOpen}
             onSnap={handleSnap}
-            onClose={() => setOpen(false)}
+            onClose={onClose}
             snapPoints={snapPoints}
             initialSnap={1}
-            disableDismiss={true}
             style={{
-                zIndex: 40,
+                zIndex: 60,
                 marginTop: 'env(safe-area-inset-top)',
             }}
             detent={"full"}
             className="sm:hidden"
-            mountPoint={containerEl}
+            mountPoint={typeof document !== 'undefined' ? document.body : undefined}
         >
             <Sheet.Container
                 style={{
-                    // borderRadius: 0
+                    backgroundColor: "#EBEBF0",
                     borderTopLeftRadius: borderRadius,
                     borderTopRightRadius: borderRadius
                 }}
@@ -69,19 +75,27 @@ const BottomSheet = ({children, containerEl}: { children: React.ReactNode, conta
                 <Sheet.Content
                     disableScroll={!isFullyOpened}
                     scrollStyle={{
-                        touchAction: !isFullyOpened ? "none": "auto",
-                        paddingBottom: 'calc(70px + env(safe-area-inset-bottom))', // TODO: щас 70 стоит на рандом (нужно чекать высоту bottomBar)
+                        touchAction: !isFullyOpened ? "none" : "auto",
+                        paddingBottom: 'calc(env(safe-area-inset-bottom))',
                     }}
-                    // scrollClassName="no-scrollbar" TODO: ??
+                    scrollClassName="no-scrollbar"
                 >
-                    {children}
+                    {when(state)
+                        .on(ManageTransactionState.OK, (okState) =>
+                            <CreateTransactionContent component={component} state={okState} close={onClose} />
+                        ).otherwise(
+                            () => <div>error</div>
+                        )
+                    }
+
                 </Sheet.Content>
             </Sheet.Container>
             <Sheet.Backdrop
-                style={{backgroundColor: 'transparent', pointerEvents: 'none'}}
+                style={{backgroundColor: 'transparent', pointerEvents: 'auto'}}
+                onTap={onClose}
             />
         </Sheet>
     );
 }
 
-export default BottomSheet;
+export default CreateTransactionBottomSheet;

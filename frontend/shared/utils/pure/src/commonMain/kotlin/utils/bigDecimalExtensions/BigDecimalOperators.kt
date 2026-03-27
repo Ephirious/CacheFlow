@@ -1,6 +1,6 @@
 package utils.bigDecimalExtensions
 
-import utils.BigDecimal
+import utils.types.BigDecimal
 
 operator fun BigDecimal.plus(other: Number): BigDecimal = this.plus(BigDecimal(other))
 operator fun BigDecimal.minus(other: Number): BigDecimal = this.minus(BigDecimal(other))

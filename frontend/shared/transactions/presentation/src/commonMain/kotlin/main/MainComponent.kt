@@ -6,6 +6,11 @@ import kotlinx.coroutines.launch
 import main.mvi.MainContainer
 import main.mvi.MainIntent
 import main.mvi.MainState
+import manageTransaction.ManageTransactionComponent
+import manageTransaction.RealManageTransactionComponent
+import manageTransaction.mvi.ManageTransactionContainer
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.essenty.dsl.retainedStore
 import summary.RealSummaryComponent
@@ -23,6 +28,8 @@ import kotlin.js.JsName
 @JsExport
 interface MainComponent : ComponentContext {
 
+    val manageTransactionComponent: ManageTransactionComponent
+
     val transactionsComponent: TransactionsComponent
     val summaryComponent: SummaryComponent
 
@@ -39,7 +46,7 @@ interface MainComponent : ComponentContext {
 class RealMainComponent(
     componentCtx: ComponentContext,
     container: () -> MainContainer,
-) : MainComponent, ComponentContext by componentCtx,
+) : MainComponent, KoinComponent, ComponentContext by componentCtx,
     Store<MainState, MainIntent, Nothing> by componentCtx.retainedStore(factory = container) {
 
     override val jsState: JsValue<MainState> by lazy {
@@ -51,12 +58,26 @@ class RealMainComponent(
         intent(MainIntent.ThrowError(message()))
     }
 
+    override val manageTransactionComponent: ManageTransactionComponent =
+        RealManageTransactionComponent(
+            componentCtx = componentCtx.childContext("ManageTransactionComponent"),
+            container = {
+                ManageTransactionContainer(
+                    transactionId = null,
+                    getAccountsFlowUseCase = get(),
+                    getCategoriesFlowUseCase = get(),
+                    upsertTransactionUseCase = get(),
+                )
+            }
+        )
+
     override val transactionsComponent: TransactionsComponent =
         RealTransactionsComponent(
             componentCtx.childContext("Transactions"),
             container = {
                 TransactionsContainer(
-                    throwErrorToParent = ::throwErrorFromChild
+                    throwErrorToParent = ::throwErrorFromChild,
+                    getTransactionsFlowUseCase = get()
                 )
             }
         )
@@ -65,7 +86,8 @@ class RealMainComponent(
             componentCtx.childContext("Summary"),
             container = {
                 SummaryContainer(
-                    throwErrorToParent = ::throwErrorFromChild
+                    throwErrorToParent = ::throwErrorFromChild,
+                    getAccountsFlowUseCase = get()
                 )
             }
         )

@@ -1,14 +1,15 @@
 import {FaArrowTrendUp, FaArrowTrendDown} from "react-icons/fa6";
 import {LuArrowRightLeft} from "react-icons/lu";
-import {Transaction} from "../../types/types.ts";
+import {prettyDate, Transaction, TransactionType} from "k2ts";
 import {FaArrowRight} from "react-icons/fa";
+import {when} from "interop";
 
 
-const TransactionCard = ({transaction, index}: { transaction: Transaction, index: number }) => {
-    const {value, type, date, accountName} = transaction;
+const TransactionCard = ({transaction}: { transaction: Transaction }) => {
+    const {value, type, date, account} = transaction;
 
-    const isIncome = type == "Income";
-    const isTransfer = type == "Transfer";
+    const isIncome = type instanceof TransactionType.Income;
+    const isTransfer = type instanceof TransactionType.Transfer;
 
     const config = {
         Icon: isIncome ? FaArrowTrendUp : isTransfer ? LuArrowRightLeft : FaArrowTrendDown,
@@ -24,27 +25,32 @@ const TransactionCard = ({transaction, index}: { transaction: Transaction, index
                 <div className={`w-12 h-12 ${config.IconBg} p-3 rounded-2xl`}>
                     <config.Icon className={`${config.IconColor} w-6 h-6`}/>
                 </div>
-                <span className={`text-xl font-bold ${config.priceColor}`}>{config.prefix}{value}</span>
+                <span
+                    className={`text-xl font-bold ${config.priceColor}`}>{config.prefix}{value.prettyString()}</span>
             </div>
             <div className="flex flex-col gap-1">
                 <span className="flex items-center text-base font-semibold gap-1">
-                    {transaction.type === 'Transfer' ? (
-                        <>
-                            {transaction.from}
-                            <FaArrowRight className="w-3 h-3"/>
-                            {transaction.to}
-                        </>
-                    ) : (
-                        transaction.title
-                    )}
+                    {
+                        when(type)
+                            .on(TransactionType.Transfer, (transfer) =>
+                                <>
+                                    {transfer.from.title}
+                                    <FaArrowRight className="w-3 h-3"/>
+                                    {transfer.to.title}
+                                </>
+                            )
+                            .on([TransactionType.Income, TransactionType.Outcome], ({category}) =>
+                                category.name
+                            ).run()
+                    }
                 </span>
                 <div className="flex gap-2 text-xs text-transaction">
-                    <span>{date}</span>
+                    <span>{prettyDate(date)}</span>
                     <span>
-                        {transaction.type !== 'Transfer' ? "•" : ""}
+                        {!(type instanceof TransactionType.Transfer) ? "•" : ""}
                     </span>
                     <span>
-                        {transaction.type !== 'Transfer' ? accountName : ""}
+                        {!(type instanceof TransactionType.Transfer) ? account.title : ""}
                     </span>
                 </div>
             </div>
