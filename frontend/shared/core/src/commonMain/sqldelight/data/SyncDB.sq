@@ -1,6 +1,6 @@
 -- import kotlin.time.Instant;
 
--- CREATE TABLE SyncDB (
+-- CREATE TABLE IF NOT EXISTS SyncDB (
 --     id TEXT NOT NULL PRIMARY KEY,
 --     processing_id TEXT NOT NULL,
 --     action TEXT AS Action NOT NULL,

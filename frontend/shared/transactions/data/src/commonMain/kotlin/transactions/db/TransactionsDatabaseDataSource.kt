@@ -2,6 +2,7 @@ package transactions.db
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import data.CommonQueries
 import data.OperationsQueries
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -12,8 +13,15 @@ import utils.presentation.AsyncDispatcher
 import kotlin.time.Clock
 
 class TransactionsDatabaseDataSource(
-    private val transactionsQueries: OperationsQueries
+    private val transactionsQueries: OperationsQueries,
+    private val commonQueries: CommonQueries
 ) {
+
+    // не нашёл лучшего места...
+    suspend fun initBase() {
+        commonQueries.initDefaultData()
+    }
+
     fun getTransactionsFlow(): Flow<List<Transaction>> {
         return transactionsQueries.selectAllWithAccountAndCategory()
             .asFlow()

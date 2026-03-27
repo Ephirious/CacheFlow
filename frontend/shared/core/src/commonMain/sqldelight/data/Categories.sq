@@ -1,6 +1,6 @@
 import kotlin.time.Instant;
 
-CREATE TABLE Categories (
+CREATE TABLE IF NOT EXISTS Categories (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     created_at TEXT AS Instant NOT NULL,

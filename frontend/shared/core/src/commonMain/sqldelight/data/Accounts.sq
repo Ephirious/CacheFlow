@@ -1,7 +1,7 @@
 import utils.types.BigDecimal;
 import kotlin.time.Instant;
 
-CREATE TABLE Accounts (
+CREATE TABLE IF NOT EXISTS Accounts (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     funds TEXT AS BigDecimal NOT NULL,
