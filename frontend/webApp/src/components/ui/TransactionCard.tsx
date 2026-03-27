@@ -1,6 +1,6 @@
 import {FaArrowTrendUp, FaArrowTrendDown} from "react-icons/fa6";
 import {LuArrowRightLeft} from "react-icons/lu";
-import {Transaction, TransactionType} from "k2ts";
+import {prettyDate, Transaction, TransactionType} from "k2ts";
 import {FaArrowRight} from "react-icons/fa";
 import {when} from "interop";
 
@@ -8,8 +8,8 @@ import {when} from "interop";
 const TransactionCard = ({transaction}: { transaction: Transaction }) => {
     const {value, type, date, account} = transaction;
 
-    const isIncome = type == "Income";
-    const isTransfer = type == "Transfer";
+    const isIncome = type instanceof TransactionType.Income;
+    const isTransfer = type instanceof TransactionType.Transfer;
 
     const config = {
         Icon: isIncome ? FaArrowTrendUp : isTransfer ? LuArrowRightLeft : FaArrowTrendDown,
@@ -34,9 +34,9 @@ const TransactionCard = ({transaction}: { transaction: Transaction }) => {
                         when(type)
                             .on(TransactionType.Transfer, (transfer) =>
                                 <>
-                                    {transfer.from}
+                                    {transfer.from.title}
                                     <FaArrowRight className="w-3 h-3"/>
-                                    {transfer.to}
+                                    {transfer.to.title}
                                 </>
                             )
                             .on([TransactionType.Income, TransactionType.Outcome], ({category}) =>
@@ -45,12 +45,12 @@ const TransactionCard = ({transaction}: { transaction: Transaction }) => {
                     }
                 </span>
                 <div className="flex gap-2 text-xs text-transaction">
-                    <span>{date}</span>
+                    <span>{prettyDate(date)}</span>
                     <span>
-                        {type ! instanceof TransactionType.Transfer ? "•" : ""}
+                        {!(type instanceof TransactionType.Transfer) ? "•" : ""}
                     </span>
                     <span>
-                        {type ! instanceof TransactionType.Transfer ? account.title : ""}
+                        {!(type instanceof TransactionType.Transfer) ? account.title : ""}
                     </span>
                 </div>
             </div>
