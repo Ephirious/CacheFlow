@@ -13,17 +13,17 @@ kotlin {
             }
 
 
-//            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
         }
     }
 }
 
 dependencies {
-//    kspCommonMainMetadata(projects.kspProcessor)
+    kspCommonMainMetadata(projects.kspProcessor)
 }
 
-//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
-//    dependsOn(tasks.matching { it.name == "kspCommonMainKotlinMetadata" })
-//}
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+    dependsOn(tasks.matching { it.name == "kspCommonMainKotlinMetadata" })
+}
 
 

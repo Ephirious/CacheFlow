@@ -13,37 +13,6 @@ import utils.annotations.DataCopyable
 import utils.types.BigDecimal
 import kotlin.js.JsExport
 
-fun <T : ManageTransactionFormBaseState> T.copyBase(
-    value: utils.types.BigDecimal = this.value,
-    transactionType: manageTransaction.mvi.ManageTransactionType = this.transactionType,
-    categories: kotlin.collections.List<Category> = this.categories,
-    accounts: kotlin.collections.List<Account> = this.accounts,
-    date: kotlinx.datetime.LocalDate = this.date,
-    note: kotlin.String = this.note
-): T = when (this) {
-    is manageTransaction.mvi.ManageTransactionState.OK -> this.copy(
-        form = this.form.copyBase(
-            value = value,
-            transactionType = transactionType,
-            categories = categories,
-            accounts = accounts,
-            date = date,
-            note = note
-        )
-    ) as T
-
-    is manageTransaction.mvi.ManageTransactionState.OK.FormState -> this.copy(
-        value = value,
-        transactionType = transactionType,
-        categories = categories,
-        accounts = accounts,
-        date = date,
-        note = note
-    ) as T
-
-    else -> this
-}
-
 @JsExport
 sealed class ManageTransactionType(
     val type: String

@@ -32,7 +32,8 @@ class DataCopyableProcessor(
             if (impls.isEmpty()) return@forEach
 
             val args = properties.joinToString(",\n    ") { p ->
-                val typeName = p.type.resolve().declaration.qualifiedName?.asString() ?: "Any"
+                val resolvedType = p.type.resolve()
+                val typeName = resolvedType.renderType()
                 "${p.simpleName.asString()}: $typeName = this.${p.simpleName.asString()}"
             }
 
@@ -65,7 +66,8 @@ class DataCopyableProcessor(
                         prop.simpleName.asString() in constructorParams && isInterface
                     }
 
-                    val copyParams = properties.joinToString(", ") { "${it.simpleName.asString()} = ${it.simpleName.asString()}" }
+                    val copyParams =
+                        properties.joinToString(", ") { "${it.simpleName.asString()} = ${it.simpleName.asString()}" }
 
                     if (delegateProp != null) {
                         val pName = delegateProp.simpleName.asString()
