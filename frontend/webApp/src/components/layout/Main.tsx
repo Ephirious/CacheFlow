@@ -2,7 +2,7 @@ import MainCard from "../ui/main/MainCard.tsx";
 import Transactions from "../ui/main/Transactions.tsx";
 import {MainComponent, MainState} from "k2ts";
 import {useValue, when} from "interop";
-import TransactionBottomSheet from "../ui/main/TransactionBottomSheet.tsx";
+import TransactionBottomSheet from "../ui/main/BottomSheet.tsx";
 import {useState} from "react";
 
 import CreateTransactionButton from "../ui/main/CreateTransactionButton.tsx";
@@ -34,6 +34,7 @@ const MainOK = ({component}: { component: MainComponent }) => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const [themeElement, setThemeElement] = useState<HTMLElement>();
+    const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(null);
 
     return (
         <div ref={(el) => el && setThemeElement(el)}
@@ -41,7 +42,6 @@ const MainOK = ({component}: { component: MainComponent }) => {
              style={{backgroundColor: "#4F39F6"}}
         >
             <main
-
                 className={"fixed h-screen w-screen"}
                 style={{backgroundColor: "#4F39F6"}}
             >
@@ -50,7 +50,12 @@ const MainOK = ({component}: { component: MainComponent }) => {
                     balance: summaryState.overallBalance,
                     percentage: summaryState.profitPercentage
                 }}/>
-                <TransactionBottomSheet containerEl={themeElement}>
+                <div
+                    ref={setSheetPortalEl}
+                    className="pointer-events-none fixed inset-0 z-30"
+                    aria-hidden
+                />
+                <TransactionBottomSheet containerEl={themeElement} portalContainer={sheetPortalEl}>
                     <Transactions transactions={transactionsState.transactions.asJsReadonlyArrayView()}/>
                 </TransactionBottomSheet>
             </main>
