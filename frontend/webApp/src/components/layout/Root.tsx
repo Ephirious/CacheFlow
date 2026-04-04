@@ -23,7 +23,7 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                     animate={{opacity: 1, y: 0}}
                     exit={{opacity: 0, y: 0}}
                     transition={{duration: 0.2}}
-                    className="flex-1 h-screen w-full overflow-y-auto no-scrollbar"
+                    className="relative z-0 flex-1 min-h-0 h-screen w-full overflow-y-auto no-scrollbar"
                 >
                     {when(activeChild)
                         .on(RootChild.MainChild, (child) => (

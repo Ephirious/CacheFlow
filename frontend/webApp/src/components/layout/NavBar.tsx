@@ -48,8 +48,8 @@ const NavBar = ({component, activeChild}: RootTabBarProps) => {
 
     return (
         <nav className="
-            fixed
-            z-20 bottom-0 left-0 right-0
+            relative z-50 shrink-0
+            bottom-0 left-0 right-0
             bg-white border-t border-black/5
             pb-[env(safe-area-inset-bottom)]
             md:relative md:flex md:h-full md:w-96 md:flex-col md:border-r md:border-t-0 md:p-6 md:bg-transparent
