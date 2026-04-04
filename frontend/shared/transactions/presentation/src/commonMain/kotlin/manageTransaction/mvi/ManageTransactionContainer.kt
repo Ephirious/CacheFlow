@@ -151,7 +151,6 @@ class ManageTransactionContainer(
         launch {
             getAccountsFlowUseCase().collect { accounts ->
                 updateState<ManageTransactionState.OK, _> {
-                    println("meowx")
                     this.copy(form = this.form.copy(accounts = accounts))
                 }
             }

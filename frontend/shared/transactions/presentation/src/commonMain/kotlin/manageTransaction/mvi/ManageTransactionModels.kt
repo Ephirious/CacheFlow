@@ -4,8 +4,8 @@ import editors.models.Account
 import editors.models.Category
 import kotlinx.datetime.LocalDate
 import pro.respawn.flowmvi.api.MVIState
-import utils.types.BigDecimal
 import utils.annotations.DataCopyableNode
+import utils.types.BigDecimal
 import kotlin.js.JsExport
 
 @JsExport

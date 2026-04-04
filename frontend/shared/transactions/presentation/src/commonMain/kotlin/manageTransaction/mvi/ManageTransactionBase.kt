@@ -9,32 +9,10 @@ import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
 import pro.respawn.flowmvi.dsl.plugin
 import utils.annotations.DataCopyable
+import utils.annotations.DataCopyableNode
 import utils.types.BigDecimal
 import kotlin.js.JsExport
 
-@JsExport
-sealed class ManageTransactionType(
-    @Suppress("unused")
-    // used for TS
-    val type: String
-) {
-    data class Income(
-        val categoryId: String?,
-        val accountId: String?,
-    ) : ManageTransactionType("Income")
-
-    data class Outcome(
-        val categoryId: String?,
-        val accountId: String?,
-    ) : ManageTransactionType("Outcome")
-
-    data class Transfer(
-        val fromId: String?,
-        val toId: String?
-    ) : ManageTransactionType("Transfer")
-
-
-}
 
 @JsExport
 @DataCopyable
@@ -46,6 +24,36 @@ interface ManageTransactionFormBaseState : MVIState {
     val accounts: List<Account>
     val date: LocalDate
     val note: String
+}
+
+@JsExport
+sealed class ManageTransactionType(
+    @Suppress("unused")
+    // used for TS
+    val type: String
+) {
+    @JsExport.Ignore
+    @DataCopyable
+    sealed interface IncomeOrOutcome {
+        val categoryId: String?
+        val accountId: String?
+    }
+
+    @DataCopyableNode
+    data class Income(
+        override val categoryId: String?,
+        override val accountId: String?
+    ) : ManageTransactionType("Income"), IncomeOrOutcome
+
+    @DataCopyableNode
+    data class Outcome(
+        override val categoryId: String?, override val accountId: String?
+    ) : ManageTransactionType("Outcome"), IncomeOrOutcome
+
+    data class Transfer(
+        val fromId: String?,
+        val toId: String?
+    ) : ManageTransactionType("Transfer")
 }
 
 
@@ -70,7 +78,6 @@ fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction, F : ManageTra
 ) =
     plugin<S, I, A> {
         name = "ManageTransactionBasePlugin"
-
         onIntent { intent ->
             val baseIntent = intent as? ManageTransactionBaseIntent.Internal ?: return@onIntent intent
             updateState {

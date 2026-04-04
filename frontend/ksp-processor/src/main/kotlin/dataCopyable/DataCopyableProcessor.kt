@@ -2,6 +2,7 @@ package dataCopyable
 
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.*
+import com.google.devtools.ksp.symbol.Modifier
 
 class DataCopyableProcessor(
     private val codeGenerator: CodeGenerator,
@@ -18,22 +19,54 @@ class DataCopyableProcessor(
             .filter { it.classKind == ClassKind.CLASS }
             .toList()
 
-        logger.warn("KSP: Found ${interfaces.count()} interfaces, ${allNodes.count()} nodes")
-
         interfaces.forEach { interfaceDec ->
             val packageName = interfaceDec.packageName.asString()
-            val interfaceName = interfaceDec.simpleName.asString()
+            val fullInterfaceName = interfaceDec.qualifiedName?.asString()
+                ?.removePrefix("$packageName.") ?: interfaceDec.simpleName.asString()
+
+            val fileName = fullInterfaceName.replace(".", "_") + "GeneratedCopy"
             val properties = interfaceDec.getAllProperties().toList()
+
+            val imports = mutableSetOf<String>()
+
+            // Рекурсивная функция для сборки имени типа и коллекции импортов
+            fun resolveTypeName(reference: KSTypeReference?): String {
+                val type = reference?.resolve() ?: return "Any"
+                val decl = type.declaration
+
+                // Добавляем в импорты, если это класс и не из стандартного пакета kotlin
+                if (decl is KSClassDeclaration) {
+                    decl.qualifiedName?.asString()?.let { qName ->
+                        if (!qName.startsWith("kotlin.") && qName.contains(".")) {
+                            imports.add(qName)
+                        }
+                    }
+                }
+
+                val baseName = decl.simpleName.asString()
+                val arguments = type.arguments
+                val generics = if (arguments.isNotEmpty()) {
+                    arguments.joinToString(prefix = "<", postfix = ">") { arg ->
+                        val variance = when (arg.variance) {
+                            Variance.CONTRAVARIANT -> "in "
+                            Variance.COVARIANT -> "out "
+                            else -> ""
+                        }
+                        variance + resolveTypeName(arg.type)
+                    }
+                } else ""
+
+                return baseName + generics + (if (type.isMarkedNullable) "?" else "")
+            }
+
+            if (allNodes.none { node -> node.superTypes.any { it.resolve().declaration == interfaceDec } }) return@forEach
 
             val impls = allNodes.filter { node ->
                 node.superTypes.any { it.resolve().declaration == interfaceDec }
             }
 
-            if (impls.isEmpty()) return@forEach
-
             val args = properties.joinToString(",\n    ") { p ->
-                val resolvedType = p.type.resolve()
-                val typeName = resolvedType.renderType()
+                val typeName = resolveTypeName(p.type)
                 "${p.simpleName.asString()}: $typeName = this.${p.simpleName.asString()}"
             }
 
@@ -43,13 +76,17 @@ class DataCopyableProcessor(
             val file = codeGenerator.createNewFile(
                 Dependencies(true, *sources),
                 packageName,
-                "${interfaceName}GeneratedCopy"
+                fileName
             )
 
             file.writer().use { writer ->
                 writer.write("package $packageName\n\n")
+
+                imports.sorted().forEach { writer.write("import $it\n") }
+                writer.write("\n")
+
                 writer.write("@Suppress(\"UNCHECKED_CAST\", \"RedundantCast\")\n")
-                writer.write("fun <T : $interfaceName> T.copyBase(\n    $args\n): T = when(this) {\n")
+                writer.write("fun <T : $fullInterfaceName> T.copyBase(\n    $args\n): T = when(this) {\n")
 
                 impls.forEach { impl ->
                     val qName = impl.qualifiedName?.asString() ?: return@forEach
@@ -60,14 +97,16 @@ class DataCopyableProcessor(
 
                     val constructorParams = impl.primaryConstructor?.parameters?.map { it.name?.asString() }.orEmpty()
                     val delegateProp = impl.getAllProperties().find { prop ->
-                        val isInterface = prop.type.resolve().declaration.let { d ->
-                            d is KSClassDeclaration && d.superTypes.any { it.resolve().declaration == interfaceDec }
-                        }
+                        val propTypeDec = prop.type.resolve().declaration
+                        val isInterface = propTypeDec is KSClassDeclaration &&
+                                propTypeDec.superTypes.any { it.resolve().declaration == interfaceDec }
+
                         prop.simpleName.asString() in constructorParams && isInterface
                     }
 
-                    val copyParams =
-                        properties.joinToString(", ") { "${it.simpleName.asString()} = ${it.simpleName.asString()}" }
+                    val copyParams = properties.joinToString(", ") {
+                        "${it.simpleName.asString()} = ${it.simpleName.asString()}"
+                    }
 
                     if (delegateProp != null) {
                         val pName = delegateProp.simpleName.asString()
