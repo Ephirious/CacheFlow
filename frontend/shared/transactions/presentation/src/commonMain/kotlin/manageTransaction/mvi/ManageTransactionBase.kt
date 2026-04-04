@@ -3,7 +3,6 @@ package manageTransaction.mvi
 import editors.models.Account
 import editors.models.Category
 import kotlinx.datetime.LocalDate
-import manageTransaction.mvi.ManageTransactionType.*
 import pro.respawn.flowmvi.api.FlowMVIDSL
 import pro.respawn.flowmvi.api.MVIAction
 import pro.respawn.flowmvi.api.MVIIntent
@@ -15,6 +14,8 @@ import kotlin.js.JsExport
 
 @JsExport
 sealed class ManageTransactionType(
+    @Suppress("unused")
+    // used for TS
     val type: String
 ) {
     data class Income(
@@ -62,82 +63,42 @@ sealed class ManageTransactionBaseIntent : MVIIntent {
 }
 
 @FlowMVIDSL
-fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction> manageTransactionBasePlugin() =
+fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction, F : ManageTransactionFormBaseState>
+        manageTransactionBasePlugin(
+    getForm: S.() -> F?,
+    setForm: S.(F) -> S
+) =
     plugin<S, I, A> {
         name = "ManageTransactionBasePlugin"
 
         onIntent { intent ->
             val baseIntent = intent as? ManageTransactionBaseIntent.Internal ?: return@onIntent intent
-
             updateState {
+                val currentForm = getForm() ?: return@updateState this
 
-                val okState = this as? ManageTransactionState.OK
-                    ?: return@updateState this
-
-                val newForm = when (baseIntent) {
-
-                    is ManageTransactionBaseIntent.ChangedValue ->
-                        okState.form.copy(value = baseIntent.value)
-
-                    is ManageTransactionBaseIntent.ChangedNote ->
-                        okState.form.copy(note = baseIntent.note)
-
-                    is ManageTransactionBaseIntent.ChangedType -> {
-
-                        val (accountId, categoryId) =
-                            when (val type = okState.form.transactionType) {
-                                is Income -> type.accountId to type.categoryId
-                                is Outcome -> type.accountId to type.categoryId
-                                is Transfer -> type.fromId to null
-                            }
-
-                        okState.form.copy(
-                            transactionType =
-                                when (baseIntent.typeClass) {
-                                    "Income" ->
-                                        Income(categoryId, accountId)
-
-                                    "Outcome" ->
-                                        Outcome(categoryId, accountId)
-
-                                    else ->
-                                        Transfer(accountId, null)
-                                }
-                        )
-                    }
-
-                    is ManageTransactionBaseIntent.ChangedAccount -> {
-                        if (okState.form.transactionType is Income) {
-                            okState.form.copy(transactionType = okState.form.transactionType.copy(accountId = baseIntent.accountId))
-                        } else if (okState.form.transactionType is Outcome) {
-                            okState.form.copy(transactionType = okState.form.transactionType.copy(accountId = baseIntent.accountId))
-                        } else {
-                            okState.form
+                val updatedForm = with(currentForm) {
+                    when (baseIntent) {
+                        is ManageTransactionBaseIntent.ChangedValue -> copyBase(value = baseIntent.value)
+                        is ManageTransactionBaseIntent.ChangedNote -> copyBase(note = baseIntent.note)
+                        is ManageTransactionBaseIntent.ChangedDate -> {
+                            val datePart = baseIntent.date.substringBefore('T')
+                            copyBase(date = LocalDate.parse(datePart))
                         }
-                    }
 
-                    is ManageTransactionBaseIntent.ChangedCategory -> {
-                        when (okState.form.transactionType) {
-                            is Income -> {
-                                okState.form.copy(transactionType = okState.form.transactionType.copy(categoryId = baseIntent.categoryId))
-                            }
-
-                            is Outcome -> {
-                                okState.form.copy(transactionType = okState.form.transactionType.copy(categoryId = baseIntent.categoryId))
-                            }
-
-                            else -> {
-                                okState.form
-                            }
+                        is ManageTransactionBaseIntent.ChangedType -> {
+                            copyBase(transactionType = transactionType.changeType(baseIntent.typeClass))
                         }
-                    }
 
-                    is ManageTransactionBaseIntent.ChangedDate -> {
-                        okState.form.copy(date = LocalDate.parse(baseIntent.date.split("T")[0]))
+                        is ManageTransactionBaseIntent.ChangedAccount -> {
+                            copyBase(transactionType = transactionType.updateAccount(baseIntent.accountId))
+                        }
+
+                        is ManageTransactionBaseIntent.ChangedCategory -> {
+                            copyBase(transactionType = transactionType.updateCategory(baseIntent.categoryId))
+                        }
                     }
                 }
-
-                okState.copy(form = newForm) as S
+                setForm(updatedForm)
             }
 
             null

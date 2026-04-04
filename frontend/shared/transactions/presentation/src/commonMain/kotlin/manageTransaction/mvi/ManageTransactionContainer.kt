@@ -47,7 +47,7 @@ class ManageTransactionContainer(
                     categories = emptyList(),
                     accounts = emptyList(),
                     value = BigDecimal("0"),
-                    transactionType = ManageTransactionType.Outcome(categoryId = null, accountId = null),
+                    transactionType = Outcome(categoryId = null, accountId = null),
                     note = "",
                     date = Clock.System.now().toLocalDate(),
                 ),
@@ -58,7 +58,16 @@ class ManageTransactionContainer(
                 name = "ManageTransaction", resetOnStop = true,
                 doOnRecover = { ManageTransactionState.FatalError(it.message.orUnknown) }
             )
-            install(manageTransactionBasePlugin())
+            install(
+                manageTransactionBasePlugin(
+                    getForm = { (this as? ManageTransactionState.OK)?.form },
+                    setForm = { newForm ->
+                        if (this is ManageTransactionState.OK) {
+                            copy(form = newForm)
+                        } else this
+                    }
+                )
+            )
 
             val jobs = JobManager<Jobs>()
 
@@ -120,7 +129,7 @@ class ManageTransactionContainer(
                                     copy(
                                         form = form.copy(
                                             value = BigDecimal("0"),
-                                            transactionType = ManageTransactionType.Outcome(
+                                            transactionType = Outcome(
                                                 categoryId = null,
                                                 accountId = null
                                             ),
