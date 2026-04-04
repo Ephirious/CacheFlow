@@ -32,7 +32,6 @@ sealed class ManageTransactionType(
     // used for TS
     val type: String
 ) {
-    @JsExport.Ignore
     @DataCopyable
     sealed interface IncomeOrOutcome {
         val categoryId: String?
