@@ -4,6 +4,7 @@ import editors.usecases.account.GetAccountsFlowUseCase
 import editors.usecases.category.GetCategoriesFlowUseCase
 import kotlinx.coroutines.launch
 import manageTransaction.mvi.ManageTransactionType.*
+import manageTransaction.mvi.base.manageTransactionBasePlugin
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
 import pro.respawn.flowmvi.api.PipelineContext
@@ -19,9 +20,7 @@ import transactions.usecases.UpsertTransactionUseCase
 import utils.orUnknown
 import utils.presentation.flowMVI.fastConfig
 import utils.presentation.flowMVI.registerOrIgnore
-import utils.toLocalDate
 import utils.types.BigDecimal
-import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -43,14 +42,9 @@ class ManageTransactionContainer(
     override val store: Store<ManageTransactionState, ManageTransactionIntent, Nothing> =
         store(
             initial = ManageTransactionState.OK(
-                form = ManageTransactionState.OK.FormState(
-                    categories = emptyList(),
-                    accounts = emptyList(),
-                    value = BigDecimal("0"),
-                    transactionType = Outcome(categoryId = null, accountId = null),
-                    note = "",
-                    date = Clock.System.now().toLocalDate(),
-                ),
+                form = ManageTransactionState.OK.FormState().let {
+                    it.copy(validation = it.validate())
+                },
                 isCreateMode = isCreateMode,
             )
         ) {
@@ -102,7 +96,7 @@ class ManageTransactionContainer(
                                 upsertTransactionUseCase(
                                     Transaction(
                                         id = Uuid.generateV7().toString(),
-                                        value = this.form.value,
+                                        value = BigDecimal(this.form.value),
                                         type = when (val t = this.form.transactionType) {
                                             is Income -> TransactionType.Income(
                                                 category = category!!
@@ -124,19 +118,6 @@ class ManageTransactionContainer(
                                         date = this.form.date
                                     )
                                 )
-                                updateState {
-                                    copy(
-                                        form = form.copy(
-                                            value = BigDecimal("0"),
-                                            transactionType = Outcome(
-                                                categoryId = null,
-                                                accountId = null
-                                            ),
-                                            note = "",
-                                            date = Clock.System.now().toLocalDate(),
-                                        )
-                                    )
-                                }
                             }
                         }
                     } else {

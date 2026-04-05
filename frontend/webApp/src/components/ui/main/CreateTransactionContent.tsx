@@ -31,10 +31,8 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         value={`${state.form.value}`}
                         onChange={(e) => {
                             const formatted = e.target.value.replace(/\u00A0/g, "")
-                            const x = formatted.length == 0 ? "0" : formatted
-                            component.intent(new ManageTransactionBaseIntent.ChangedValue(BigDecimal.from(
-                                x
-                            )));
+                            const x = formatted.length == 0 ? "" : formatted
+                            component.intent(new ManageTransactionBaseIntent.ChangedValue(x));
                         }}
                         type="text"
                         placeholder="0"

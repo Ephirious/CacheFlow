@@ -11,9 +11,8 @@ class ValidationProcessor(
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = resolver.getSymbolsWithAnnotation("utils.annotations.GenerateValidator")
-        val unableToProcess = symbols.filterNot { it is KSClassDeclaration }
         symbols.filterIsInstance<KSClassDeclaration>().forEach { it.accept(ValidationVisitor(), Unit) }
-        return unableToProcess.toList()
+        return emptyList()
     }
 
     inner class ValidationVisitor : KSVisitorVoid() {
@@ -21,57 +20,46 @@ class ValidationProcessor(
             val packageName = classDeclaration.packageName.asString()
             val className = classDeclaration.simpleName.asString()
 
+            val isDataCopyable = classDeclaration.annotations.any {
+                it.shortName.asString() == "DataCopyable" || it.shortName.asString() == "DataCopyableNode"
+            }
+
+            val hasGenerics = classDeclaration.typeParameters.isNotEmpty()
             val validatableProperties = classDeclaration.getAllProperties()
-                .filter { prop ->
-                    (prop.isAbstract() || prop.hasBackingField) &&
-                            prop.annotations.any { ann ->
-                                ann.annotationType.resolve().declaration.annotations.any {
-                                    it.shortName.asString() == "LinkedRule"
-                                }
-                            }
-                }.toList()
+                .filter { (it.isAbstract() || it.hasBackingField) && hasLinkedRule(it) }.toList()
 
             if (validatableProperties.isEmpty()) return
 
             val enumName = "${className}ValidationFields"
             val errorsName = "${className}ValidationErrors"
+            val receiverType = if (hasGenerics) "$className<$errorsName>" else className
 
             val ruleImports = validatableProperties.flatMap { prop ->
                 prop.annotations.mapNotNull { ann ->
                     val linkedRule = ann.annotationType.resolve().declaration.annotations
                         .find { it.shortName.asString() == "LinkedRule" }
-                    val ruleType = linkedRule?.arguments?.firstOrNull()?.value as? KSType
-                    ruleType?.declaration?.qualifiedName?.asString()
+                    (linkedRule?.arguments?.firstOrNull()?.value as? KSType)?.declaration?.qualifiedName?.asString()
                 }
             }.distinct()
 
-            val file = codeGenerator.createNewFile(
+            codeGenerator.createNewFile(
                 Dependencies(false, classDeclaration.containingFile!!),
                 packageName,
                 "${className}Validators"
-            )
-
-            file.writer().use { w ->
-                w.write("package $packageName\n\n")
-                w.write("import kotlin.js.JsExport\n")
+            ).writer().use { w ->
+                w.write("package $packageName\n\nimport kotlin.js.JsExport\n")
                 ruleImports.forEach { w.write("import $it\n") }
                 w.write("\n")
 
                 w.write("@JsExport\n")
-                w.write(
-                    "enum class $enumName { " +
-                            validatableProperties.joinToString(", ") { it.simpleName.asString() } + " }\n\n")
+                w.write("enum class $enumName { ${validatableProperties.joinToString(", ") { it.simpleName.asString() }} }\n\n")
 
                 w.write("@JsExport\n")
                 w.write("data class $errorsName(\n")
                 validatableProperties.forEach { w.write("    val ${it.simpleName.asString()}: String? = null,\n") }
-                w.write(") {\n")
-                w.write(
-                    "    val hasErrors get() = " +
-                            validatableProperties.joinToString(" || ") { "${it.simpleName.asString()} != null" } + "\n")
-                w.write("}\n\n")
+                w.write(") {\n    val hasErrors get() = ${validatableProperties.joinToString(" || ") { "${it.simpleName.asString()} != null" }}\n}\n\n")
 
-                w.write("fun $className.validateField(field: $enumName): String? = when(field) {\n")
+                w.write("fun $receiverType.validateField(field: $enumName): String? = when(field) {\n")
                 validatableProperties.forEach { prop ->
                     w.write("    $enumName.${prop.simpleName.asString()} -> {\n")
                     generateValidationLogic(prop, w)
@@ -79,51 +67,63 @@ class ValidationProcessor(
                 }
                 w.write("}\n\n")
 
-                w.write("fun $className.validate(): $errorsName = $errorsName(\n")
+                w.write("fun $receiverType.validate(): $errorsName = $errorsName(\n")
                 validatableProperties.forEach {
                     val name = it.simpleName.asString()
                     w.write("    $name = validateField($enumName.$name),\n")
                 }
-                w.write(")\n")
+                w.write(")\n\n")
 
+                val hasValidationField = classDeclaration.getAllProperties().any { it.simpleName.asString() == "validation" }
 
-                // ЗАХАРДКОЖЕНО ДЛЯ @MaxLen
-                w.write("@JsExport\n")
-                w.write("object ${className}ValidationMetadata {\n")
-                validatableProperties.forEach { prop ->
-                    val propName = prop.simpleName.asString()
-                    val maxLenAnn = prop.annotations.find { it.shortName.asString() == "MaxLen" }
-                    val limit = maxLenAnn?.arguments?.find { it.name?.asString() == "param" }?.value
-
-                    if (limit != null) {
-                        w.write("    const val ${propName}MaxLen: Int = $limit\n")
-                    }
+                if (isDataCopyable) {
+                    w.write("fun <T : $receiverType> T.validated(field: $enumName): T {\n")
+                    generateValidatedBody(w, enumName, validatableProperties, "this.copyBase(validation = newValidation) as T")
+                    w.write("}\n")
+                } else if (hasValidationField) {
+                    w.write("fun $receiverType.validated(field: $enumName): $receiverType {\n")
+                    generateValidatedBody(w, enumName, validatableProperties, "this.copy(validation = newValidation)")
+                    w.write("}\n")
                 }
-                w.write("}\n")
             }
         }
 
+        private fun generateValidatedBody(w: java.io.Writer, enumName: String, props: List<KSPropertyDeclaration>, returnStatement: String) {
+            w.write("    val error = validateField(field)\n")
+            w.write("    val newValidation = when(field) {\n")
+            props.forEach { prop ->
+                val pName = prop.simpleName.asString()
+                w.write("        $enumName.$pName -> validation.copy($pName = error)\n")
+            }
+            w.write("    }\n")
+            w.write("    return $returnStatement\n")
+        }
+
+        private fun hasLinkedRule(prop: KSPropertyDeclaration): Boolean =
+            prop.annotations.any { it.annotationType.resolve().declaration.annotations.any { a -> a.shortName.asString() == "LinkedRule" } }
+
         private fun generateValidationLogic(prop: KSPropertyDeclaration, w: java.io.Writer) {
             val propName = "this.${prop.simpleName.asString()}"
-            val annotations = prop.annotations.filter { ann ->
-                ann.annotationType.resolve().declaration.annotations.any { it.shortName.asString() == "LinkedRule" }
+            val rules = prop.annotations.filter {
+                it.annotationType.resolve().declaration.annotations.any { a -> a.shortName.asString() == "LinkedRule" }
             }.toList()
 
-            annotations.forEachIndexed { index, ann ->
-                val linkedRule = ann.annotationType.resolve().declaration.annotations
-                    .first { it.shortName.asString() == "LinkedRule" }
-
-                val ruleType = linkedRule.arguments.first().value as KSType
-                val ruleClassName = ruleType.declaration.simpleName.asString()
-
-                val param = ann.arguments.find { it.name?.asString() == "param" }?.value ?: "null"
-                val customMsg = ann.arguments.find { it.name?.asString() == "message" }?.value as? String ?: ""
-
-                val prefix = if (index == 0) "if" else "else if"
-                w.write("        $prefix (!$ruleClassName.validate($propName, $param)) ")
-                w.write("if (\"$customMsg\".isNotEmpty()) \"$customMsg\" else $ruleClassName.errorMessage($param)\n")
+            w.write("        ")
+            rules.forEachIndexed { i, ann ->
+                val linked = ann.annotationType.resolve().declaration.annotations.first { it.shortName.asString() == "LinkedRule" }
+                val ruleName = (linked.arguments.first().value as KSType).declaration.simpleName.asString()
+                val paramArg = ann.arguments.find { it.name?.asString() == "param" || it.name?.asString() == "value" }?.value
+                val param = when (paramArg) {
+                    is String -> "\"$paramArg\""
+                    null -> "null"
+                    else -> paramArg.toString()
+                }
+                val msg = ann.arguments.find { it.name?.asString() == "message" }?.value as? String ?: ""
+                val call = "$ruleName.validate($propName, $param)"
+                w.write(if (msg.isNotEmpty()) "$call?.let { \"$msg\" }" else call)
+                if (i < rules.size - 1) w.write("\n            ?: ")
             }
-            w.write("        else null\n")
+            w.write("\n")
         }
     }
 }

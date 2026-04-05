@@ -1,6 +1,8 @@
-package manageTransaction.mvi
+package manageTransaction.mvi.base
 
+import manageTransaction.mvi.ManageTransactionType
 import manageTransaction.mvi.ManageTransactionType.*
+import manageTransaction.mvi.copyBase
 
 
 fun ManageTransactionType.updateAccount(newAccountId: String): ManageTransactionType = when (this) {
