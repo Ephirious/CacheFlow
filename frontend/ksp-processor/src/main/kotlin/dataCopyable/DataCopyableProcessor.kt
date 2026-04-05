@@ -29,12 +29,10 @@ class DataCopyableProcessor(
 
             val imports = mutableSetOf<String>()
 
-            // Рекурсивная функция для сборки имени типа и коллекции импортов
             fun resolveTypeName(reference: KSTypeReference?): String {
                 val type = reference?.resolve() ?: return "Any"
                 val decl = type.declaration
 
-                // Добавляем в импорты, если это класс и не из стандартного пакета kotlin
                 if (decl is KSClassDeclaration) {
                     decl.qualifiedName?.asString()?.let { qName ->
                         if (!qName.startsWith("kotlin.") && qName.contains(".")) {

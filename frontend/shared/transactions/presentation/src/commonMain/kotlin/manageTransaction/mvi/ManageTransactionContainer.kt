@@ -78,7 +78,6 @@ class ManageTransactionContainer(
 
 
             reduce { intent ->
-                println(intent)
                 when (intent) {
                     ManageTransactionIntent.ClickedDelete -> if (!isCreateMode) {
                         TODO()
@@ -146,6 +145,7 @@ class ManageTransactionContainer(
                 }
             }
         }
+
 
     private fun Ctx.observeAccounts(jobs: JobManager<Jobs>) {
         launch {
