@@ -27,40 +27,35 @@ const Main = ({component}: { component: MainComponent }) => {
     )
 }
 
-const MainOK = ({component}: { component: MainComponent }) => {
-    const summaryState = useValue(component.summaryComponent.state)
-    const transactionsState = useValue(component.transactionsComponent.state)
+const MainOK = ({ component }: { component: MainComponent }) => {
+    const summaryState = useValue(component.summaryComponent.state);
+    const transactionsState = useValue(component.transactionsComponent.state);
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
     const [themeElement, setThemeElement] = useState<HTMLElement>();
     const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(null);
 
     return (
-        <div ref={(el) => el && setThemeElement(el)}
-             className={"fixed h-screen w-screen pt-[env(safe-area-inset-top)]"}
-             style={{backgroundColor: "#4F39F6"}}
+        <div
+            ref={(el) => el && setThemeElement(el)}
+            className="fixed inset-0 pt-[env(safe-area-inset-top)] bg-[#4F39F6]"
         >
-            <main
-                className={"fixed h-screen w-screen"}
-                style={{backgroundColor: "#4F39F6"}}
-            >
+            <main className="relative h-full w-full">
                 <MainCard data={{
                     accounts: summaryState.accounts.asJsReadonlyArrayView(),
                     balance: summaryState.overallBalance,
                     percentage: summaryState.profitPercentage
                 }}/>
-                <div
-                    ref={setSheetPortalEl}
-                    className="pointer-events-none fixed inset-0 z-30"
-                    aria-hidden
-                />
+
+                <div ref={setSheetPortalEl} className="pointer-events-none fixed inset-0 z-30" aria-hidden />
+
                 <TransactionBottomSheet containerEl={themeElement} portalContainer={sheetPortalEl}>
                     <Transactions transactions={transactionsState.transactions.asJsReadonlyArrayView()}/>
                 </TransactionBottomSheet>
             </main>
 
             <CreateTransactionButton onClick={() => setIsCreateModalOpen(true)}/>
+
             <CreateTransactionBottomSheet
                 component={component.manageTransactionComponent}
                 isOpen={isCreateModalOpen}
@@ -68,7 +63,7 @@ const MainOK = ({component}: { component: MainComponent }) => {
                 containerEl={themeElement}
             />
         </div>
-    )
-}
+    );
+};
 
 export default Main;
