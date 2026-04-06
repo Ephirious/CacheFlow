@@ -5,9 +5,9 @@ import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.dsl.updateStateImmediate
-import pro.respawn.flowmvi.plugins.reduce
 import pro.respawn.flowmvi.plugins.whileSubscribed
 import utils.orUnknown
+import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
 import kotlin.time.Duration.Companion.seconds
 
@@ -31,7 +31,7 @@ class InteropSampleContainer : Container<InteropSampleState, InteropSampleIntent
                 }
             }
 
-            reduce { intent ->
+            customReduce { intent ->
                 when (intent) {
                     is InteropSampleIntent.ChangedText -> updateStateImmediate {
                         this.copy(text = intent.text)

@@ -28,10 +28,15 @@ sealed class ManageTransactionState : MVIState {
             override val accounts: List<Account> = emptyList(),
             override val date: LocalDate = Clock.System.now().toLocalDate(),
             override val validation: ManageTransactionFormBaseStateValidationErrors = ManageTransactionFormBaseStateValidationErrors()
-        ) : ManageTransactionFormBaseState<ManageTransactionFormBaseStateValidationErrors>
+        ) : ManageTransactionFormBaseState<ManageTransactionFormBaseStateValidationErrors> {
+            fun findAccount(id: String?) = accounts.firstOrNull { it.id == id }
+            fun findCategory(id: String?) = categories.firstOrNull { it.id == id }
+
+            val isTransfer get() = transactionType is ManageTransactionType.Transfer
+        }
     }
 
-    data class FatalError(val message: String) : ManageTransactionState()
+    data class FatalError(val message: String, val lastValidForm: OK.FormState?) : ManageTransactionState()
 
 }
 
@@ -40,4 +45,6 @@ sealed class ManageTransactionState : MVIState {
 sealed class ManageTransactionIntent : ManageTransactionBaseIntent() {
     data object ClickedSave : ManageTransactionIntent()
     data object ClickedDelete : ManageTransactionIntent()
+
+    data object ClickedTryAgain : ManageTransactionIntent()
 }

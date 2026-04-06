@@ -59,7 +59,7 @@ class ValidationProcessor(
                 validatableProperties.forEach { w.write("    val ${it.simpleName.asString()}: String? = null,\n") }
                 w.write(") {\n    val hasErrors get() = ${validatableProperties.joinToString(" || ") { "${it.simpleName.asString()} != null" }}\n}\n\n")
 
-                w.write("fun $receiverType.validateField(field: $enumName): String? = when(field) {\n")
+                w.write("fun $receiverType.validate(field: $enumName): String? = when(field) {\n")
                 validatableProperties.forEach { prop ->
                     w.write("    $enumName.${prop.simpleName.asString()} -> {\n")
                     generateValidationLogic(prop, w)
@@ -70,7 +70,7 @@ class ValidationProcessor(
                 w.write("fun $receiverType.validate(): $errorsName = $errorsName(\n")
                 validatableProperties.forEach {
                     val name = it.simpleName.asString()
-                    w.write("    $name = validateField($enumName.$name),\n")
+                    w.write("    $name = validate($enumName.$name),\n")
                 }
                 w.write(")\n\n")
 
@@ -89,7 +89,7 @@ class ValidationProcessor(
         }
 
         private fun generateValidatedBody(w: java.io.Writer, enumName: String, props: List<KSPropertyDeclaration>, returnStatement: String) {
-            w.write("    val error = validateField(field)\n")
+            w.write("    val error = validate(field)\n")
             w.write("    val newValidation = when(field) {\n")
             props.forEach { prop ->
                 val pName = prop.simpleName.asString()

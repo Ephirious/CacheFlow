@@ -4,19 +4,19 @@ import interopSample.usecases.GetWeatherFlowUseCase
 import interopSample.usecases.ManageSampleTextUseCases
 import interopSample.usecases.RefreshWeatherUseCase
 import interopSampleFlow.mvi.InteropSampleFlowState.WeatherState
-import kotlinx.coroutines.launch
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.dsl.updateStateImmediate
 import pro.respawn.flowmvi.plugins.JobManager
-import pro.respawn.flowmvi.plugins.reduce
 import pro.respawn.flowmvi.plugins.whileSubscribed
 import utils.orUnknown
 import utils.presentation.AsyncDispatcher
+import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
-import utils.presentation.flowMVI.registerOrIgnore
+import utils.presentation.flowMVI.launchOrIgnore
+import utils.presentation.flowMVI.observe
 
 private typealias Ctx = PipelineContext<InteropSampleFlowState, InteropSampleFlowIntent, Nothing>
 
@@ -49,7 +49,7 @@ class InteropSampleFlowContainer(
                 startWeatherSubscription(jobs)
             }
 
-            reduce { intent ->
+            customReduce { intent ->
                 when (intent) {
                     InteropSampleFlowIntent.ClickedRefresh ->
                         refreshWeather(jobs)
@@ -64,25 +64,30 @@ class InteropSampleFlowContainer(
 
 
     private fun Ctx.refreshWeather(jobs: JobManager<Jobs>) {
-        launch(AsyncDispatcher) {
+        launchOrIgnore(
+            AsyncDispatcher,
+            jobs, Jobs.RefreshWeather
+        ) {
             updateState {
                 copy(weatherState = WeatherState.Loading)
             }
             refreshWeatherUseCase()
             startWeatherSubscription(jobs)
-        }.registerOrIgnore(jobs, Jobs.RefreshWeather)
+        }
     }
 
     private fun Ctx.startWeatherSubscription(jobs: JobManager<Jobs>) {
-        launch(AsyncDispatcher) {
-            try {
-                getWeatherFlowUseCase().collect { weather ->
-                    updateState { copy(weatherState = WeatherState.OK(weather)) }
-                }
-            } catch (_: NullPointerException) {
-                throw NullPointerException("Нет оффлайн данных (ошибка!!)")
+        observe(
+            flow = getWeatherFlowUseCase(),
+            jobs = jobs,
+            key = Jobs.ObserveWeather,
+            onError = { error ->
+                throw if (error is NullPointerException) NullPointerException("Нет оффлайн данных (ошибка!!)")
+                else error
             }
-        }.registerOrIgnore(jobs, Jobs.ObserveWeather)
+        ) { weather ->
+            updateState { copy(weatherState = WeatherState.OK(weather)) }
+        }
     }
 
 }

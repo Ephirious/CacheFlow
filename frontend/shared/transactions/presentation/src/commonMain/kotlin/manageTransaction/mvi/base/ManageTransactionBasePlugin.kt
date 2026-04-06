@@ -6,6 +6,7 @@ import pro.respawn.flowmvi.api.FlowMVIDSL
 import pro.respawn.flowmvi.api.MVIAction
 import pro.respawn.flowmvi.api.MVIState
 import pro.respawn.flowmvi.dsl.plugin
+import utils.presentation.flowMVI.customOnIntent
 
 @FlowMVIDSL
 fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction, F : ManageTransactionFormBaseState<ManageTransactionFormBaseStateValidationErrors>>
@@ -15,8 +16,8 @@ fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction, F : ManageTra
 ) =
     plugin<S, I, A> {
         name = "ManageTransactionBasePlugin"
-        onIntent { intent ->
-            val baseIntent = intent as? ManageTransactionBaseIntent.Internal ?: return@onIntent intent
+        customOnIntent { intent ->
+            val baseIntent = intent as? ManageTransactionBaseIntent.Internal ?: return@customOnIntent intent
             updateState {
                 val currentForm = getForm() ?: return@updateState this
 
