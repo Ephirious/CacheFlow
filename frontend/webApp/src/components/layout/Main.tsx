@@ -1,12 +1,12 @@
 import MainCard from "../ui/main/MainCard.tsx";
 import Transactions from "../ui/main/Transactions.tsx";
-import {MainComponent, MainState} from "k2ts";
+import {MainComponent, MainState, ManageTransactionState} from "k2ts";
 import {useValue, when} from "interop";
-import TransactionBottomSheet from "../ui/main/BottomSheet.tsx";
+import BottomSheet from "../ui/main/BottomSheet.tsx";
 import {useState} from "react";
 
 import CreateTransactionButton from "../ui/main/CreateTransactionButton.tsx";
-import CreateTransactionBottomSheet from "../ui/main/CreateTransactionBottomSheet.tsx";
+import CreateTransactionContent from "../ui/main/CreateTransactionContent.tsx";
 
 
 const Main = ({component}: { component: MainComponent }) => {
@@ -30,6 +30,7 @@ const Main = ({component}: { component: MainComponent }) => {
 const MainOK = ({ component }: { component: MainComponent }) => {
     const summaryState = useValue(component.summaryComponent.state);
     const transactionsState = useValue(component.transactionsComponent.state);
+    const manageTransactionState = useValue(component.manageTransactionComponent.state);
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [themeElement, setThemeElement] = useState<HTMLElement>();
@@ -49,19 +50,44 @@ const MainOK = ({ component }: { component: MainComponent }) => {
 
                 <div ref={setSheetPortalEl} className="pointer-events-none fixed inset-0 z-30" aria-hidden />
 
-                <TransactionBottomSheet containerEl={themeElement} portalContainer={sheetPortalEl}>
+                <BottomSheet
+                    containerEl={themeElement}
+                    portalContainer={sheetPortalEl}
+                    themeMode="interpolate"
+                    themeEnabled={!isCreateModalOpen}
+                >
                     <Transactions transactions={transactionsState.transactions.asJsReadonlyArrayView()}/>
-                </TransactionBottomSheet>
+                </BottomSheet>
             </main>
 
             <CreateTransactionButton onClick={() => setIsCreateModalOpen(true)}/>
 
-            <CreateTransactionBottomSheet
-                component={component.manageTransactionComponent}
-                isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+            <BottomSheet
                 containerEl={themeElement}
-            />
+                open={isCreateModalOpen}
+                onOpenChange={setIsCreateModalOpen}
+                snapPoints={[1]}
+                initialSnapPoint={1}
+                dismissible={true}
+                modal={true}
+                zIndex={60}
+                backgroundColor="#EBEBF0"
+                className="sm:hidden"
+                themeMode="interpolate"
+                themeTargetColor="#EBEBF0"
+                useCurrentThemeAsBase={true}
+                contentPaddingBottom="calc(env(safe-area-inset-bottom))"
+            >
+                {when(manageTransactionState)
+                    .on(ManageTransactionState.OK, (okState) => (
+                        <CreateTransactionContent
+                            component={component.manageTransactionComponent}
+                            state={okState}
+                            close={() => setIsCreateModalOpen(false)}
+                        />
+                    ))
+                    .otherwise(() => <div>error</div>)}
+            </BottomSheet>
         </div>
     );
 };
