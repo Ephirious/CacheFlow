@@ -61,6 +61,7 @@ interface BottomSheetProps {
     themeTargetColor?: string;
     themeBaseColor?: string;
     useCurrentThemeAsBase?: boolean;
+    themeInterpolationStartThreshold?: number;
     showOverlay?: boolean;
     contentPaddingBottom?: string;
     themeTransitionDuration?: number;
@@ -92,6 +93,7 @@ const BottomSheet = ({
     themeTargetColor = "#FFFFFF",
     themeBaseColor,
     useCurrentThemeAsBase = false,
+    themeInterpolationStartThreshold = 0,
     showOverlay = modal,
     contentPaddingBottom = 'calc(70px + env(safe-area-inset-bottom))',
     themeTransitionDuration = 240,
@@ -139,6 +141,10 @@ const BottomSheet = ({
 
         const baseRGB = toRGB(resolvedBaseColor);
         const targetRGB = toRGB(themeTargetColor);
+        const threshold = Math.max(0, Math.min(0.99, themeInterpolationStartThreshold));
+
+        const mapThresholdProgress = (value: number) =>
+            threshold === 0 ? value : Math.max(0, Math.min(1, (value - threshold) / (1 - threshold)));
 
         const update = () => {
             if (!contentRef.current) return;
@@ -148,15 +154,16 @@ const BottomSheet = ({
 
             const halfTop = winH * 0.5;
             let progress = Math.max(0, Math.min(1, (halfTop - rect.top) / (halfTop - marginTop)));
+            const delayedProgress = mapThresholdProgress(progress);
 
             const rgb: [number, number, number] = [
-                Math.round(baseRGB[0] + (targetRGB[0] - baseRGB[0]) * progress),
-                Math.round(baseRGB[1] + (targetRGB[1] - baseRGB[1]) * progress),
-                Math.round(baseRGB[2] + (targetRGB[2] - baseRGB[2]) * progress),
+                Math.round(baseRGB[0] + (targetRGB[0] - baseRGB[0]) * delayedProgress),
+                Math.round(baseRGB[1] + (targetRGB[1] - baseRGB[1]) * delayedProgress),
+                Math.round(baseRGB[2] + (targetRGB[2] - baseRGB[2]) * delayedProgress),
             ];
 
             const color = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
-            setRadius(32 * (1 - progress));
+            setRadius(32 * (1 - delayedProgress));
 
             setThemeColor(containerEl, color);
 
@@ -190,6 +197,7 @@ const BottomSheet = ({
         themeTargetColor,
         themeTransitionDuration,
         useCurrentThemeAsBase,
+        themeInterpolationStartThreshold,
     ]);
 
     useEffect(() => {
@@ -209,9 +217,14 @@ const BottomSheet = ({
 
     useEffect(() => {
         if (typeof snapPoint === "number") {
-            setRadius(32 * (1 - Math.max(0, Math.min(1, snapPoint))));
+            const normalized = Math.max(0, Math.min(1, snapPoint));
+            const threshold = Math.max(0, Math.min(0.99, themeInterpolationStartThreshold));
+            const delayed = threshold === 0
+                ? normalized
+                : Math.max(0, Math.min(1, (normalized - threshold) / (1 - threshold)));
+            setRadius(32 * (1 - delayed));
         }
-    }, [snapPoint]);
+    }, [snapPoint, themeInterpolationStartThreshold]);
 
     return (
         <Drawer.Root

@@ -28,6 +28,8 @@ const Main = ({component}: { component: MainComponent }) => {
 }
 
 const MainOK = ({ component }: { component: MainComponent }) => {
+    const sheetThemeThreshold = 0.92;
+
     const summaryState = useValue(component.summaryComponent.state);
     const transactionsState = useValue(component.transactionsComponent.state);
     const manageTransactionState = useValue(component.manageTransactionComponent.state);
@@ -55,6 +57,7 @@ const MainOK = ({ component }: { component: MainComponent }) => {
                     portalContainer={sheetPortalEl}
                     themeMode="interpolate"
                     themeEnabled={!isCreateModalOpen}
+                    themeInterpolationStartThreshold={sheetThemeThreshold}
                 >
                     <Transactions transactions={transactionsState.transactions.asJsReadonlyArrayView()}/>
                 </BottomSheet>
@@ -76,6 +79,7 @@ const MainOK = ({ component }: { component: MainComponent }) => {
                 themeMode="interpolate"
                 themeTargetColor="#EBEBF0"
                 useCurrentThemeAsBase={true}
+                themeInterpolationStartThreshold={sheetThemeThreshold}
                 contentPaddingBottom="calc(env(safe-area-inset-bottom))"
             >
                 {when(manageTransactionState)
