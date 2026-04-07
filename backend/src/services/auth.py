@@ -1,4 +1,6 @@
 from uuid import UUID
+
+from sqlalchemy.exc import IntegrityError
 from backend.src.models.users import EmailCode, EmailCodeAction, User
 from backend.src.repositories.base import AlreadyExists
 from backend.src.repositories.uow import UnitOfWork
@@ -24,7 +26,7 @@ class AuthService:
             )
             try:
                 user = await uow.user_repository.insert(data)
-            except AlreadyExists:
+            except IntegrityError:
                
                 user = await uow.user_repository.get_by_email(email=body.email)
                 if user:

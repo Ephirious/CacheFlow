@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from asyncpg import UniqueViolationError
+from asyncpg.exceptions import UniqueViolationError
 
 from backend.src.models.base_class import Base
 
@@ -43,8 +43,7 @@ class GenericRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await self._session.refresh(obj)
             return obj
         except IntegrityError as e:
-            if isinstance(e.orig, UniqueViolationError) or "23505" in str(e.orig):
-                raise AlreadyExists("Entity already exists") from e
+            await self._session.rollback()
             raise e
 
     async def delete(self, entity_id: UUID):
