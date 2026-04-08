@@ -153,7 +153,7 @@ const BottomSheet = ({
             const marginTop = parseFloat(getComputedStyle(contentRef.current).marginTop) || 0;
 
             const halfTop = winH * 0.5;
-            let progress = Math.max(0, Math.min(1, (halfTop - rect.top) / (halfTop - marginTop)));
+            let progress = Math.max(0, Math.min(1.05, (halfTop - rect.top) / (halfTop - marginTop - 10)));
             const delayedProgress = mapThresholdProgress(progress);
 
             const rgb: [number, number, number] = [
