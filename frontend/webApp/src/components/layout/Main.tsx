@@ -3,7 +3,7 @@ import Transactions from "../ui/main/Transactions.tsx";
 import {MainComponent, MainState, ManageTransactionState} from "k2ts";
 import {useValue, when} from "interop";
 import BottomSheet from "../ui/main/BottomSheet.tsx";
-import {useState} from "react";
+import {useLayoutEffect, useRef, useState} from "react";
 
 import CreateTransactionButton from "../ui/main/CreateTransactionButton.tsx";
 import CreateTransactionContent from "../ui/main/CreateTransactionContent.tsx";
@@ -38,23 +38,42 @@ const MainOK = ({ component }: { component: MainComponent }) => {
     const [themeElement, setThemeElement] = useState<HTMLElement>();
     const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(null);
 
+    const cardRef = useRef<HTMLDivElement>(null);
+    const [dynamicSnapPoint, setDynamicSnapPoint] = useState<number>(0.6);
+
+    useLayoutEffect(() => {
+        if (cardRef.current) {
+            const cardHeight = cardRef.current.offsetHeight;
+            const screenHeight = window.innerHeight;
+
+            const calculatedPoint = (screenHeight - cardHeight) / screenHeight;
+            const roundedPoint = Math.round(calculatedPoint * 100) / 100;
+            setDynamicSnapPoint(roundedPoint);
+        }
+    }, [summaryState]);
+
     return (
         <div
             ref={(el) => el && setThemeElement(el)}
             className="fixed inset-0 pt-[env(safe-area-inset-top)] bg-[#4F39F6]"
         >
             <main className="relative h-full w-full">
-                <MainCard data={{
-                    accounts: summaryState.accounts.asJsReadonlyArrayView(),
-                    balance: summaryState.overallBalance,
-                    percentage: summaryState.profitPercentage
-                }}/>
+                <div ref={cardRef}>
+                    <MainCard data={{
+                        accounts: summaryState.accounts.asJsReadonlyArrayView(),
+                        balance: summaryState.overallBalance,
+                        percentage: summaryState.profitPercentage
+                    }}/>
+                </div>
 
                 <div ref={setSheetPortalEl} className="pointer-events-none fixed inset-0 z-30" aria-hidden />
 
                 <BottomSheet
+                    key={dynamicSnapPoint}
                     containerEl={themeElement}
                     portalContainer={sheetPortalEl}
+                    snapPoints={[dynamicSnapPoint, 1]}
+                    initialSnapPoint={dynamicSnapPoint}
                     themeMode="interpolate"
                     themeEnabled={!isCreateModalOpen}
                     themeInterpolationStartThreshold={sheetThemeThreshold}

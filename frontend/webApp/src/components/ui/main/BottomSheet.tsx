@@ -2,7 +2,7 @@ import { Drawer } from "vaul";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { changeMetaThemeColor } from "../../../styles/changeMetaThemeColor.ts";
 
-const BUCKETS = 28;
+const BUCKETS = 120;
 const DEFAULT_THEME_BASE_COLOR = "#4F39F6";
 
 const isStandalone = () =>
@@ -12,7 +12,7 @@ const createTintBar = (color: string) => {
     const bar = document.createElement("div");
     Object.assign(bar.style, {
         position: "fixed", top: "0", left: "0", right: "0", zIndex: "9999",
-        height: "max(env(safe-area-inset-top), 6px)", backgroundColor: color, pointerEvents: "none"
+        height: "6px", backgroundColor: color, pointerEvents: "none"
     });
     return bar;
 };
