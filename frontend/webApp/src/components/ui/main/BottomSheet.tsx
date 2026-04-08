@@ -1,5 +1,5 @@
 import { Drawer } from "vaul";
-import { ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { changeMetaThemeColor } from "../../../styles/changeMetaThemeColor.ts";
 
 const BUCKETS = 28;
@@ -119,7 +119,7 @@ const BottomSheet = ({
         return DEFAULT_THEME_BASE_COLOR;
     };
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (!themeEnabled || themeMode !== "interpolate" || !open) {
             const baseColor = themeBaseColor ?? resolvedBaseColorRef.current;
 
