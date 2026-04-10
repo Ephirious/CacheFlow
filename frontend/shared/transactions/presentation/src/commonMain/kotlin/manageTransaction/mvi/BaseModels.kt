@@ -3,7 +3,7 @@ package manageTransaction.mvi
 import editors.models.Account
 import editors.models.Category
 import kotlinx.datetime.LocalDate
-import manageTransaction.validationRules.StringAmount
+import manageTransaction.validation.StringAmount
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
 import utils.annotations.DataCopyable

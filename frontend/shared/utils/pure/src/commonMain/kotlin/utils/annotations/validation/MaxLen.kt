@@ -1,12 +1,18 @@
 package utils.annotations.validation
 
 import utils.annotations.LinkedRule
+import utils.annotations.ValidationError
 import utils.annotations.ValidationRule
+import utils.annotations.validation.MaxLenError.*
 
-object MaxLenRule : ValidationRule<String> {
-    override fun validate(value: String, param: Any?): String? {
+sealed class MaxLenError : ValidationError {
+    data class MaxLengthExceeded(val len: Int) : MaxLenError()
+}
+
+object MaxLenRule : ValidationRule<String, MaxLenError> {
+    override fun validate(value: String, param: Any?): MaxLenError? {
         return if (value.length > (param as Int)) {
-            "Превышена длина (макс. $param)"
+            MaxLengthExceeded(param)
         } else null
     }
 }

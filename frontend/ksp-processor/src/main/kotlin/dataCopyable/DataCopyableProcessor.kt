@@ -110,7 +110,7 @@ class DataCopyableProcessor(
                     val copyParams = properties.joinToString(", ") { p ->
                         val pName = p.simpleName.asString()
                         if (pName == "validation" && hasGenerics) {
-                            "$pName = $pName as ${interfaceSimpleName}ValidationErrors"
+                            "$pName = $pName as ${interfaceSimpleName.removeSuffix("State")}ValidationErrors"
                         } else {
                             "$pName = $pName"
                         }

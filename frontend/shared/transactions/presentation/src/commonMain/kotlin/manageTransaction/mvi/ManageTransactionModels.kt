@@ -27,8 +27,8 @@ sealed class ManageTransactionState : MVIState {
             override val categories: List<Category> = emptyList(),
             override val accounts: List<Account> = emptyList(),
             override val date: LocalDate = Clock.System.now().toLocalDate(),
-            override val validation: ManageTransactionFormBaseStateValidationErrors = ManageTransactionFormBaseStateValidationErrors()
-        ) : ManageTransactionFormBaseState<ManageTransactionFormBaseStateValidationErrors> {
+            override val validation: ManageTransactionFormBaseValidationErrors = ManageTransactionFormBaseValidationErrors()
+        ) : ManageTransactionFormBaseState<ManageTransactionFormBaseValidationErrors> {
             fun findAccount(id: String?) = accounts.firstOrNull { it.id == id }
             fun findCategory(id: String?) = categories.firstOrNull { it.id == id }
 

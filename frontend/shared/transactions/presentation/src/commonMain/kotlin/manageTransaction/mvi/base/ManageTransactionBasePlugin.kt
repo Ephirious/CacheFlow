@@ -9,7 +9,7 @@ import pro.respawn.flowmvi.dsl.plugin
 import utils.presentation.flowMVI.customOnIntent
 
 @FlowMVIDSL
-fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction, F : ManageTransactionFormBaseState<ManageTransactionFormBaseStateValidationErrors>>
+fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction, F : ManageTransactionFormBaseState<ManageTransactionFormBaseValidationErrors>>
         manageTransactionBasePlugin(
     getForm: S.() -> F?,
     setForm: S.(F) -> S
@@ -26,7 +26,7 @@ fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction, F : ManageTra
                         is ManageTransactionBaseIntent.ChangedValue -> {
                             copyBase(
                                 value = baseIntent.value
-                            ).validated(ManageTransactionFormBaseStateValidationFields.value)
+                            ).validated(ManageTransactionFormBaseValidationFields.value)
                         }
 
                         is ManageTransactionBaseIntent.ChangedNote -> copyBase(note = baseIntent.note)
