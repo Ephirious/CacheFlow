@@ -9,6 +9,7 @@ import pro.respawn.flowmvi.api.MVIState
 import utils.annotations.DataCopyable
 import utils.annotations.DataCopyableNode
 import utils.annotations.GenerateValidator
+import utils.annotations.validation.MaxLen
 import kotlin.js.JsExport
 
 @JsExport
@@ -17,6 +18,7 @@ import kotlin.js.JsExport
 interface ManageTransactionFormBaseState<V> : MVIState {
 
     @StringAmount
+    @MaxLen(10)
     val value: String
     val transactionType: ManageTransactionType
 

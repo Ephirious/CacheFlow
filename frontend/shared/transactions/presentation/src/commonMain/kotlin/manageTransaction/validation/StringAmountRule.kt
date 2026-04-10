@@ -1,21 +1,10 @@
 package manageTransaction.validation
 
-import manageTransaction.validation.StringAmountError.*
+import localization.StringAmountError
+import localization.StringAmountError.*
 import utils.annotations.LinkedRule
-import utils.annotations.ValidationError
 import utils.annotations.ValidationRule
 import utils.types.BigDecimal
-import kotlin.js.JsExport
-
-
-@JsExport
-sealed class StringAmountError : ValidationError {
-    data object EmptyAmount : StringAmountError()
-    data object NotANumber : StringAmountError()
-    data object NotPositive : StringAmountError()
-    data object ScaleExceeded : StringAmountError()
-    data object TooMuch : StringAmountError()
-}
 
 object StringAmountRule : ValidationRule<String, StringAmountError> {
     override fun validate(value: String, param: Any?): StringAmountError? {
@@ -41,9 +30,9 @@ object StringAmountRule : ValidationRule<String, StringAmountError> {
             return ScaleExceeded
         }
 
-        if (decimal > BigDecimal("1000000000")) {
-            return TooMuch
-        }
+//        if (decimal > BigDecimal("1000000000")) {
+//            return TooMuch
+//        }
 
         return null
     }
