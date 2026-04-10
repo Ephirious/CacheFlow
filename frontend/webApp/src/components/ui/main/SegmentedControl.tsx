@@ -9,7 +9,7 @@ const SegmentedControl = ({value, onChange}: SegmentedControlProps) => {
     const options = [
         {id: "Income", label: "Доход"},
         {id: "Outcome", label: "Расход"},
-        // {id: "Transfer", label: "Перевод"},
+        {id: "Transfer", label: "Перевод"},
     ];
 
     return (

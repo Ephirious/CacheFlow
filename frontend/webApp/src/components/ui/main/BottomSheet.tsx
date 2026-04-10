@@ -251,7 +251,7 @@ const BottomSheet = ({
                 >
                     <Drawer.Handle className="w-10 h-1 bg-slate-200 rounded-full mx-auto mt-4 shrink-0" />
                     <div
-                        className="flex-1 overflow-y-auto"
+                        className="flex-1 overflow-y-auto [mask-image:linear-gradient(to_bottom,transparent,black_16px)]"
                         onScroll={(e) => {
                             const st = e.currentTarget.scrollTop;
                             setIsAtTop(st <= 0);

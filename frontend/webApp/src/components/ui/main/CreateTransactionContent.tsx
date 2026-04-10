@@ -3,6 +3,7 @@ import CategorySelector from "./CategorySelector.tsx";
 import AccountSelector from "./AccountSelector.tsx";
 import DatePicker from "./DatePicker.tsx";
 import TextArea from "./TextArea.tsx";
+import TransferCard from "./TransferCard.tsx";
 import {
     ManageTransactionState,
     ManageTransactionComponent,
@@ -46,7 +47,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                     <SegmentedControl value={state.form.transactionType.type}
                                       onChange={(type) => component.intent(new ManageTransactionBaseIntent.ChangedType(type))}/>
                 </div>
-                <div className="flex w-full flex-col gap-2">
+                <div className={`flex w-full flex-col gap-2 ${state.form.transactionType.type == 'Transfer' ? "hidden" : ""}`}>
                     <span className="text-sm font-medium">Категория</span>
                     <CategorySelector
                         categories={state.form.categories.asJsReadonlyArrayView()}
@@ -64,7 +65,28 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         onAdd={() => console.log("Add category")}
                     />
                 </div>
-                <div className="flex w-full flex-col gap-2">
+                <div>
+                    <TransferCard
+                        accounts={state.form.accounts.asJsReadonlyArrayView()}
+                        fromId={
+                            when(state.form.transactionType)
+                                .on([ManageTransactionType.Transfer], (t) => t.fromId ?? null)
+                                .otherwise(() => null)
+                        }
+                        toId={
+                            when(state.form.transactionType)
+                                .on([ManageTransactionType.Transfer], (t) => t.toId ?? null)
+                                .otherwise(() => null)
+                        }
+                        onSelectFrom={(id) => component.intent(
+                            new ManageTransactionBaseIntent.ChangedAccount(id)
+                        )}
+                        onSelectTo={(id) => component.intent(
+                            new ManageTransactionBaseIntent.ChangedAccount(id)
+                        )}
+                    />
+                </div>
+                <div className={`flex w-full flex-col gap-2 ${state.form.transactionType.type == 'Transfer' ? "hidden" : ""}`}>
                     <span className="text-sm font-medium">Счёт</span>
                     <AccountSelector
                         accounts={state.form.accounts.asJsReadonlyArrayView()}
