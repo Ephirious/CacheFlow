@@ -1,9 +1,5 @@
-import SegmentedControl from "./SegmentedControl.tsx";
-import CategorySelector from "./CategorySelector.tsx";
-import AccountSelector from "./AccountSelector.tsx";
-import DatePicker from "./DatePicker.tsx";
-import TextArea from "./TextArea.tsx";
-import TransferCard from "./TransferCard.tsx";
+import { SegmentedControl, DatePicker, TextArea } from "../inputs";
+import { CategorySelector, AccountSelector, TransferCard } from "../selectors";
 import {
     ManageTransactionState,
     ManageTransactionComponent,

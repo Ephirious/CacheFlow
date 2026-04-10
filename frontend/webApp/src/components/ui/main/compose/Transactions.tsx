@@ -1,6 +1,6 @@
 import { LiaFilterSolid } from "react-icons/lia";
 import {motion} from "framer-motion";
-import TransactionCard from "./TransactionCard.tsx";
+import { TransactionCard } from "../cards";
 import { Transaction } from "k2ts";
 
 

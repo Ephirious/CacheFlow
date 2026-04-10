@@ -1,12 +1,7 @@
-import MainCard from "../ui/main/MainCard.tsx";
-import Transactions from "../ui/main/Transactions.tsx";
+import { MainCard, Transactions, BottomSheet, CreateTransactionButton, CreateTransactionContent } from "../ui/main";
 import {MainComponent, MainState, ManageTransactionState} from "k2ts";
 import {useValue, when} from "interop";
-import BottomSheet from "../ui/main/BottomSheet.tsx";
 import {useLayoutEffect, useRef, useState} from "react";
-
-import CreateTransactionButton from "../ui/main/CreateTransactionButton.tsx";
-import CreateTransactionContent from "../ui/main/CreateTransactionContent.tsx";
 
 
 const Main = ({component}: { component: MainComponent }) => {
@@ -15,11 +10,9 @@ const Main = ({component}: { component: MainComponent }) => {
 
     return (
         when(state)
-            .on(MainState.Error, (error) => {
-                {
-                    error.message
-                }
-            })
+            .on(MainState.Error, (error) => (
+                <div>{error.message}</div>
+            ))
             .is(MainState.OK, () =>
                 <MainOK component={component}/>
             )

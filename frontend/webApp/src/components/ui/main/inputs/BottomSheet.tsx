@@ -1,6 +1,6 @@
 import { Drawer } from "vaul";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { changeMetaThemeColor } from "../../../styles/changeMetaThemeColor.ts";
+import { changeMetaThemeColor } from "../../../../styles/changeMetaThemeColor.ts";
 
 const BUCKETS = 120;
 const DEFAULT_THEME_BASE_COLOR = "#4F39F6";

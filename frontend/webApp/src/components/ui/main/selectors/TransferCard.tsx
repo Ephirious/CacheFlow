@@ -66,7 +66,7 @@ const AccountDropdown = ({
                                 >
                                     <div
                                         className="w-3 h-3 rounded-full shrink-0"
-                                        style={{ backgroundColor: account.color }}
+                                        style={{ backgroundColor: account.color.normalizedHex }}
                                     />
                                     <div className="flex-1 min-w-0">
                                         <div className="text-gray-900 font-medium truncate">

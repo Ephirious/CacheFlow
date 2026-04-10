@@ -1,5 +1,5 @@
 import {LuWallet} from "react-icons/lu";
-import AccountCard from "./AccountCard.tsx";
+import { AccountCard } from "./index";
 import {BigDecimal, Account} from "k2ts";
 
 interface MainCardData {
