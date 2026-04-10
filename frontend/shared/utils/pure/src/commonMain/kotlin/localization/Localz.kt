@@ -10,7 +10,7 @@ sealed interface ValidationKey
 @JsExport
 sealed interface Localz {
     fun by(key: ValidationKey): String
-    fun byError(error: ValidationError) = if (error is ValidationKey) by(error) else "unknown"
+    fun byValidation(error: ValidationError) = if (error is ValidationKey) by(error) else "unknown"
 }
 
 // TODO: dynamic change
