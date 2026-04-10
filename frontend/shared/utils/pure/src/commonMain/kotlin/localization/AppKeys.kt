@@ -1,14 +1,19 @@
 package localization
 
+import kotlin.js.JsExport
+
 // -------------------------- MAIN --------------------------
+@JsExport
 enum class MainSummaryKey: ValidationKey {
     OverallBalance, ProfitPerMonth
 }
 
+@JsExport
 enum class MainTransactionsKey: ValidationKey {
     Transactions, Filters,
 }
 
+@JsExport
 enum class ManageTransactionKey: ValidationKey {
     CreateTransaction, EditTransaction,
 

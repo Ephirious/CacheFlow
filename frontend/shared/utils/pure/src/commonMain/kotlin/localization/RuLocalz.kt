@@ -1,7 +1,7 @@
 package localization
 
 class RuLocalz : Localz {
-    override fun get(key: ValidationKey): String = when (key) {
+    override fun by(key: ValidationKey): String = when (key) {
         is StringAmountError -> when (key) {
             StringAmountError.EmptyAmount -> "Сумма не может быть пустой"
             StringAmountError.NotANumber -> "Это не очень похоже число"
@@ -35,6 +35,7 @@ class RuLocalz : Localz {
             ManageTransactionKey.Date -> "Дата"
             ManageTransactionKey.Note -> "Заметка (необязательно)"
         }
+
     }
 
 

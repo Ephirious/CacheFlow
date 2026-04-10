@@ -8,9 +8,10 @@ import {
     ManageTransactionComponent,
     ManageTransactionBaseIntent,
     ManageTransactionType,
-    BigDecimal,
+    localz,
     isoString,
-    ManageTransactionIntent
+    ManageTransactionIntent,
+    ManageTransactionKey
 } from "k2ts";
 import {when} from "interop";
 
@@ -23,7 +24,8 @@ interface CreateTransactionProps {
 const CreateTransactionContent = ({component, state}: CreateTransactionProps) => {
     return (
         <div className="flex w-full flex-col px-6 py-2 gap-4">
-            <span className="flex text-2xl font-bold justify-center">Новая транзакция</span>
+            <span
+                className="flex text-2xl font-bold justify-center">{localz.get().by(ManageTransactionKey.CreateTransaction)}</span>
             <div className="flex flex-col w-full gap-3">
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Сумма</span>
@@ -38,6 +40,9 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         placeholder="0"
                         className="w-full px-4 py-3 bg-white border border-sheet-input rounded-xl"
                     />
+                    {
+                        state.form.validation.value && localz.get().byError(state.form.validation.value)
+                    }
                 </div>
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Тип</span>
