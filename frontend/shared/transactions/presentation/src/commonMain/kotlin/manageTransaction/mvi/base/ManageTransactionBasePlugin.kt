@@ -21,36 +21,54 @@ fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction, F : ManageTra
             updateState {
                 val currentForm = getForm() ?: return@updateState this
 
+                @Suppress("UNCHECKED_CAST")
                 val updatedForm = with(currentForm) {
                     when (baseIntent) {
                         is ManageTransactionBaseIntent.ChangedValue -> {
                             copyBase(
-                                value = baseIntent.value
+                                value = baseIntent.value.trim()
                             ).validated(ManageTransactionFormBaseValidationFields.value)
                         }
 
-                        is ManageTransactionBaseIntent.ChangedNote -> copyBase(note = baseIntent.note)
+                        is ManageTransactionBaseIntent.ChangedNote -> copyBase(note = baseIntent.note.trim())
+
                         is ManageTransactionBaseIntent.ChangedDate -> {
                             val datePart = baseIntent.date.substringBefore('T')
                             copyBase(date = LocalDate.parse(datePart))
                         }
 
                         is ManageTransactionBaseIntent.ChangedType -> {
-                            copyBase(transactionType = transactionType.changeType(baseIntent.typeClass))
+                            copyBase(
+                                transactionType = transactionType.changeType(baseIntent.typeClass)
+                                    .validated()
+                            )
+                        }
+
+
+                        is ManageTransactionBaseIntent.ChangedCategory -> {
+                            copyBase(
+                                transactionType = transactionType.updateCategory(baseIntent.categoryId).validated(
+                                    IncomeOrOutcomeValidationFields.categoryId
+                                )
+                            )
                         }
 
                         is ManageTransactionBaseIntent.ChangedAccount -> {
-                            copyBase(transactionType = transactionType.updateAccount(baseIntent.accountId))
+                            copyBase(
+                                transactionType = transactionType.updateAccount(baseIntent.accountId).validated(
+                                    IncomeOrOutcomeValidationFields.categoryId)
+                            )
                         }
 
-                        is ManageTransactionBaseIntent.ChangedCategory -> {
-                            copyBase(transactionType = transactionType.updateCategory(baseIntent.categoryId))
-                        }
 
                         is ManageTransactionBaseIntent.ChangedTransferToAccount -> {
-                            copyBase(transactionType = transactionType.updateTransferToAccount(baseIntent.accountId))
+                            copyBase(
+                                transactionType =
+                                    transactionType.updateTransferToAccount(baseIntent.accountId)
+                                        .validated()
+                            )
                         }
-                    }
+                    } as F
                 }
                 setForm(updatedForm)
             }

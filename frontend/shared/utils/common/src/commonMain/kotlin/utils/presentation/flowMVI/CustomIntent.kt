@@ -38,7 +38,6 @@ fun <S : MVIState, I : MVIIntent, A : MVIAction> StorePluginBuilder<S, I, A>.cus
             if (e is Exception) throw e
             throw RuntimeException(e)
         }
-        null
     }
 }
 

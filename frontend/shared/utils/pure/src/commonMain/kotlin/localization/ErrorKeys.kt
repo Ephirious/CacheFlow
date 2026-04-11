@@ -10,3 +10,7 @@ enum class StringAmountError : ValidationError, ValidationKey {
 sealed class MaxLenError : ValidationError, ValidationKey {
     data class MaxLengthExceeded(val limit: Int) : MaxLenError()
 }
+
+enum class NotEmptyOrNullStringError : ValidationError, ValidationKey {
+    EmptyOrNullString
+}

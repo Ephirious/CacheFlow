@@ -36,6 +36,7 @@ class RuLocalz : Localz {
             ManageTransactionKey.Note -> "Заметка (необязательно)"
         }
 
+        NotEmptyOrNullStringError.EmptyOrNullString -> "Не может быть пустым"
     }
 
 

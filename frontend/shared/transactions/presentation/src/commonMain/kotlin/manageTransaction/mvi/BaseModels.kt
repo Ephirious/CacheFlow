@@ -10,6 +10,7 @@ import utils.annotations.DataCopyable
 import utils.annotations.DataCopyableNode
 import utils.annotations.GenerateValidator
 import utils.annotations.validation.MaxLen
+import utils.annotations.validation.NotEmptyOrNullString
 import kotlin.js.JsExport
 
 @JsExport
@@ -22,12 +23,11 @@ interface ManageTransactionFormBaseState<V> : MVIState {
     val value: String
     val transactionType: ManageTransactionType
 
-    val categories: List<Category>
-    val accounts: List<Account>
     val date: LocalDate
-
     val note: String
 
+    val categories: List<Category>
+    val accounts: List<Account>
     val validation: V
 }
 
@@ -35,28 +35,42 @@ interface ManageTransactionFormBaseState<V> : MVIState {
 sealed class ManageTransactionType(
     @Suppress("unused")
     // used for TS
-    val type: String
+    val type: String,
 ) {
+
     @DataCopyable
-    sealed interface IncomeOrOutcome {
+    @GenerateValidator
+    sealed interface IncomeOrOutcome<V> {
+        @NotEmptyOrNullString
         val categoryId: String?
+
+        @NotEmptyOrNullString
         val accountId: String?
+
+        val validation: V
     }
 
     @DataCopyableNode
     data class Income(
         override val categoryId: String?,
-        override val accountId: String?
-    ) : ManageTransactionType("Income"), IncomeOrOutcome
+        override val accountId: String?,
+        override val validation: IncomeOrOutcomeValidationErrors = IncomeOrOutcomeValidationErrors()
+    ) : ManageTransactionType("Income"), IncomeOrOutcome<IncomeOrOutcomeValidationErrors>
 
     @DataCopyableNode
     data class Outcome(
-        override val categoryId: String?, override val accountId: String?
-    ) : ManageTransactionType("Outcome"), IncomeOrOutcome
+        override val categoryId: String?,
+        override val accountId: String?,
+        override val validation: IncomeOrOutcomeValidationErrors = IncomeOrOutcomeValidationErrors()
+    ) : ManageTransactionType("Outcome"), IncomeOrOutcome<IncomeOrOutcomeValidationErrors>
 
+    @GenerateValidator
     data class Transfer(
+        @NotEmptyOrNullString
         val fromId: String?,
-        val toId: String?
+        @NotEmptyOrNullString
+        val toId: String?,
+        val validation: TransferValidationErrors = TransferValidationErrors()
     ) : ManageTransactionType("Transfer")
 }
 

@@ -4,6 +4,7 @@ import editors.usecases.account.GetAccountsFlowUseCase
 import editors.usecases.category.GetCategoriesFlowUseCase
 import manageTransaction.mvi.ManageTransactionType.*
 import manageTransaction.mvi.base.manageTransactionBasePlugin
+import manageTransaction.mvi.base.validated
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
 import pro.respawn.flowmvi.api.PipelineContext
@@ -31,7 +32,7 @@ fun ManageTransactionContainer.getInitial(
 ) =
     ManageTransactionState.OK(
         form = form ?: ManageTransactionState.OK.FormState().let {
-            it.copy(validation = it.validate())
+            it.copy(validation = it.validate(), transactionType = it.transactionType.validated())
         },
         isCreateMode = isCreateMode,
     )

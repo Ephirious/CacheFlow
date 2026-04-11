@@ -21,6 +21,9 @@ class ValidationProcessor(
             val className = classDeclaration.simpleName.asString()
             val prefixName = className.removeSuffix("State")
 
+
+            val qualifiedName = classDeclaration.qualifiedName?.asString()
+
             // Логика получения кастомной ошибки
             val genAnn = classDeclaration.annotations.find { it.shortName.asString() == "GenerateValidator" }
             val errorKSType = genAnn?.arguments?.find { it.name?.asString() == "errorClass" }?.value as? KSType
@@ -57,6 +60,10 @@ class ValidationProcessor(
             ).writer().use { w ->
                 w.write("package $packageName\n\nimport kotlin.js.JsExport\n")
 
+                if (qualifiedName != null) {
+                    w.write("import $qualifiedName\n")
+                }
+
                 w.write("import $errorTypeImport\n")
 
                 ruleImports.forEach { w.write("import $it\n") }
@@ -89,7 +96,7 @@ class ValidationProcessor(
                     classDeclaration.getAllProperties().any { it.simpleName.asString() == "validation" }
 
                 if (isDataCopyable) {
-                    w.write("fun <T : $receiverType> T.validated(field: $enumName): T {\n")
+                    w.write("fun $receiverType.validated(field: $enumName): $receiverType {\n")
                     generateValidatedBody(
                         w,
                         enumName,
@@ -97,11 +104,26 @@ class ValidationProcessor(
                         "this.copyBase(validation = newValidation)"
                     )
                     w.write("}\n")
+
+                    w.write("\nfun $receiverType.validated(): $receiverType = \n")
+                    w.write("    this.copyBase(validation = this.validate())\n\n")
+
                 } else if (hasValidationField) {
                     w.write("fun $receiverType.validated(field: $enumName): $receiverType {\n")
                     generateValidatedBody(w, enumName, validatableProperties, "this.copy(validation = newValidation)")
                     w.write("}\n")
+
+                    w.write("\nfun $receiverType.validated(): $receiverType = \n")
+                    w.write("    this.copy(validation = this.validate())\n\n")
                 }
+
+                w.write("fun $receiverType.validatedAny(vararg fields: Any?): $receiverType {\n")
+                w.write("    if (fields.isEmpty()) return this\n")
+                w.write("    val fieldsList = if (fields.isEmpty()) listOf(null) else fields.toList()\n")
+                w.write("    return fieldsList.fold(this) { acc, field ->\n")
+                w.write("        if (field is $enumName) acc.validated(field) else acc\n")
+                w.write("    }\n")
+                w.write("}\n\n")
             }
         }
 
@@ -142,7 +164,7 @@ class ValidationProcessor(
                     null -> "null"
                     else -> paramArg.toString()
                 }
-                val call = "$ruleName.validate($propName, $param)"
+                val call = "$ruleName.validate($propName, this, $param)"
                 w.write(call)
                 if (i < rules.size - 1) w.write("\n            ?: ")
             }

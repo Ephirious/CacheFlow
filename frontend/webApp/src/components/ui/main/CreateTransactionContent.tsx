@@ -41,7 +41,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         className="w-full px-4 py-3 bg-white border border-sheet-input rounded-xl"
                     />
                     {
-                        state.form.validation.value && localz.get().byError(state.form.validation.value)
+                        state.form.validation.value && localz.get().byValidation(state.form.validation.value)
                     }
                 </div>
                 <div className="flex w-full flex-col gap-2">
@@ -66,6 +66,15 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         onSelect={(id: string) => component.intent(new ManageTransactionBaseIntent.ChangedCategory(id))}
                         onAdd={() => console.log("Add category")}
                     />
+                    {
+                        when(state.form.transactionType)
+                            .on([ManageTransactionType.Outcome, ManageTransactionType.Income], (type) =>
+                                type.validation.categoryId && localz.get().byValidation(type.validation.categoryId)
+                            )
+                            .otherwise(() =>
+                                ""
+                            )
+                    }
                 </div>
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Счёт</span>
