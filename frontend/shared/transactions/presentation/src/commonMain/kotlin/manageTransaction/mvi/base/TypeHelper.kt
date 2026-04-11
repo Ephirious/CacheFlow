@@ -10,6 +10,11 @@ fun ManageTransactionType.updateAccount(newAccountId: String): ManageTransaction
     is Transfer -> copy(fromId = newAccountId)
 }
 
+fun ManageTransactionType.updateTransferToAccount(newAccountId: String): ManageTransactionType = when (this) {
+    is IncomeOrOutcome -> this
+    is Transfer -> copy(toId = newAccountId)
+}
+
 fun ManageTransactionType.updateCategory(newCategoryId: String): ManageTransactionType = when (this) {
     is IncomeOrOutcome -> copyBase(categoryId = newCategoryId)
     is Transfer -> this

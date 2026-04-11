@@ -46,6 +46,10 @@ fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction, F : ManageTra
                         is ManageTransactionBaseIntent.ChangedCategory -> {
                             copyBase(transactionType = transactionType.updateCategory(baseIntent.categoryId))
                         }
+
+                        is ManageTransactionBaseIntent.ChangedTransferToAccount -> {
+                            copyBase(transactionType = transactionType.updateTransferToAccount(baseIntent.accountId))
+                        }
                     }
                 }
                 setForm(updatedForm)

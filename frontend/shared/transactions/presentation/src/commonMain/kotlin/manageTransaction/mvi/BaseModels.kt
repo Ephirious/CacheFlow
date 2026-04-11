@@ -70,6 +70,8 @@ sealed class ManageTransactionBaseIntent : MVIIntent {
     data class ChangedNote(val note: String) : ManageTransactionBaseIntent(), Internal
     data class ChangedType(val typeClass: String) : ManageTransactionBaseIntent(), Internal
     data class ChangedAccount(val accountId: String) : ManageTransactionBaseIntent(), Internal
+
+    data class ChangedTransferToAccount(val accountId: String) : ManageTransactionBaseIntent(), Internal
     data class ChangedCategory(val categoryId: String) : ManageTransactionBaseIntent(), Internal
     data class ChangedDate(val date: String) : ManageTransactionBaseIntent(), Internal
 }
