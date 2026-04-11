@@ -1,7 +1,6 @@
 package summary.mvi
 
 import editors.usecases.account.GetAccountsFlowUseCase
-import kotlinx.coroutines.launch
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
@@ -10,7 +9,7 @@ import pro.respawn.flowmvi.plugins.JobManager
 import pro.respawn.flowmvi.plugins.whileSubscribed
 import utils.orUnknown
 import utils.presentation.flowMVI.fastConfig
-import utils.presentation.flowMVI.registerOrIgnore
+import utils.presentation.flowMVI.observe
 import utils.types.BigDecimal
 
 private typealias Ctx = PipelineContext<SummaryState, Nothing, Nothing>
@@ -46,12 +45,15 @@ class SummaryContainer(
         }
 
     private fun Ctx.observeAccounts(jobs: JobManager<Jobs>) {
-        launch {
-            getAccountsFlowUseCase().collect { accounts ->
-                var overallSum = BigDecimal.ZERO
-                accounts.forEach { overallSum += it.balance }
-                updateState { copy(accounts = accounts, overallBalance = overallSum) }
-            }
-        }.registerOrIgnore(jobs, Jobs.ObserveAccounts)
+
+        observe(
+            flow = getAccountsFlowUseCase(),
+            jobs = jobs,
+            key = Jobs.ObserveAccounts
+        ) { accounts ->
+            var overallSum = BigDecimal.ZERO
+            accounts.forEach { overallSum += it.balance }
+            updateState { copy(accounts = accounts, overallBalance = overallSum) }
+        }
     }
 }

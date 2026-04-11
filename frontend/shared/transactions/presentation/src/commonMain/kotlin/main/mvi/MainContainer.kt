@@ -3,7 +3,7 @@ package main.mvi
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
-import pro.respawn.flowmvi.plugins.reduce
+import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
 
 class MainContainer(
@@ -19,7 +19,7 @@ class MainContainer(
             )
 
 
-            reduce { intent ->
+            customReduce { intent ->
                 when (intent) {
                     is MainIntent.ThrowError -> {
                         updateState { MainState.Error(intent.message) }

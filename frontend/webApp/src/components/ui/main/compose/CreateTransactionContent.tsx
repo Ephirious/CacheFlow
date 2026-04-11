@@ -5,9 +5,10 @@ import {
     ManageTransactionComponent,
     ManageTransactionBaseIntent,
     ManageTransactionType,
-    BigDecimal,
+    localz,
     isoString,
-    ManageTransactionIntent
+    ManageTransactionIntent,
+    ManageTransactionKey
 } from "k2ts";
 import {when} from "interop";
 
@@ -20,7 +21,8 @@ interface CreateTransactionProps {
 const CreateTransactionContent = ({component, state}: CreateTransactionProps) => {
     return (
         <div className="flex w-full flex-col px-6 py-2 gap-4">
-            <span className="flex text-2xl font-bold justify-center">Новая транзакция</span>
+            <span
+                className="flex text-2xl font-bold justify-center">{localz.get().by(ManageTransactionKey.CreateTransaction)}</span>
             <div className="flex flex-col w-full gap-3">
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Сумма</span>
@@ -28,15 +30,16 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         value={`${state.form.value}`}
                         onChange={(e) => {
                             const formatted = e.target.value.replace(/\u00A0/g, "")
-                            const x = formatted.length == 0 ? "0" : formatted
-                            component.intent(new ManageTransactionBaseIntent.ChangedValue(BigDecimal.from(
-                                x
-                            )));
+                            const x = formatted.length == 0 ? "" : formatted
+                            component.intent(new ManageTransactionBaseIntent.ChangedValue(x));
                         }}
                         type="text"
                         placeholder="0"
                         className="w-full px-4 py-3 bg-white border border-sheet-input rounded-xl"
                     />
+                    {
+                        state.form.validation.value && localz.get().byValidation(state.form.validation.value)
+                    }
                 </div>
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Тип</span>
@@ -60,6 +63,15 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         onSelect={(id: string) => component.intent(new ManageTransactionBaseIntent.ChangedCategory(id))}
                         onAdd={() => console.log("Add category")}
                     />
+                    {
+                        when(state.form.transactionType)
+                            .on([ManageTransactionType.Outcome, ManageTransactionType.Income], (type) =>
+                                type.validation.categoryId && localz.get().byValidation(type.validation.categoryId)
+                            )
+                            .otherwise(() =>
+                                ""
+                            )
+                    }
                 </div>
                 <div>
                     <TransferCard
