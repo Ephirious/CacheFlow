@@ -22,6 +22,10 @@ html, body {
     padding: 0;
     overflow: hidden;
 }
+html {
+    background-color: white !important;
+}
+
 
 #root {
     height: 100vh;
