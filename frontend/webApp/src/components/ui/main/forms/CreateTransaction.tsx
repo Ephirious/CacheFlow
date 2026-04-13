@@ -1,5 +1,5 @@
-import { SegmentedControl, DatePicker, TextArea } from "../inputs";
-import { CategorySelector, AccountSelector, TransferCard } from "../selectors";
+import { SegmentedControl, DatePicker, TextArea } from "../primitives";
+import { CategorySelector, AccountSelector, TransferCard } from "../controls";
 import {
     ManageTransactionState,
     ManageTransactionComponent,
@@ -17,9 +17,9 @@ interface CreateTransactionProps {
     close: () => void;
 }
 
-const CreateTransactionContent = ({component, state}: CreateTransactionProps) => {
+const CreateTransaction = ({component, state}: CreateTransactionProps) => {
     return (
-        <div className="flex w-full flex-col px-6 py-2 gap-4">
+        <div className="flex w-full flex-col px-6 gap-4">
             <span className="flex text-2xl font-bold justify-center">Новая транзакция</span>
             <div className="flex flex-col w-full gap-3">
                 <div className="flex w-full flex-col gap-2">
@@ -127,4 +127,4 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
         </div>
     )
 }
-export default CreateTransactionContent;
+export default CreateTransaction;

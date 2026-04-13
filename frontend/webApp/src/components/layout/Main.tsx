@@ -1,4 +1,4 @@
-import { MainCard, Transactions, BottomSheet, CreateTransactionButton, CreateTransactionContent } from "../ui/main";
+import { MainCard, Transactions, BottomSheet, CreateTransactionButton, CreateTransaction } from "../ui/main";
 import {MainComponent, MainState, ManageTransactionState} from "k2ts";
 import {useValue, when} from "interop";
 import {useLayoutEffect, useRef, useState} from "react";
@@ -96,7 +96,7 @@ const MainOK = ({ component }: { component: MainComponent }) => {
             >
                 {when(manageTransactionState)
                     .on(ManageTransactionState.OK, (okState) => (
-                        <CreateTransactionContent
+                        <CreateTransaction
                             component={component.manageTransactionComponent}
                             state={okState}
                             close={() => setIsCreateModalOpen(false)}
