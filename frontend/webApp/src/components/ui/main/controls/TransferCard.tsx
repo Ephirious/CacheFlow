@@ -15,7 +15,6 @@ const AccountDropdown = ({
                              accounts,
                              selectedId,
                              onSelect,
-                             excludeId,
                              label,
                          }: {
     accounts: readonly Account[];
@@ -36,8 +35,8 @@ const AccountDropdown = ({
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between px-4 py-3.5 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-gray-300 transition-colors"
             >
-                <span className={selectedAccount ? "text-gray-900 font-medium" : "text-gray-500"}>
-                    {selectedAccount ? selectedAccount.title : "Выберите счёт"}
+                <span className={selectedAccount ? "text-gray-900 font-medium overflow-hidden h-6" : "text-gray-500"}>
+                    {selectedAccount ? selectedAccount.title : "Счёт"}
                 </span>
                 <IoChevronDown
                     className={`w-5 h-5 text-gray-400 transition-transform ${
@@ -54,7 +53,6 @@ const AccountDropdown = ({
                     />
                     <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden max-h-60 overflow-y-auto">
                         {accounts
-                            .filter(acc => acc.id !== excludeId)
                             .map((account) => (
                                 <button
                                     key={account.id}
@@ -69,7 +67,7 @@ const AccountDropdown = ({
                                         style={{ backgroundColor: account.color.normalizedHex }}
                                     />
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-gray-900 font-medium truncate">
+                                        <div className="text-gray-900 font-medium truncate overflow-hidden">
                                             {account.title}
                                         </div>
                                         <div className="text-gray-500 text-sm">
