@@ -4,6 +4,7 @@ import {motion, AnimatePresence} from "framer-motion";
 import InteropSampleFlowScreen from "../../features/interopSampleFlow/InteropSampleFlow.tsx";
 import NavBar from "./NavBar.tsx";
 import Main from "./Main.tsx";
+import Settings from "./Settings.tsx";
 
 
 const RootScreen = ({component}: { component: RootComponent }) => {
@@ -30,7 +31,7 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                             <Main component={child.component}/>
                         ))
                         .on(RootChild.StatsChild, (_child) => <>Stats</>)
-                        .on(RootChild.SettingsChild, (_child) => <>Settings</>)
+                        .on(RootChild.SettingsChild, (_child) => <Settings/>)
                         .on(RootChild.InteropSampleFlowChild, (child) => (
                             <InteropSampleFlowScreen component={child.component}/>
                         ))
