@@ -5,6 +5,7 @@ import editors.usecases.category.GetCategoriesFlowUseCase
 import manageTransaction.mvi.ManageTransactionType.*
 import manageTransaction.mvi.base.manageTransactionBasePlugin
 import manageTransaction.mvi.base.validated
+import manageTransaction.mvi.base.validationHasErrors
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
 import pro.respawn.flowmvi.api.PipelineContext
@@ -31,11 +32,17 @@ fun ManageTransactionContainer.getInitial(
     form: ManageTransactionState.OK.FormState? = null
 ) =
     ManageTransactionState.OK(
-        form = form ?: ManageTransactionState.OK.FormState().let {
-            it.copy(validation = it.validate(), transactionType = it.transactionType.validated())
-        },
+        form = form ?: ManageTransactionState.OK.FormState(),
         isCreateMode = isCreateMode,
-    )
+    ).getFullyValidated()
+
+fun ManageTransactionState.OK.getFullyValidated(
+) = copy(form = form.let {
+    it.copy(validation = it.validate(), transactionType = it.transactionType.validated())
+})
+
+fun ManageTransactionState.OK.isFullyValidated(
+) = !form.validation.hasErrors && !form.transactionType.validationHasErrors()
 
 
 class ManageTransactionContainer(
@@ -82,10 +89,20 @@ class ManageTransactionContainer(
                         TODO()
                     }
 
-                    ManageTransactionIntent.ClickedSave -> if (isCreateMode) {
-                        createTransaction()
-                    } else {
-                        // TODO: EDIT
+                    ManageTransactionIntent.ClickedSave -> {
+                        updateState<ManageTransactionState.OK, _> {
+                            getFullyValidated()
+                        }
+
+                        withState<ManageTransactionState.OK, _> {
+                            if (isFullyValidated()) {
+                                if (isCreateMode) {
+                                    createTransaction()
+                                } else {
+                                    // TODO: EDIT
+                                }
+                            }
+                        }
                     }
 
                     ManageTransactionIntent.ClickedTryAgain -> updateState<ManageTransactionState.FatalError, _> {

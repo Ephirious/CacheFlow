@@ -3,6 +3,7 @@ package manageTransaction.mvi
 import editors.models.Account
 import editors.models.Category
 import kotlinx.datetime.LocalDate
+import manageTransaction.validation.DiffTransferAccounts
 import manageTransaction.validation.StringAmount
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
@@ -67,8 +68,11 @@ sealed class ManageTransactionType(
     @GenerateValidator
     data class Transfer(
         @NotEmptyOrNullString
+        @DiffTransferAccounts
         val fromId: String?,
+
         @NotEmptyOrNullString
+        @DiffTransferAccounts
         val toId: String?,
         val validation: TransferValidationErrors = TransferValidationErrors()
     ) : ManageTransactionType("Transfer")

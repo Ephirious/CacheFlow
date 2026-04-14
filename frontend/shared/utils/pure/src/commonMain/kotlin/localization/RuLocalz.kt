@@ -37,6 +37,7 @@ class RuLocalz : Localz {
         }
 
         NotEmptyOrNullStringError.EmptyOrNullString -> "Не может быть пустым"
+        DiffTransferAccountsError.SameAccounts -> "Нельзя перевести на тот же счёт"
     }
 
 
