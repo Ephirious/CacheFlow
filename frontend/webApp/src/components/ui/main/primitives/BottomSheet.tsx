@@ -3,7 +3,7 @@ import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { changeMetaThemeColor } from "../../../../styles/changeMetaThemeColor.ts";
 
 const BUCKETS = 120;
-const DEFAULT_THEME_BASE_COLOR = "#4F39F6";
+const DEFAULT_THEME_BASE_COLOR = "var(--color-brand-primary)";
 
 const isStandalone = () =>
     window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
@@ -17,8 +17,17 @@ const createTintBar = (color: string) => {
     return bar;
 };
 
+const resolveToRgbString = (color: string): string => {
+    const probe = document.createElement("div");
+    probe.style.color = color;
+    document.body.appendChild(probe);
+    const resolved = getComputedStyle(probe).color;
+    probe.remove();
+    return resolved || color;
+};
+
 const toRGB = (color: string): [number, number, number] => {
-    const normalized = color.trim().toLowerCase();
+    const normalized = resolveToRgbString(color).trim().toLowerCase();
 
     if (normalized.startsWith("rgb")) {
         const match = normalized.match(/\d+/g);
@@ -86,11 +95,11 @@ const BottomSheet = ({
     dismissible = false,
     modal = false,
     zIndex = 30,
-    backgroundColor = "#FFFFFF",
+    backgroundColor = "var(--color-surface-base)",
     className = "",
     themeMode = "none",
     themeEnabled = true,
-    themeTargetColor = "#FFFFFF",
+    themeTargetColor = "var(--color-surface-base)",
     themeBaseColor,
     useCurrentThemeAsBase = false,
     themeInterpolationStartThreshold = 0,
@@ -249,7 +258,7 @@ const BottomSheet = ({
                         zIndex,
                     }}
                 >
-                    <Drawer.Handle className="w-10 h-1 bg-slate-200 rounded-full mx-auto mt-4 shrink-0" />
+                    <Drawer.Handle className="w-10 h-1 bg-border-handle rounded-full mx-auto mt-4 shrink-0" />
                     <div
                         className="flex-1 py-2.5 overflow-y-auto [mask-image:linear-gradient(to_bottom,transparent,black_16px)]"
                         onScroll={(e) => {

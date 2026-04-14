@@ -88,7 +88,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         onBlur={() => setTouched((prev) => ({...prev, value: true}))}
                         type="text"
                         placeholder="0"
-                        className="w-full px-4 py-3 bg-white border border-sheet-input rounded-xl"
+                        className="w-full px-4 py-3 bg-surface-base border border-border-default rounded-xl"
                     />
                     {
                         valueError && localz.get().byValidation(valueError)
@@ -206,7 +206,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                     }}
                     className={`
                     py-4 text-base font-bold rounded-2xl
-                    ${hasValidationError ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-brand-indigo text-white"}
+                    ${hasValidationError ? "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed" : "bg-brand-primary text-brand-on-primary"}
                     `}>
                     Сохранить
                 </button>

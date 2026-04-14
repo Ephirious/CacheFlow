@@ -14,8 +14,8 @@ const AccountCard = ({account, index}: { account: Account, index: number }) => {
                 className="
                                     cursor-pointer select-none
                                     flex flex-col gap-2 p-4
-                                    bg-white/10 border border-white/10 rounded-2xl
-                                    hover:bg-white/15 transition-colors
+                                    bg-surface-card-overlay border border-brand-on-primary/10 rounded-2xl
+                                    hover:bg-surface-card-overlay-hover transition-colors
                                 "
                 whileTap={{scale: 0.98}}
                 whileHover={{scale: 1.02}}
@@ -23,11 +23,11 @@ const AccountCard = ({account, index}: { account: Account, index: number }) => {
                 <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full`}
                          style={{backgroundColor: account.color.normalizedHex}}></div>
-                    <div className="text-[10px] sm:text-xs font-medium text-white/70 uppercase tracking-wider">
+                    <div className="text-[10px] sm:text-xs font-medium text-brand-on-primary/70 uppercase tracking-wider">
                         {account.title}
                     </div>
                 </div>
-                <div className="text-lg sm:text-xl font-bold text-white leading-none">
+                <div className="text-lg sm:text-xl font-bold text-brand-on-primary leading-none">
                     {account.balance.prettyString()}
                 </div>
             </motion.div>

@@ -48,7 +48,7 @@ const MainOK = ({ component }: { component: MainComponent }) => {
     return (
         <div
             ref={(el) => el && setThemeElement(el)}
-            className="fixed inset-0 pt-[env(safe-area-inset-top)] bg-[#4F39F6]"
+            className="fixed inset-0 pt-[env(safe-area-inset-top)] bg-brand-primary"
         >
             <main className="relative h-full w-full">
                 <div ref={cardRef}>
@@ -86,10 +86,10 @@ const MainOK = ({ component }: { component: MainComponent }) => {
                 dismissible={true}
                 modal={true}
                 zIndex={60}
-                backgroundColor="#EBEBF0"
+                backgroundColor="var(--color-surface-sheet)"
                 className="sm:hidden"
                 themeMode="interpolate"
-                themeTargetColor="#EBEBF0"
+                themeTargetColor="var(--color-surface-sheet)"
                 useCurrentThemeAsBase={true}
                 themeInterpolationStartThreshold={sheetThemeThreshold}
                 contentPaddingBottom="calc(env(safe-area-inset-bottom))"

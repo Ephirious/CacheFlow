@@ -14,7 +14,7 @@ const Transactions = ({ transactions }: {transactions: readonly Transaction[]}) 
                 <motion.div
                     whileHover={{backgroundColor: "bg-red"}}
                     className="
-                    flex px-4 py-2 items-center rounded-2xl border-filter-button border gap-2 cursor-pointer bg-on-brand/80
+                    flex px-4 py-2 items-center rounded-2xl border-border-default border gap-2 cursor-pointer bg-surface-base-soft
                     "
                 >
                     <LiaFilterSolid className="w-4 h-4 text-base font-medium"/>

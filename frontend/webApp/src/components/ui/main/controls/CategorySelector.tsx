@@ -22,18 +22,18 @@ const CategorySelector = ({
                     onClick={() => onSelect(category.id)}
                     className={`flex items-center gap-2 px-4 py-3 rounded-2xl border transition-all ${
                         selectedId === category.id
-                            ? "bg-white border-gray-300 shadow-sm"
-                            : "bg-white border-gray-200"
+                            ? "bg-surface-base border-border-default shadow-sm"
+                            : "bg-surface-base border-border-strong"
                     }`}
                 >
-                    <span className="text-[15px] font-medium text-gray-700">
+                    <span className="text-[15px] font-medium text-text-label">
                         {category.name}
                     </span>
                 </button>
             ))}
             <button
                 onClick={onAdd}
-                className="flex items-center justify-center w-12 h-12 p-3 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-center w-12 h-12 p-3 rounded-2xl border border-border-strong bg-surface-base hover:bg-surface-hover transition-colors"
             >
                 <IoAdd className="w-6 h-6"/>
             </button>

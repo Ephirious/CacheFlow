@@ -26,11 +26,11 @@ const DatePicker = ({ value, onChange }: DatePickerProps) => {
                     className="absolute inset-0 opacity-0 cursor-pointer z-10"
                 />
 
-                <div className="flex items-center justify-between px-4 py-3.5 bg-white rounded-2xl border border-gray-200 pointer-events-none">
-                    <span className="text-gray-900">
+                <div className="flex items-center justify-between px-4 py-3.5 bg-surface-base rounded-2xl border border-border-strong pointer-events-none">
+                    <span className="text-text-primary">
                         {formatDate(value)}
                     </span>
-                    <IoCalendarOutline className="w-5 h-5 text-gray-400" />
+                    <IoCalendarOutline className="w-5 h-5 text-text-muted" />
                 </div>
             </div>
         </div>

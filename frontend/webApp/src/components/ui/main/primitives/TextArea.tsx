@@ -16,10 +16,10 @@ const TextArea = ({
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 rows={4}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl
-                         text-gray-900 placeholder:text-gray-400
-                         focus:outline-none focus:ring-2 focus:ring-brand-indigo/20
-                         focus:border-brand-indigo
+                className="w-full px-4 py-3 bg-surface-base border border-border-strong rounded-2xl
+                         text-text-primary placeholder:text-text-muted
+                         focus:outline-none focus:ring-2 focus:ring-brand-primary/20
+                         focus:border-brand-primary
                          resize-none transition-all"
             />
         </div>

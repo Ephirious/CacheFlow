@@ -13,14 +13,14 @@ const TransactionCard = ({transaction}: { transaction: Transaction }) => {
 
     const config = {
         Icon: isIncome ? FaArrowTrendUp : isTransfer ? LuArrowRightLeft : FaArrowTrendDown,
-        IconColor: isIncome ? "fill-transaction-up" : isTransfer ? "stroke-brand-indigo" : "fill-transaction-down",
-        IconBg: isIncome ? "bg-transaction-up-bg" : isTransfer ? "bg-transaction-transfer-bg" : "bg-transaction-down-bg",
-        priceColor: isIncome ? "text-transaction-up" : isTransfer ? "text-brand-indigo" : "text-transaction-down",
+        IconColor: isIncome ? "fill-state-success" : isTransfer ? "stroke-brand-primary" : "fill-state-danger",
+        IconBg: isIncome ? "bg-state-success-soft" : isTransfer ? "bg-state-brand-soft" : "bg-state-danger-soft",
+        priceColor: isIncome ? "text-state-success" : isTransfer ? "text-brand-primary" : "text-state-danger",
         prefix: isIncome ? "+" : isTransfer ? "" : "",
     };
 
     return (
-        <div className="flex flex-col p-4 bg-white/80 rounded-2xl gap-3">
+        <div className="flex flex-col p-4 bg-surface-base-soft rounded-2xl gap-3">
             <div className="flex justify-between">
                 <div className={`w-12 h-12 ${config.IconBg} p-3 rounded-2xl`}>
                     <config.Icon className={`${config.IconColor} w-6 h-6`}/>
@@ -44,7 +44,7 @@ const TransactionCard = ({transaction}: { transaction: Transaction }) => {
                             ).run()
                     }
                 </span>
-                <div className="flex gap-2 text-xs text-transaction">
+                <div className="flex gap-2 text-xs text-text-secondary">
                     <span>{prettyDate(date)}</span>
                     <span>
                         {!(type instanceof TransactionType.Transfer) ? "•" : ""}
