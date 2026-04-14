@@ -10,7 +10,7 @@ interface SettingsHeaderProps {
 
 const SettingsHeader = ({tab, onTabChange}: SettingsHeaderProps) => {
     return (
-        <div className="flex flex-col gap-6 border-b border-border-subtle bg-surface-base p-6 pt-3">
+        <div className="flex flex-col gap-6 border-b border-border-subtle bg-surface-base p-6 pt-[env(safe-area-inset-top)]">
             <div className="flex items-center justify-between gap-6">
                 <div className="flex items-center gap-3">
                     <div className="rounded-2xl bg-brand-primary-emphasis/10 p-2 text-brand-primary">

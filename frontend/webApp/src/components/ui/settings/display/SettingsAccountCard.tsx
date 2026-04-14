@@ -1,9 +1,15 @@
 import {AccountItem} from "../types.ts";
 
-const SettingsAccountCard = ({account}: { account: AccountItem }) => {
+interface SettingsAccountCardProps {
+    account: AccountItem;
+    onClick: (account: AccountItem) => void;
+}
+
+const SettingsAccountCard = ({account, onClick}: SettingsAccountCardProps) => {
     return (
         <button
             className="flex w-full items-center gap-4 rounded-xl border border-border-subtle bg-surface-base p-5 text-left"
+            onClick={() => onClick(account)}
             type="button"
         >
             <div className={`h-12 w-12 rounded-xl ${account.color}`}></div>
