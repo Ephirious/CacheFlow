@@ -7,8 +7,8 @@ import Settings from "./Settings.tsx";
 
 
 const RootScreen = ({component}: { component: RootComponent }) => {
-    const stack = useValue(component.childStack)
-    const activeChild = stack.active;
+    const pages = useValue(component.childPages)
+    const activeChild = pages.active;
 
     return (
         <div

@@ -5,13 +5,13 @@ import com.arkivanov.decompose.router.webhistory.WebNavigationOwner
 import main.MainComponent
 import settings.SettingsComponent
 import stats.StatsComponent
-import utils.presentation.DefaultStack
+import utils.presentation.DefaultPages
 import kotlin.js.JsExport
 import kotlinx.serialization.Serializable as Serializable
 
 
 @JsExport
-interface RootComponent : DefaultStack<RootConfig, RootChild>, WebNavigationOwner {
+interface RootComponent : DefaultPages<RootConfig, RootChild>, WebNavigationOwner {
     fun onOutput(output: RootOutput)
 }
 
@@ -19,13 +19,19 @@ interface RootComponent : DefaultStack<RootConfig, RootChild>, WebNavigationOwne
 sealed interface RootConfig {
 
     @Serializable
-    data object Main : RootConfig
+    data object Main : RootConfig {
+        const val INDEX = 0
+    }
 
     @Serializable
-    data object Stats : RootConfig
+    data object Stats : RootConfig {
+        const val INDEX = 1
+    }
 
     @Serializable
-    data object Settings : RootConfig
+    data object Settings : RootConfig {
+        const val INDEX = 2
+    }
 }
 
 @JsExport

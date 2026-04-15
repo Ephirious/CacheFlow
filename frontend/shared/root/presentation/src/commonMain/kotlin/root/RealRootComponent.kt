@@ -1,10 +1,10 @@
 package root
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.router.stack.ChildStack
-import com.arkivanov.decompose.router.stack.StackNavigation
-import com.arkivanov.decompose.router.stack.childStack
-import com.arkivanov.decompose.router.stack.childStackWebNavigation
+import com.arkivanov.decompose.router.pages.ChildPages
+import com.arkivanov.decompose.router.pages.Pages
+import com.arkivanov.decompose.router.pages.PagesNavigation
+import com.arkivanov.decompose.router.pages.childPages
 import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
 import main.RealMainComponent
@@ -17,9 +17,9 @@ import settings.RealSettingsComponent
 import stats.RealStatsComponent
 import utils.Url
 import utils.consumePathSegment
-import utils.interop.JsChildStack
+import utils.interop.JsChildPages
 import utils.interop.JsValue
-import utils.interop.asJsStack
+import utils.interop.asJsPages
 import utils.path
 import utils.pathSegmentOf
 
@@ -28,19 +28,32 @@ class RealRootComponent(
     componentContext: ComponentContext,
     deepLinkUrl: Url? = null,
 ) : RootComponent, KoinComponent, ComponentContext by componentContext {
-    override val nav = StackNavigation<RootConfig>()
-    private val _stack = childStack(
+
+    private var pagesHistory = listOf(RootConfig.Main.INDEX)
+
+
+    override val nav = PagesNavigation<RootConfig>()
+    private val _pages = childPages(
         source = nav,
         serializer = RootConfig.serializer(),
-        initialStack = { getInitialStack(deepLinkUrl) },
+        initialPages = { getInitialPages(deepLinkUrl) },
         childFactory = ::child,
         handleBackButton = true
     )
 
-    override val stack: Value<ChildStack<RootConfig, RootChild>>
-        get() = _stack
+    init {
+        _pages.subscribe { state ->
+            val currentIndex = state.selectedIndex
+            if (pagesHistory.last() != currentIndex) {
+                pagesHistory = pagesHistory + currentIndex
+            }
+        }
+    }
 
-    override val jsStack: JsValue<JsChildStack<RootChild>> by lazy { _stack.asJsStack() }
+    override val pages: Value<ChildPages<RootConfig, RootChild>>
+        get() = _pages
+
+    override val jsPages: JsValue<JsChildPages<RootChild>> by lazy { _pages.asJsPages() }
 
 
     private fun child(config: RootConfig, childCtx: ComponentContext): RootChild {
@@ -62,20 +75,32 @@ class RealRootComponent(
 
     override fun onOutput(output: RootOutput) = onRootOutput(output)
     override val webNavigation: WebNavigation<*> =
-        childStackWebNavigation(
+        CustomPagesWebNavigation(
             navigator = nav,
-            stack = _stack,
+            pages = _pages,
             serializer = RootConfig.serializer(),
-            pathMapper = { it.configuration.path() }
+            pathMapper = { config -> config.path() },
+            getHistory = {
+                pagesHistory
+            }
         )
 
-    private fun getInitialStack(deepLinkUrl: Url?): List<RootConfig> {
-        val (path, _) = deepLinkUrl?.consumePathSegment() ?: return listOf(RootConfig.Main) // _ - childUrl
 
-        return when (path) {
-            pathSegmentOf<RootConfig.Stats>() -> listOf(RootConfig.Main, RootConfig.Stats)
-            pathSegmentOf<RootConfig.Settings>() -> listOf(RootConfig.Main, RootConfig.Settings)
-            else -> listOf(RootConfig.Main)
+    private fun getInitialPages(deepLinkUrl: Url?): Pages<RootConfig> {
+        var selectedIndex = RootConfig.Main.INDEX
+        if (deepLinkUrl != null) {
+            val (path, _) = deepLinkUrl.consumePathSegment()
+
+            selectedIndex = when (path) {
+                pathSegmentOf<RootConfig.Stats>() -> RootConfig.Stats.INDEX
+                pathSegmentOf<RootConfig.Settings>() -> RootConfig.Settings.INDEX
+                else -> RootConfig.Main.INDEX
+            }
         }
+
+        return Pages(
+            items = listOf(RootConfig.Main, RootConfig.Stats, RootConfig.Settings),
+            selectedIndex = selectedIndex
+        )
     }
 }
