@@ -109,7 +109,6 @@ const BottomSheet = ({
 }: BottomSheetProps) => {
     const [snapPoint, setSnapPoint] = useState<number | string | null>(initialSnapPoint);
     const [radius, setRadius] = useState(32);
-    const [isAtTop, setIsAtTop] = useState(true);
     const contentRef = useRef<HTMLDivElement>(null);
     const resolvedBaseColorRef = useRef(themeBaseColor ?? DEFAULT_THEME_BASE_COLOR);
 
@@ -260,14 +259,10 @@ const BottomSheet = ({
                 >
                     <Drawer.Handle className="w-10 h-1 bg-border-handle rounded-full mx-auto mt-4 shrink-0" />
                     <div
-                        className="flex-1 py-2.5 overflow-y-auto [mask-image:linear-gradient(to_bottom,transparent,black_16px)]"
-                        onScroll={(e) => {
-                            const st = e.currentTarget.scrollTop;
-                            setIsAtTop(st <= 0);
-                        }}
+                        className="flex-1 py-2.5 overflow-y-auto"
                         style={{
                             paddingBottom: contentPaddingBottom,
-                            touchAction: snapPoint === 1 ? (isAtTop ? 'pan-x pan-down' : 'auto') : 'none'
+                            touchAction: 'auto',
                         }}
                     >
                         {children}
