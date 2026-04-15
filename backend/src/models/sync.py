@@ -15,6 +15,7 @@ class TableType(enum.Enum):
     CATEGORIES = 'categories'
     ACCOUNTS = 'accounts'
     OPERATIONS = 'operations'
+    TRANSFER = 'transfer'
 
 class SyncOperation(Base):
     __tablename__ = 'sync_operations'
