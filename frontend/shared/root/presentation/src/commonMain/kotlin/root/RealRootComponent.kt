@@ -44,11 +44,6 @@ class RealRootComponent(
 
     private fun child(config: RootConfig, childCtx: ComponentContext): RootChild {
         return when (config) {
-            is RootConfig.InteropTest -> {
-                InteropSampleFlowChild(
-                    components.interop.get(childCtx.lifecycle)
-                )
-            }
 
             RootConfig.Main -> MainChild(
                 components.main.get(childCtx.lifecycle)
@@ -79,7 +74,6 @@ class RealRootComponent(
         return when (path) {
             pathSegmentOf<RootConfig.Stats>() -> listOf(RootConfig.Main, RootConfig.Stats)
             pathSegmentOf<RootConfig.Settings>() -> listOf(RootConfig.Main, RootConfig.Settings)
-            pathSegmentOf<RootConfig.InteropTest>() -> listOf(RootConfig.Main, RootConfig.InteropTest)
             else -> listOf(RootConfig.Main)
         }
     }

@@ -3,7 +3,6 @@ import {LuWallet} from "react-icons/lu";
 import {FiHome} from "react-icons/fi";
 import {GrLineChart} from "react-icons/gr";
 import {LuSettings} from "react-icons/lu";
-import {LuSquareActivity} from "react-icons/lu";
 import {motion} from "framer-motion";
 
 interface RootTabBarProps {
@@ -37,12 +36,6 @@ const NavBar = ({component, activeChild}: RootTabBarProps) => {
             icon: <LuSettings className={"w-6 h-6 stroke-2"}/>,
             child: RootChild.SettingsChild,
             output: RootOutput.NavigateToSettings
-        },
-        {
-            label: "Interop",
-            icon: <LuSquareActivity/>,
-            child: RootChild.InteropSampleFlowChild,
-            output: RootOutput.NavigateToInteropTest
         }
     ];
 

@@ -7,9 +7,6 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.shared.core)
 
-            implementation(projects.shared.interopSample.data)
-            implementation(projects.shared.interopSample.presentation)
-
             implementation(projects.shared.transactions.data)
             implementation(projects.shared.transactions.presentation)
 

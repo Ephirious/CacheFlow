@@ -9,7 +9,6 @@ fun RootComponent.onRootOutput(
     output: RootOutput,
 ) {
     when (output) {
-        RootOutput.NavigateToInteropTest -> nav.pushToFront(RootConfig.InteropTest)
         RootOutput.NavigateToMain -> nav.pushToFront(RootConfig.Main)
         RootOutput.NavigateToSettings -> nav.pushToFront(RootConfig.Settings)
         RootOutput.NavigateToStats -> nav.pushToFront(RootConfig.Stats)

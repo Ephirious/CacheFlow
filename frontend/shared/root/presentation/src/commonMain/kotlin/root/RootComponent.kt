@@ -2,7 +2,6 @@ package root
 
 
 import com.arkivanov.decompose.router.webhistory.WebNavigationOwner
-import interopSampleFlow.InteropSampleFlowComponent
 import main.MainComponent
 import settings.SettingsComponent
 import stats.StatsComponent
@@ -18,8 +17,6 @@ interface RootComponent : DefaultStack<RootConfig, RootChild>, WebNavigationOwne
 
 @Serializable
 sealed interface RootConfig {
-    @Serializable
-    data object InteropTest : RootConfig
 
     @Serializable
     data object Main : RootConfig
@@ -36,13 +33,10 @@ sealed class RootOutput {
     data object NavigateToMain : RootOutput()
     data object NavigateToStats : RootOutput()
     data object NavigateToSettings : RootOutput()
-    data object NavigateToInteropTest : RootOutput()
 }
 
 @JsExport
 sealed class RootChild {
-    @Suppress("unused")
-    class InteropSampleFlowChild(val component: InteropSampleFlowComponent) : RootChild()
 
     @Suppress("unused")
     class MainChild(val component: MainComponent) : RootChild()

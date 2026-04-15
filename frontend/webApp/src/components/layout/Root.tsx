@@ -1,7 +1,6 @@
 import {useValue, when} from "interop";
 import {RootChild, RootComponent} from "k2ts";
 import {motion, AnimatePresence} from "framer-motion";
-import InteropSampleFlowScreen from "../../features/interopSampleFlow/InteropSampleFlow.tsx";
 import NavBar from "./NavBar.tsx";
 import Main from "./Main.tsx";
 import Settings from "./Settings.tsx";
@@ -32,9 +31,6 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                         ))
                         .on(RootChild.StatsChild, (_child) => <>Stats</>)
                         .on(RootChild.SettingsChild, (_child) => <Settings/>)
-                        .on(RootChild.InteropSampleFlowChild, (child) => (
-                            <InteropSampleFlowScreen component={child.component}/>
-                        ))
                         .run()}
                 </motion.div>
             </AnimatePresence>
