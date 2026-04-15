@@ -7,9 +7,14 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.childStackWebNavigation
 import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
+import main.RealMainComponent
+import main.mvi.MainContainer
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import root.RootChild.*
 import root.outputs.onRootOutput
+import settings.RealSettingsComponent
+import stats.RealStatsComponent
 import utils.Url
 import utils.consumePathSegment
 import utils.interop.JsChildStack
@@ -23,10 +28,6 @@ class RealRootComponent(
     componentContext: ComponentContext,
     deepLinkUrl: Url? = null,
 ) : RootComponent, KoinComponent, ComponentContext by componentContext {
-
-    // ОБЯЗАТЕЛЬНО ОБЪЯВЛЯТЬ СВЕРХУ – ИНАЧЕ ОШИБКА unified в get (kotlin/js moment)
-    private val components = PersistentRootComponents(this)
-
     override val nav = StackNavigation<RootConfig>()
     private val _stack = childStack(
         source = nav,
@@ -46,15 +47,15 @@ class RealRootComponent(
         return when (config) {
 
             RootConfig.Main -> MainChild(
-                components.main.get(childCtx.lifecycle)
+                RealMainComponent(childCtx, container = { get<MainContainer>() })
             )
 
             RootConfig.Stats -> StatsChild(
-                components.stats.get(childCtx.lifecycle)
+                RealStatsComponent(childCtx)
             )
 
             RootConfig.Settings -> SettingsChild(
-                components.settings.get(childCtx.lifecycle)
+                RealSettingsComponent(childCtx)
             )
         }
     }
