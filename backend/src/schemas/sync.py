@@ -8,6 +8,7 @@ from pydantic import BaseModel, model_validator
 from backend.src.models.sync import Action, TableType
 
 
+
 class AccountRecord(BaseModel):
     id: UUID
     name: str
