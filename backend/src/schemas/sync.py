@@ -8,7 +8,6 @@ from pydantic import BaseModel, model_validator
 from backend.src.models.sync import Action, TableType
 
 
-
 class AccountRecord(BaseModel):
     id: UUID
     name: str
@@ -39,13 +38,15 @@ class OperationRecord(BaseModel):
 
 records = Union[AccountRecord, CategoryRecord, TransferRecord, OperationRecord]
 
-
-class SyncOperation(BaseModel):
+class SyncOperationBase(BaseModel):
+    id: UUID
     processing_id: UUID
     created_at: datetime
     action: Action
     table_type: TableType
 
+
+class SyncOperation(SyncOperationBase):
     field_to_update: Optional[str] = None
     value_to_update: Optional[Any] = None
     record_to_create: Optional[records] = None
@@ -69,3 +70,10 @@ class SyncOperation(BaseModel):
             allowed_type = allowed[self.table_type]
             if self.field_to_update not in allowed_type:
                 raise ValueError('"field_to_update" must be one of {}'.format(allowed_type))
+
+
+class SyncRequest(BaseModel):
+    last_sync_date: datetime
+    operations: list[SyncOperation]
+
+

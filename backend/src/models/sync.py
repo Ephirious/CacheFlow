@@ -1,6 +1,7 @@
 import enum
 from uuid import UUID
 
+from sqlalchemy import Index
 from sqlalchemy.orm import Mapped
 
 from backend.src.models.base_class import Base
@@ -23,3 +24,7 @@ class SyncOperation(Base):
     processing_id: Mapped[UUID]
     action: Mapped[Action]
     table_type: Mapped[TableType]
+
+    __table_args__ = (
+    Index("idx_sync_proc_id_date", "processing_id", "created_at"),
+    )
