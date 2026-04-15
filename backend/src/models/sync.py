@@ -27,4 +27,6 @@ class SyncOperation(Base):
 
     __table_args__ = (
     Index("idx_sync_proc_id_date", "processing_id", "created_at"),
+    Index("idx_sync_created_at", "created_at"),
+    Index("idx_processing_id", "processing_id")
     )

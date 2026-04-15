@@ -16,7 +16,7 @@ class SyncOperationRepository(GenericRepository[SyncOperation, SyncOperationBase
         stmt = select(SyncOperation).where(
             SyncOperation.processing_id.in_(ids),
             SyncOperation.created_at > last_sync_date
-        ).order_by(SyncOperation.created_at)
+        ).order_by(SyncOperation.processing_id, SyncOperation.created_at)
         res = await self._session.execute(stmt)
         return res.scalars().all()
     

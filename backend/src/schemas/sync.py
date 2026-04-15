@@ -1,42 +1,18 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, Optional, Union
+from typing import Annotated, Any, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, model_validator
 
 from backend.src.models.sync import Action, TableType
+from backend.src.schemas.account import AccountRecord
+from backend.src.schemas.category import CategoryRecord
+from backend.src.schemas.operation import OperationRecord
+from backend.src.schemas.transfer import TransferRecord
 
 
-class AccountRecord(BaseModel):
-    id: UUID
-    name: str
-    color: str
-    funds: Decimal
-
-
-class CategoryRecord(BaseModel):
-    id: UUID
-    name: str
-
-
-class TransferRecord(BaseModel):
-    id: UUID
-    account_from_id: UUID
-    account_to_id: UUID
-
-
-class OperationRecord(BaseModel):
-    id: UUID
-    account_uuid: UUID
-    transfer_id: Optional[UUID] = None
-    category_id: Optional[UUID] = None
-    amount: Decimal
-    date: datetime
-    notes: str
-
-
-records = Union[AccountRecord, CategoryRecord, TransferRecord, OperationRecord]
+RECORD = Union[AccountRecord, CategoryRecord, TransferRecord, OperationRecord]
 
 class SyncOperationBase(BaseModel):
     id: UUID
@@ -49,7 +25,7 @@ class SyncOperationBase(BaseModel):
 class SyncOperation(SyncOperationBase):
     field_to_update: Optional[str] = None
     value_to_update: Optional[Any] = None
-    record_to_create: Optional[records] = None
+    record_to_create: Optional[RECORD] = None
 
     @model_validator(mode='after')
     def check_field_exists(self):
@@ -76,4 +52,20 @@ class SyncRequest(BaseModel):
     last_sync_date: datetime
     operations: list[SyncOperation]
 
+
+class StateUpdate(BaseModel):
+    table_type: TableType
+    record: RECORD
+    updated_at: datetime
+
+class StateDelete(BaseModel):
+    table_type: TableType
+    id: UUID
+
+class SyncResponse(BaseModel):
+    last_sync_date: datetime
+    accepted_ids: list[UUID]
+    delete_operations: list[StateDelete]
+    update_state: list[StateUpdate]
+    
 
