@@ -20,7 +20,6 @@ import utils.orUnknown
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
 import utils.presentation.flowMVI.observe
-import kotlin.uuid.ExperimentalUuidApi
 
 private typealias Ctx = PipelineContext<ManageTransactionState, ManageTransactionIntent, Nothing>
 
@@ -34,14 +33,17 @@ fun ManageTransactionContainer.getInitial(
     ManageTransactionState.OK(
         form = form ?: ManageTransactionState.OK.FormState(),
         isCreateMode = isCreateMode,
-    ).getFullyValidated()
+    ).allValidate()
 
-fun ManageTransactionState.OK.getFullyValidated(
+fun ManageTransactionState.OK.allValidate(
 ) = copy(form = form.let {
     it.copy(validation = it.validate(), transactionType = it.transactionType.validated())
 })
 
-fun ManageTransactionState.OK.isFullyValidated(
+fun ManageTransactionState.OK.allValidated(
+) = allValidate().isValid()
+
+fun ManageTransactionState.OK.isValid(
 ) = !form.validation.hasErrors && !form.transactionType.validationHasErrors()
 
 
@@ -90,17 +92,9 @@ class ManageTransactionContainer(
                     }
 
                     ManageTransactionIntent.ClickedSave -> {
-                        updateState<ManageTransactionState.OK, _> {
-                            getFullyValidated()
-                        }
-
                         withState<ManageTransactionState.OK, _> {
-                            if (isFullyValidated()) {
-                                if (isCreateMode) {
-                                    createTransaction()
-                                } else {
-                                    // TODO: EDIT
-                                }
+                            if (allValidated()) {
+                                upsertTransactionUseCase(this.form.toDomain(transactionId))
                             }
                         }
                     }
@@ -111,13 +105,6 @@ class ManageTransactionContainer(
                 }
             }
         }
-
-    @OptIn(ExperimentalUuidApi::class)
-    private suspend fun Ctx.createTransaction() {
-        withState<ManageTransactionState.OK, _> {
-            upsertTransactionUseCase(this.form.toDomain())
-        }
-    }
 
     private fun Ctx.observeAccounts(jobs: JobManager<Jobs>) {
         observe(

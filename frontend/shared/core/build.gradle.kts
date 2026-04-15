@@ -23,6 +23,7 @@ sqldelight {
         create("Database") {
             packageName = Config.namespace+".db"
             generateAsync.set(true)
+            dialect("app.cash.sqldelight:sqlite-3-38-dialect:${libs.versions.sqldelight.get()}")
         }
     }
 }

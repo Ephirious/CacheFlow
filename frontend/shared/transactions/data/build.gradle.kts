@@ -8,6 +8,8 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.shared.transactions.domain)
             implementation(projects.shared.sync.domain)
+
+            implementation(projects.shared.utils.pure)
         }
     }
 }

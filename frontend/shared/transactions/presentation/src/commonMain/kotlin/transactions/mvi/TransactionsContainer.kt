@@ -52,7 +52,7 @@ class TransactionsContainer(
     private fun Ctx.observeTransactions(jobs: JobManager<Jobs>) {
 
         observe(
-            flow = getTransactionsFlowUseCase(),
+            flow = getTransactionsFlowUseCase(accountId = null),
             jobs = jobs,
             key = Jobs.ObserveTransactions
         ) { transactions ->
