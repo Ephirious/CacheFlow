@@ -1,12 +1,12 @@
 import {FaArrowTrendUp, FaArrowTrendDown} from "react-icons/fa6";
 import {LuArrowRightLeft} from "react-icons/lu";
-import {prettyDate, Transaction, TransactionType} from "k2ts";
+import {Transaction, TransactionType} from "k2ts";
 import {FaArrowRight} from "react-icons/fa";
 import {when} from "interop";
 
 
 const TransactionCard = ({transaction}: { transaction: Transaction }) => {
-    const {value, type, date, account} = transaction;
+    const {value, type, account} = transaction;
 
     const isIncome = type instanceof TransactionType.Income;
     const isTransfer = type instanceof TransactionType.Transfer;
@@ -20,40 +20,35 @@ const TransactionCard = ({transaction}: { transaction: Transaction }) => {
     };
 
     return (
-        <div className="flex flex-col p-4 bg-surface-base-soft rounded-2xl gap-3">
-            <div className="flex justify-between">
-                <div className={`w-12 h-12 ${config.IconBg} p-3 rounded-2xl`}>
-                    <config.Icon className={`${config.IconColor} w-6 h-6`}/>
+        <div className="flex items-center justify-between rounded-xl bg-surface-base-soft px-3 py-2.5 gap-3">
+            <div className="flex min-w-0 items-center gap-2.5">
+                <div className={`w-9 h-9 ${config.IconBg} p-2.5 rounded-xl`}>
+                    <config.Icon className={`${config.IconColor} w-4 h-4`}/>
                 </div>
-                <span
-                    className={`text-xl font-bold ${config.priceColor}`}>{config.prefix}{value.prettyString()}</span>
-            </div>
-            <div className="flex flex-col gap-1">
-                <span className="flex items-center text-base font-semibold gap-1">
-                    {
-                        when(type)
-                            .on(TransactionType.Transfer, (transfer) =>
-                                <>
-                                    {transfer.from.title}
-                                    <FaArrowRight className="w-3 h-3"/>
-                                    {transfer.to.title}
-                                </>
-                            )
-                            .on([TransactionType.Income, TransactionType.Outcome], ({category}) =>
-                                category.name
-                            ).run()
-                    }
-                </span>
-                <div className="flex gap-2 text-xs text-text-secondary">
-                    <span>{prettyDate(date)}</span>
-                    <span>
-                        {!(type instanceof TransactionType.Transfer) ? "•" : ""}
+                <div className="flex min-w-0 flex-col">
+                    <span className="flex items-center gap-1 truncate text-sm font-semibold leading-tight">
+                        {
+                            when(type)
+                                .on(TransactionType.Transfer, (transfer) =>
+                                    <>
+                                        <span className="truncate">{transfer.from.title}</span>
+                                        <FaArrowRight className="w-2.5 h-2.5 shrink-0"/>
+                                        <span className="truncate">{transfer.to.title}</span>
+                                    </>
+                                )
+                                .on([TransactionType.Income, TransactionType.Outcome], ({category}) =>
+                                    <span className="truncate">{category.name}</span>
+                                ).run()
+                        }
                     </span>
-                    <span>
-                        {!(type instanceof TransactionType.Transfer) ? account.title : ""}
-                    </span>
+                    {!(type instanceof TransactionType.Transfer) && (
+                        <span className="truncate text-xs text-text-secondary">{account.title}</span>
+                    )}
                 </div>
             </div>
+            <span className={`shrink-0 text-base font-bold ${config.priceColor}`}>
+                {config.prefix}{value.prettyString()}
+            </span>
         </div>
     )
 }

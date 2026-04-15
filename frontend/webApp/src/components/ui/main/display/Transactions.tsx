@@ -1,10 +1,25 @@
 import { LiaFilterSolid } from "react-icons/lia";
 import {motion} from "framer-motion";
 import { TransactionCard } from "./index";
-import { Transaction } from "k2ts";
+import { prettyDate, Transaction } from "k2ts";
+import { useMemo } from "react";
 
 
 const Transactions = ({ transactions }: {transactions: readonly Transaction[]}) => {
+    const sections = useMemo(() => {
+        return transactions.reduce<Array<{ dateLabel: string; items: Transaction[] }>>((acc, transaction) => {
+            const dateLabel = prettyDate(transaction.date);
+            const lastSection = acc[acc.length - 1];
+
+            if (lastSection && lastSection.dateLabel === dateLabel) {
+                lastSection.items.push(transaction);
+            } else {
+                acc.push({ dateLabel, items: [transaction] });
+            }
+
+            return acc;
+        }, []);
+    }, [transactions]);
 
 
     return (
@@ -21,9 +36,20 @@ const Transactions = ({ transactions }: {transactions: readonly Transaction[]}) 
                     Фильтры
                 </motion.div>
             </div>
-            <div className="flex flex-col gap-3">
-                {transactions.map((transaction) => (
-                    <TransactionCard transaction={transaction}/>
+            <div className="flex flex-col gap-3 pb-4">
+                {sections.map((section, sectionIndex) => (
+                    <div key={`${section.dateLabel}-${sectionIndex}`} className="flex flex-col gap-2">
+                        <div className="sticky top-[-10px] z-20 -mx-1 rounded-md bg-surface-base px-1 py-1">
+                            <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                                {section.dateLabel}
+                            </span>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            {section.items.map((transaction, transactionIndex) => (
+                                <TransactionCard key={`${section.dateLabel}-${transactionIndex}`} transaction={transaction}/>
+                            ))}
+                        </div>
+                    </div>
                 ))}
             </div>
         </div>
