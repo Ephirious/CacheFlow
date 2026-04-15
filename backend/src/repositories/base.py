@@ -5,12 +5,19 @@ from uuid import UUID
 from pydantic import BaseModel
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
+from asyncpg.exceptions import UniqueViolationError
 
 from backend.src.models.base_class import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+
+class AlreadyExists(Exception):
+    def __init__(self, msg = None):
+        super().__init__(msg)
+        self.msg = msg
 
 class GenericRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, session: AsyncSession, model: Type[ModelType]):
@@ -31,9 +38,13 @@ class GenericRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         data = body.model_dump()
         obj = self._model(**data)
         self._session.add(obj)
-        await self._session.flush()
-        await self._session.refresh(obj)
-        return obj
+        try:
+            await self._session.flush()
+            await self._session.refresh(obj)
+            return obj
+        except IntegrityError as e:
+            await self._session.rollback()
+            raise e
 
     async def delete(self, entity_id: UUID):
         stmt = delete(self._model).where(self._model.id == entity_id)
