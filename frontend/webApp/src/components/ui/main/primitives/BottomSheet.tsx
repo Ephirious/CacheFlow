@@ -1,5 +1,5 @@
 import { Drawer } from "vaul";
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, UIEvent, useEffect, useMemo, useRef, useState } from "react";
 import { changeMetaThemeColor } from "../../../../styles/changeMetaThemeColor.ts";
 
 const BUCKETS = 120;
@@ -113,7 +113,9 @@ const BottomSheet = ({
 }: BottomSheetProps) => {
     const [snapPoint, setSnapPoint] = useState<number | string | null>(initialSnapPoint);
     const [radius, setRadius] = useState(32);
+    const [contentTouchAction, setContentTouchAction] = useState<"none" | "auto">("none");
     const contentRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
     const resolvedBaseColorRef = useRef(themeBaseColor ?? DEFAULT_THEME_BASE_COLOR);
 
     const snapPoints = useMemo(() => propSnapPoints ?? [0.5, 1], [propSnapPoints]);
@@ -238,6 +240,26 @@ const BottomSheet = ({
         }
     }, [snapPoint, themeInterpolationStartThreshold]);
 
+    useEffect(() => {
+        if (!open) {
+            setContentTouchAction("none");
+            return;
+        }
+
+        const contentElement = scrollContainerRef.current;
+        if (!contentElement) return;
+        setContentTouchAction(contentElement.scrollTop <= 0 ? "none" : "auto");
+    }, [open]);
+
+    const updateContentTouchAction = (element: HTMLDivElement) => {
+        const nextTouchAction = element.scrollTop <= 0 ? "none" : "auto";
+        setContentTouchAction((prev) => (prev === nextTouchAction ? prev : nextTouchAction));
+    };
+
+    const handleScrollableContentScroll = (event: UIEvent<HTMLDivElement>) => {
+        updateContentTouchAction(event.currentTarget);
+    };
+
     return (
         <Drawer.Root
             snapPoints={snapPoints}
@@ -265,10 +287,14 @@ const BottomSheet = ({
                 >
                     <Drawer.Handle className="w-10 h-1 bg-border-handle rounded-full mx-auto mt-4 shrink-0" />
                     <div
+                        ref={scrollContainerRef}
                         className="flex-1 py-2.5 overflow-y-auto"
+                        onScroll={handleScrollableContentScroll}
+                        onTouchStart={(event) => updateContentTouchAction(event.currentTarget)}
+                        onTouchEnd={(event) => updateContentTouchAction(event.currentTarget)}
                         style={{
                             paddingBottom: contentPaddingBottom,
-                            touchAction: 'auto',
+                            touchAction: contentTouchAction,
                         }}
                     >
                         {children}
