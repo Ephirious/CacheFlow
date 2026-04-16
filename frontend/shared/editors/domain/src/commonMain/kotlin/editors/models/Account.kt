@@ -9,6 +9,5 @@ data class Account(
     val id: String,
     val title: String,
     val balance: BigDecimal,
-    // TODO
-    val color: HexColor = HexColor("#FF0000")
+    val color: HexColor
 )

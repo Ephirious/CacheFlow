@@ -30,14 +30,17 @@ SELECT
     acc.id AS acc_id,
     acc.name AS acc_name,
     acc.funds AS acc_funds,
+    acc.color AS acc_color,
     -- category (might be null!!)
     cat.id AS cat_id,
     cat.name AS cat_name,
+    cat.emoji AS cat_emoji,
     -- transfer_data (might be null!!)
     t.id AS transfer_id,
     acc_to.id AS target_acc_id,
     acc_to.name AS target_acc_name,
-    acc_to.funds AS target_acc_funds
+    acc_to.funds AS target_acc_funds,
+    acc_to.color AS target_acc_color
 FROM Operations op
 JOIN Accounts acc ON op.account_uuid = acc.id
 LEFT JOIN Categories cat ON op.category_uuid = cat.id
