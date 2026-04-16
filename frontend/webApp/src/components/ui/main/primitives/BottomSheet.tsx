@@ -74,6 +74,8 @@ interface BottomSheetProps {
     showOverlay?: boolean;
     contentPaddingBottom?: string;
     themeTransitionDuration?: number;
+    repositionInputs?: boolean;
+    fixed?: boolean;
 }
 
 const setThemeColor = (containerEl: HTMLElement | undefined, color: string) => {
@@ -106,6 +108,8 @@ const BottomSheet = ({
     showOverlay = modal,
     contentPaddingBottom = 'calc(70px + env(safe-area-inset-bottom))',
     themeTransitionDuration = 240,
+    repositionInputs = true,
+    fixed = false,
 }: BottomSheetProps) => {
     const [snapPoint, setSnapPoint] = useState<number | string | null>(initialSnapPoint);
     const [radius, setRadius] = useState(32);
@@ -241,6 +245,8 @@ const BottomSheet = ({
             setActiveSnapPoint={setSnapPoint}
             dismissible={dismissible}
             modal={modal}
+            repositionInputs={repositionInputs}
+            fixed={fixed}
             open={open}
             onOpenChange={onOpenChange}
         >

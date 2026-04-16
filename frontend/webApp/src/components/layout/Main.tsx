@@ -67,6 +67,7 @@ const MainOK = ({ component }: { component: MainComponent }) => {
                     portalContainer={sheetPortalEl}
                     snapPoints={[dynamicSnapPoint, 1]}
                     initialSnapPoint={dynamicSnapPoint}
+                    repositionInputs={false}
                     themeMode="interpolate"
                     themeEnabled={!isCreateModalOpen}
                     themeInterpolationStartThreshold={sheetThemeThreshold}
@@ -85,6 +86,8 @@ const MainOK = ({ component }: { component: MainComponent }) => {
                 initialSnapPoint={1}
                 dismissible={true}
                 modal={true}
+                repositionInputs={false}
+                fixed={true}
                 zIndex={60}
                 backgroundColor="var(--color-surface-sheet)"
                 className="sm:hidden"
