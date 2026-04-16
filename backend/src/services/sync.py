@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -9,7 +9,7 @@ from backend.src.repositories.uow import UnitOfWork
 from backend.src.schemas.account import AccountRecord, AccountUpdate
 from backend.src.schemas.category import CategoryRecord, CategoryUpdate
 from backend.src.schemas.operation import OperationRecord, OperationUpdate
-from backend.src.schemas.result import Result
+from backend.src.schemas.result import ErrorCode, Result
 from backend.src.schemas.sync import RECORD, StateDelete, StateUpdate, SyncOperation, SyncOperationBase, SyncResponse
 from backend.src.models import SyncOperation as ModelSyncOperation, Account, Transfer, Operation, Category
 from backend.src.schemas.transfer import TransferRecord, TransferUpdate
@@ -51,79 +51,107 @@ class SyncService:
 
 
     async def sync(self, sync_ops: list[SyncOperation], last_sync: datetime) -> Result[SyncResponse]:
-        ids_ops: dict[str, list[SyncOperation]] = {}
-        ids = []
+        grouped_ops: dict[UUID, list[SyncOperation]] = {}
         for op in sync_ops:
-            i = op.processing_id
-            if i not in ids_ops:
-                ids_ops[str(i)] = [op]
-                ids.append(i)
-            else:
-                if ids_ops[str(i)][0].action == Action.DELETE:
-                    continue
-                ids_ops[str(i)].append(op)
-            
-            if op.action == Action.DELETE:
-                ids_ops[str(i)] = ids_ops[-1:]
+            grouped_ops.setdefault(op.processing_id, []).append(op)
 
-        history = await self.uow.sync_repository.get_by_processing_ids(sync_ops, last_sync)
+        history = await self.uow.sync_repository.get_by_processing_ids(
+            [op.processing_id for op in sync_ops], last_sync
+        )
+        
+        history_map: dict[UUID, list[ModelSyncOperation]] = {}
+        for h in history:
+            history_map.setdefault(h.processing_id, []).append(h)
 
         resp = SyncResponse(
-            last_sync_date = datetime.now(),
+            last_sync_date=datetime.now(timezone.utc),
             accepted_ids=[],
             delete_operations=[],
             update_state=[]
-            )
+        )
 
-        cur_updates = {}
-        cur_record = None
-        for processing_id, ops in ids_ops.items():
-            hist: list[ModelSyncOperation] = []
-            table_type = ops[0].table_type
-            for h in history:
-                if h.processing_id == processing_id:
-                    if h.action == Action.DELETE:
-                        resp.delete_operations.append(StateDelete(table_type = h.table_type, id = processing_id))
-                        break
-                    hist.append(h)
-            else:
-                for op in ops:
-                    to_create_op = None
-                    match op.action:
-                        case Action.CREATE:
-                            try:
-                                rec = await self._apply_create(op.record_to_create, op.table_type)
-                                if not rec:
-                                    break
-                                cur_record = rec
-                                to_create_op = SyncOperationBase.model_validate(op, from_attributes=True)
-                            except:
-                                break
+        try:
+            for p_id, ops in grouped_ops.items():
+                table_type = ops[0].table_type
+                h_ops = history_map.get(p_id, [])
 
-                        case Action.UPDATE:
-                            for other in filter(lambda x: x.field_to_update == op.field_to_update, hist):
-                                if other.created_at >= op.created_at:
-                                    break
-                            else:
-                                cur_updates[op.field_to_update] = op.value_to_update
-                                to_create_op = SyncOperationBase.model_validate(op, from_attributes=True)
+                if any(h.action == Action.DELETE for h in h_ops):
+                    resp.delete_operations.append(StateDelete(table_type=table_type, id=p_id))
+                    resp.accepted_ids.append(p_id)
+                    continue
 
-                        case Action.DELETE:
-                            await self._apply_delete(op.processing_id, op.table_type)
-                            cur_record = None
-                            cur_updates = {}
-                            to_create_op = SyncOperationBase.model_validate(op, from_attributes=True)
-                            break
-                    
-                    if to_create_op:
-                        await self.uow.sync_repository.insert(to_create_op)
-
-                cur_record = await self._apply_updates(processing_id, cur_updates, table_type) or cur_record
-                resp.accepted_ids.append(processing_id)
-                resp.update_state.append(StateUpdate(table_type = table_type, record = cur_record, updated_at = datetime.now()))
-
-                cur_updates = {}
                 cur_record = None
+                pending_updates = {}
+                should_apply = False
 
-        resp.last_sync_date = datetime.now()
-        return Result.ok(resp)
+                for op in sorted(ops, key=lambda x: x.created_at):
+                    if op.action == Action.CREATE:
+                        db_exists = await self._schemas_map[table_type][0].get_by_id(p_id)
+                        if not db_exists:
+                            cur_record = await self._apply_create(op.record_to_create, table_type)
+                            should_apply = True
+                        else:
+                            cur_record = db_exists
+
+                    elif op.action == Action.UPDATE:
+                        is_stale = any(
+                            h.field_to_update == op.field_to_update and h.created_at >= op.created_at 
+                            for h in h_ops
+                        )
+                        if not is_stale:
+                            pending_updates[op.field_to_update] = op.value_to_update
+                            should_apply = True
+
+                    elif op.action == Action.DELETE:
+                        await self._apply_delete(p_id, table_type)
+                        resp.delete_operations.append(StateDelete(table_type=table_type, id=p_id))
+                        should_apply = True
+                        cur_record = None
+                        pending_updates = {}
+                        break
+
+                    if should_apply:
+                        await self.uow.sync_repository.insert(op)
+
+                if pending_updates:
+                    cur_record = await self._apply_updates(p_id, pending_updates, table_type)
+
+                if cur_record or should_apply:
+                    resp.accepted_ids.append(p_id)
+                    if cur_record:
+                        resp.update_state.append(StateUpdate(
+                            table_type=table_type, 
+                            record=cur_record, 
+                            updated_at=datetime.now(timezone.utc)
+                        ))
+
+            other_ops = await self.uow.sync_repository.get_by_date(last_sync)
+            added_ids = set(resp.accepted_ids)
+            for s_op in other_ops:
+                if s_op.processing_id in added_ids:
+                    continue
+
+                if s_op.action == Action.DELETE:
+                    resp.delete_operations.append(StateDelete(
+                        table_type=s_op.table_type, 
+                        id=s_op.processing_id
+                    ))
+                else:
+                    repo, schema_record, _ = self._schemas_map[s_op.table_type]
+                    db_obj = await repo.get_by_id(s_op.processing_id)
+                    if db_obj:
+                        resp.update_state.append(StateUpdate(
+                            table_type=s_op.table_type,
+                            record=schema_record.model_validate(db_obj, from_attributes=True),
+                            updated_at=db_obj.updated_at
+                        ))
+                added_ids.add(s_op.processing_id)
+            resp.last_sync_date = datetime.now(timezone.utc)
+            await self.uow.commit()
+            return Result.ok(resp)
+
+        except Exception as e:
+            await self.uow.rollback()
+            return Result.err(
+                message = str(e), error_code = ErrorCode.INTERNAL
+            )
