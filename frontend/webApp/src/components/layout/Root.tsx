@@ -5,27 +5,28 @@ import {useLayoutEffect} from "react";
 import NavBar from "./NavBar.tsx";
 import Main from "./Main.tsx";
 import Settings from "./Settings.tsx";
+import Stats from "./Stats.tsx";
 
 
 const RootScreen = ({component}: { component: RootComponent }) => {
     const pages = useValue(component.childPages)
     const activeChild = pages.active;
-    const isSettingsActive = activeChild instanceof RootChild.SettingsChild;
+    const isMainActive = activeChild instanceof RootChild.MainChild;
 
     useLayoutEffect(() => {
         const themeMeta = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
         const appleStatusMeta = document.head.querySelector<HTMLMetaElement>('meta[name="apple-mobile-web-app-status-bar-style"]');
 
-        const color = isSettingsActive ? "#ffffff" : "#4F39F6";
+        const color = isMainActive ? "#4F39F6" : "#ffffff";
         if (themeMeta) themeMeta.content = color;
 
         document.documentElement.style.backgroundColor = color;
         document.body.style.backgroundColor = color;
 
         if (appleStatusMeta) {
-            appleStatusMeta.content = isSettingsActive ? "default" : "black-translucent";
+            appleStatusMeta.content = isMainActive ? "black-translucent" : "default";
         }
-    }, [isSettingsActive]);
+    }, [isMainActive]);
 
     return (
         <div
@@ -46,7 +47,7 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                         .on(RootChild.MainChild, (child) => (
                             <Main component={child.component}/>
                         ))
-                        .on(RootChild.StatsChild, (_child) => <>Stats</>)
+                        .on(RootChild.StatsChild, (_child) => <Stats/>)
                         .on(RootChild.SettingsChild, (child) => <Settings component={child.component}/>)
                         .run()}
                 </motion.div>

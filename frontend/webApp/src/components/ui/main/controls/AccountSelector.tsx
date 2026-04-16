@@ -46,7 +46,8 @@ const AccountSelector = ({accounts, selectedId, onSelect}: AccountSelectorProps)
                                 className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-hover transition-colors"
                             >
                                 <div
-                                    className={`w-2 h-2 rounded-full ${account.color}`}
+                                    className="w-3 h-3 rounded-full shrink-0"
+                                    style={{ backgroundColor: account.color.normalizedHex }}
                                 />
                                 <div className="flex-1 text-left">
                                     <div className="text-text-primary font-medium">

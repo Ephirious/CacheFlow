@@ -54,7 +54,7 @@ const MainOK = ({component}: { component: MainComponent }) => {
 
     // Обработка нажатия "назад" (android, desktop)
     useEffect(() => {
-        const handlePopState = (e: PopStateEvent) => {
+        const handlePopState = () => {
             if (isManageOpen) {
                 setIsManageOpen(false)
             }
