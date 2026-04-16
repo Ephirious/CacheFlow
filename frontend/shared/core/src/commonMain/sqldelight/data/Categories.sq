@@ -3,6 +3,7 @@ import kotlin.time.Instant;
 CREATE TABLE IF NOT EXISTS Categories (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
+    emoji TEXT NOT NULL,
     created_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     updated_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
@@ -14,8 +15,8 @@ selectById:
 SELECT * FROM Categories WHERE id = ? ORDER BY name ASC;
 
 upsert:
-INSERT INTO Categories(id, name)
-VALUES (?, ?)
+INSERT INTO Categories(id, name, emoji)
+VALUES (?, ?, ?)
 ON CONFLICT(id) DO UPDATE SET
     name = excluded.name,
     updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));

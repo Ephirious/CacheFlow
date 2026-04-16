@@ -5,8 +5,8 @@ import editors.models.Category
 
 fun Categories.toDomain() = Category(
     id = this.id,
-    name = this.name
-    // TODO: Emoji
+    name = this.name,
+    emoji = this.emoji,
 )
 
 fun List<Categories>.listToDomain() = map { it.toDomain() }

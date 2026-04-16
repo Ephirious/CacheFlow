@@ -6,12 +6,13 @@ import kotlin.js.JsExport
 data class Category(
     val id: String,
     val name: String,
-//    val emoji
+    val emoji: String,
 ) {
     companion object {
         val Unknown = Category(
             id = "unknown",
-            name = "Неизвестная категория"
+            name = "Неизвестная категория",
+            emoji = "❔"
         )
     }
 }
