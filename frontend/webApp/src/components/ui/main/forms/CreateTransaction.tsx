@@ -20,6 +20,12 @@ interface CreateTransactionProps {
 }
 
 const CreateTransactionContent = ({component, state}: CreateTransactionProps) => {
+
+
+    const currentCategories = state.form.transactionType.type === 'Income'
+        ? state.form.incomeCategories
+        : state.form.outcomeCategories;
+
     const [touched, setTouched] = useState({
         value: false,
         category: false,
@@ -111,7 +117,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                 <div className={`flex w-full flex-col gap-2 ${state.form.transactionType.type == 'Transfer' ? "hidden" : ""}`}>
                     <span className="text-sm font-medium">Категория</span>
                     <CategorySelector
-                        categories={state.form.categories.asJsReadonlyArrayView()}
+                        categories={currentCategories.asJsReadonlyArrayView()}
                         selectedId={
                             when(state.form.transactionType)
                                 .on([ManageTransactionType.Outcome, ManageTransactionType.Income], (type) =>

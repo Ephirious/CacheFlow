@@ -35,6 +35,7 @@ SELECT
     cat.id AS cat_id,
     cat.name AS cat_name,
     cat.emoji AS cat_emoji,
+    cat.type AS cat_type,
     -- transfer_data (might be null!!)
     t.id AS transfer_id,
     acc_to.id AS target_acc_id,

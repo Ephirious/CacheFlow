@@ -21,7 +21,7 @@ internal fun SelectAllWithAccountAndCategory.toDomain(): Transaction {
     )
 
     val category = if (this.cat_id != null && this.cat_name != null) {
-        Category(id = this.cat_id!!, name = this.cat_name!!, emoji = this.cat_emoji!!)
+        Category(id = this.cat_id!!, name = this.cat_name!!, emoji = this.cat_emoji!!, type = this.cat_type!!)
     } else {
         Category.Unknown
     }

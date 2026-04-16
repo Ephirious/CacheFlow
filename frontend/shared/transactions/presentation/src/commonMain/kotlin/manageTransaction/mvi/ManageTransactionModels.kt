@@ -1,5 +1,6 @@
 package manageTransaction.mvi
 
+import dbEnums.CategoryType
 import editors.models.Account
 import editors.models.Category
 import kotlinx.datetime.LocalDate
@@ -24,13 +25,17 @@ sealed class ManageTransactionState : MVIState {
                 accountId = null
             ),
             override val note: String = "",
-            override val categories: List<Category> = emptyList(),
+            override val incomeCategories: List<Category> = emptyList(),
+            override val outcomeCategories: List<Category> = emptyList(),
             override val accounts: List<Account> = emptyList(),
             override val date: LocalDate = Clock.System.now().toLocalDate(),
             override val validation: ManageTransactionFormBaseValidationErrors = ManageTransactionFormBaseValidationErrors()
         ) : ManageTransactionFormBaseState<ManageTransactionFormBaseValidationErrors> {
             fun findAccount(id: String?) = accounts.firstOrNull { it.id == id }
-            fun findCategory(id: String?) = categories.firstOrNull { it.id == id }
+            fun findCategory(id: String?, type: CategoryType): Category? {
+                val categories = if (type == CategoryType.INCOME) incomeCategories else outcomeCategories
+                return categories.firstOrNull { it.id == id }
+            }
 
             val isTransfer get() = transactionType is ManageTransactionType.Transfer
         }

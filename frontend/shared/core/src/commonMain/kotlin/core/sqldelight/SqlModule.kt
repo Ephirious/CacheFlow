@@ -1,5 +1,6 @@
 package core.sqldelight
 
+import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.async.coroutines.awaitCreate
 import app.cash.sqldelight.db.SqlDriver
 import data.Accounts
@@ -49,7 +50,8 @@ internal val sqlModule = module {
             ),
             CategoriesAdapter = Categories.Adapter(
                 created_atAdapter = instantAdapter,
-                updated_atAdapter = instantAdapter
+                updated_atAdapter = instantAdapter,
+                typeAdapter = EnumColumnAdapter(),
             ),
             OperationsAdapter = Operations.Adapter(
                 amountAdapter = bigDecimalAdapter,

@@ -3,6 +3,7 @@ package manageTransaction.mvi
 import editors.models.Account
 import editors.models.Category
 import manageTransaction.mvi.ManageTransactionType.*
+import manageTransaction.mvi.base.getCategoryType
 import transactions.models.Transaction
 import transactions.models.TransactionType
 import utils.types.BigDecimal
@@ -18,7 +19,7 @@ fun ManageTransactionState.OK.FormState.toDomain(id: String?): Transaction {
     }
 
     val account = findAccount(accId)
-    val category = findCategory(catId)
+    val category = findCategory(catId, transactionType.getCategoryType())
 
     if (account == null) throw RuntimeException("Что-то пошло не так")
     if (category == null && !isTransfer) throw RuntimeException("Что-то пошло не так")

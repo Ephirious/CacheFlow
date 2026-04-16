@@ -119,8 +119,15 @@ class ManageTransactionContainer(
     private fun Ctx.observeCategories(jobs: JobManager<Jobs>) {
         observe(
             flow = getCategoriesFlowUseCase(), key = Jobs.ObserveCategories, jobs = jobs
-        ) { categories ->
-            updateState<ManageTransactionState.OK, _> { copy(form = form.copy(categories = categories)) }
+        ) { categoriesLists ->
+            updateState<ManageTransactionState.OK, _> {
+                copy(
+                    form = form.copy(
+                        incomeCategories = categoriesLists.income,
+                        outcomeCategories = categoriesLists.outcome,
+                    )
+                )
+            }
         }
     }
 }

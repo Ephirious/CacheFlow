@@ -27,7 +27,8 @@ interface ManageTransactionFormBaseState<V> : MVIState {
     val date: LocalDate
     val note: String
 
-    val categories: List<Category>
+    val incomeCategories: List<Category>
+    val outcomeCategories: List<Category>
     val accounts: List<Account>
     val validation: V
 }
