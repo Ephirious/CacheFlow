@@ -1,14 +1,14 @@
 import {FiCpu, FiSmile, FiShoppingCart, FiTruck} from "react-icons/fi";
 import {LuShirt, LuUtensils} from "react-icons/lu";
-import {AccountItem, CategoryItem, CategoryType, SettingsTab, SettingsTabOption} from "./types.ts";
+import {AccountItem, CategoryItem, CategoryTypeId, SettingsTab, SettingsTabOption} from "./types.ts";
 
 export const settingsTabs: SettingsTabOption<SettingsTab>[] = [
     {id: "categories", label: "Категории"},
     {id: "accounts", label: "Счета"}
 ];
 
-export const categoryTypeTabs: SettingsTabOption<CategoryType>[] = [
-    {id: "expense", label: "Расход"},
+export const categoryTypeTabs: SettingsTabOption<CategoryTypeId>[] = [
+    {id: "outcome", label: "Расход"},
     {id: "income", label: "Доход"}
 ];
 

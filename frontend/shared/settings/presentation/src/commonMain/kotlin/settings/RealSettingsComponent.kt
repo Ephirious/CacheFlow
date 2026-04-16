@@ -4,10 +4,12 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.pages.*
 import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import settings.SettingsChild.AccountsChild
 import settings.SettingsChild.CategoriesChild
 import settings.pages.accounts.RealAccountsComponent
-import settings.pages.categories.RealCategoriesComponent
+import settings.pages.categories.RealCategoriesPagesComponent
 import utils.Url
 import utils.consumePathSegment
 import utils.interop.JsChildPages
@@ -22,7 +24,7 @@ class RealSettingsComponent(
     componentCtx: ComponentContext,
     deepLinkUrl: Url? = null,
 //    container: () -> MoreContainer,
-) : SettingsComponent, ComponentContext by componentCtx {
+) : SettingsComponent, KoinComponent, ComponentContext by componentCtx {
 //    Store<MoreState, MoreIntent, Nothing> by componentCtx.retainedStore(factory = container)
 
     //    @OptIn(InternalFlowMVIAPI::class)
@@ -50,7 +52,13 @@ class RealSettingsComponent(
             navigator = nav,
             pages = _pages,
             serializer = SettingsConfig.serializer(),
-            pathMapper = { config -> config.path() }
+            pathMapper = { config -> config.path() },
+            childSelector = { child ->
+                when(val inst = child.instance) {
+                    is AccountsChild -> null
+                    is CategoriesChild -> inst.component
+                }
+            }
         )
 
 
@@ -60,24 +68,28 @@ class RealSettingsComponent(
                 component = RealAccountsComponent(childCtx)
             )
 
-            SettingsConfig.Categories -> CategoriesChild(
-                component = RealCategoriesComponent(childCtx)
+            is SettingsConfig.Categories -> CategoriesChild(
+                component = RealCategoriesPagesComponent(
+                    childCtx,
+                    deepLinkUrl = config.deepLinkUrl,
+                    getCategoriesFlowUseCase = get()
+                )
             )
         }
     }
 
     private fun getInitialPages(deepLinkUrl: Url?): Pages<SettingsConfig> {
 
-        val (segment, _) = deepLinkUrl?.consumePathSegment() ?: (null to null)
+        val (segment, remainingUrl) = deepLinkUrl?.consumePathSegment() ?: (null to null)
 
         val selectedConfig = when (segment) {
-            pathSegmentOf<SettingsConfig.Categories>() -> SettingsConfig.Categories
+            pathSegmentOf<SettingsConfig.Categories>() -> SettingsConfig.Categories(remainingUrl)
             pathSegmentOf<SettingsConfig.Accounts>() -> SettingsConfig.Accounts
-            else -> SettingsConfig.Categories
+            else -> SettingsConfig.Categories(remainingUrl)
         }
 
         return Pages(
-            items = SettingsConfig.list,
+            items = SettingsConfig.list(SettingsConfig.Categories(remainingUrl)),
             selectedIndex = selectedConfig.index,
         )
     }
@@ -85,7 +97,7 @@ class RealSettingsComponent(
     override fun onOutput(output: SettingsOutput) {
         when (output) {
             SettingsOutput.NavigateToAccounts -> nav.select(SettingsConfig.Accounts.index)
-            SettingsOutput.NavigateToCategories -> nav.select(SettingsConfig.Categories.index)
+            SettingsOutput.NavigateToCategories -> nav.select(SettingsConfig.Categories(null).index)
         }
     }
 }

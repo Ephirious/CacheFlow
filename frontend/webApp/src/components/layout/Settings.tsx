@@ -6,13 +6,19 @@ import {
     CategoryItem,
     CategoryModal,
     CategoriesSection,
-    CategoryType,
     SettingsHeader,
     SettingsMainSection,
-    SyncSection
+    SyncSection, CategoryTypeId
 } from "../ui/settings";
 import {accounts, categoryCards} from "../ui/settings/data.tsx";
-import {SettingsChild, SettingsComponent, SettingsOutput} from "k2ts";
+import {
+    CategoriesPagesComponent,
+    SettingsChild,
+    SettingsComponent,
+    SettingsOutput,
+    CategoryType,
+    CategoriesPagesOutput
+} from "k2ts";
 import {useValue} from "interop";
 
 const isStandalone = () =>
@@ -35,6 +41,27 @@ const createTintBar = (color: string) => {
     return bar;
 };
 
+const CategoriesPages = ({component}: { component: CategoriesPagesComponent }) => {
+
+    const pages = useValue(component.childPages)
+    const activeChild = pages.active;
+
+    const tsCategoryType: CategoryTypeId = activeChild.type === CategoryType.INCOME ? "income" : "outcome"
+
+    return <CategoriesSection
+        categoryType={tsCategoryType}
+        onCategoryClick={(_category) => {
+            // setSelectedCategory(category);
+            // setEditCategoryOpen(true);
+        }}
+        onCategoryTypeChange={
+            (tsCategory) => {
+                component.onOutput(tsCategory === 'income' ? CategoriesPagesOutput.NavigateToIncome : CategoriesPagesOutput.NavigateToOutcome)
+            }
+        }
+    />
+}
+
 const Settings = ({component}: { component: SettingsComponent }) => {
 
 
@@ -44,7 +71,7 @@ const Settings = ({component}: { component: SettingsComponent }) => {
 
     const tab = isCategoriesActive ? 'categories' : 'accounts'
 
-    const [categoryType, setCategoryType] = useState<CategoryType>("expense");
+
     const [addAccountOpen, setAddAccountOpen] = useState(false);
     const [editAccountOpen, setEditAccountOpen] = useState(false);
     const [addCategoryOpen, setAddCategoryOpen] = useState(false);
@@ -109,25 +136,19 @@ const Settings = ({component}: { component: SettingsComponent }) => {
             }}/>
             <SettingsMainSection
                 onAddClick={() => (isCategoriesActive ? setAddCategoryOpen(true) : setAddAccountOpen(true))}
-                tab={ tab }
+                tab={tab}
             >
                 {isCategoriesActive ? (
-                    <CategoriesSection
-                        categoryType={categoryType}
-                        onCategoryClick={(category) => {
-                            setSelectedCategory(category);
-                            setEditCategoryOpen(true);
-                        }}
-                        onCategoryTypeChange={setCategoryType}
-                    />
-                ) : (
-                    <AccountsSection
-                        onAccountClick={(account) => {
-                            setSelectedAccount(account);
-                            setEditAccountOpen(true);
-                        }}
-                    />
-                )}
+                        <CategoriesPages component={activeChild.component}/>
+                    )
+                    : (
+                        <AccountsSection
+                            onAccountClick={(account) => {
+                                setSelectedAccount(account);
+                                setEditAccountOpen(true);
+                            }}
+                        />
+                    )}
             </SettingsMainSection>
             <SyncSection/>
 

@@ -1,22 +1,30 @@
-import {CategoryItem, CategoryType} from "../types.ts";
+import {CategoryItem, CategoryTypeId} from "../types.ts";
 import {categoryCards, categoryTypeTabs} from "../data.tsx";
 import {SegmentedTabs} from "../primitives";
 import {CategoryCard} from "../display";
+import { Category } from "k2ts";
+import transactions from "../../main/display/Transactions.tsx";
 
 interface CategoriesSectionProps {
-    categoryType: CategoryType;
-    onCategoryTypeChange: (type: CategoryType) => void;
+    categories: readonly Category[]
+    categoryType: CategoryTypeId;
+    onCategoryTypeChange: (type: CategoryTypeId) => void;
     onCategoryClick: (category: CategoryItem) => void;
 }
 
-const CategoriesSection = ({categoryType, onCategoryTypeChange, onCategoryClick}: CategoriesSectionProps) => {
+const CategoriesSection = ({categories, categoryType, onCategoryTypeChange, onCategoryClick}: CategoriesSectionProps) => {
     return (
         <div className="flex flex-col gap-4">
             <SegmentedTabs active={categoryType} onChange={onCategoryTypeChange} options={categoryTypeTabs}/>
             <div className="grid grid-cols-2 gap-2">
-                {categoryCards.map((item) => (
-                    <CategoryCard item={item} key={item.id} onClick={onCategoryClick}/>
-                ))}
+
+                {categories.map((item) => (
+                    <CategoryCard item={
+                        new CategoryItem()
+                    } key={item.id} onClick={onCategoryClick}/>
+                ))
+
+                }
             </div>
         </div>
     );

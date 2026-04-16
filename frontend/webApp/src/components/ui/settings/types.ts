@@ -1,7 +1,7 @@
 import {ReactNode} from "react";
 
 export type SettingsTab = "categories" | "accounts";
-export type CategoryType = "expense" | "income";
+export type CategoryTypeId = "outcome" | "income";
 
 export interface SettingsTabOption<T extends string> {
     id: T;

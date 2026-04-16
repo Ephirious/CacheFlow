@@ -3,7 +3,8 @@ package settings
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.serialization.Serializable
 import settings.pages.accounts.AccountsComponent
-import settings.pages.categories.CategoriesComponent
+import settings.pages.categories.CategoriesPagesComponent
+import utils.Url
 import utils.presentation.DefaultPages
 import kotlin.js.JsExport
 
@@ -29,11 +30,13 @@ sealed class SettingsOutput {
 sealed class SettingsConfig(val index: Int) {
 
     companion object {
-        val list: List<SettingsConfig> = listOf(Categories, Accounts).sortedBy { it.index }
+        val list: (Categories) -> List<SettingsConfig> = { categories ->
+            listOf(categories, Accounts).sortedBy { it.index }
+        }
     }
 
     @Serializable
-    data object Categories : SettingsConfig(0)
+    data class Categories(val deepLinkUrl: Url?) : SettingsConfig(0)
 
     @Serializable
     data object Accounts : SettingsConfig(1)
@@ -43,7 +46,7 @@ sealed class SettingsConfig(val index: Int) {
 sealed class SettingsChild {
 
     @Suppress("unused")
-    class CategoriesChild(val component: CategoriesComponent) : SettingsChild()
+    class CategoriesChild(val component: CategoriesPagesComponent) : SettingsChild()
 
     @Suppress("unused")
     class AccountsChild(val component: AccountsComponent) : SettingsChild()

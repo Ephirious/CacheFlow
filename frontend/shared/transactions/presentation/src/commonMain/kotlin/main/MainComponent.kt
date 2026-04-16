@@ -75,10 +75,10 @@ class RealMainComponent(
     override fun setIsManageTransactionOpen(isOpen: Boolean) {
         if (isOpen) {
             manageTransactionNavigation.activate(ManageTransactionConfig(null))
-            pushUrlSegment("create_tr")
+            pushUrlSegment("manage_tr")
         } else {
             manageTransactionNavigation.dismiss()
-            popUrlSegment("create_tr")
+            popUrlSegment("manage_tr")
         }
     }
 

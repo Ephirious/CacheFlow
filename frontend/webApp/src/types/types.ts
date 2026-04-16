@@ -24,5 +24,5 @@ export interface Account {
     balance: string;
     color: string;
 }
-export type TransactionType = "income" | "expense" | "transfer";
+export type TransactionType = "income" | "outcome" | "transfer";
 

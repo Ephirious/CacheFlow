@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {CategoryItem, CategoryType} from "../types.ts";
+import {CategoryItem, CategoryTypeId} from "../types.ts";
 import {SegmentedTabs} from "../primitives";
 import {categoryTypeTabs} from "../data.tsx";
 import SettingsModalShell from "./SettingsModalShell.tsx";
@@ -16,13 +16,13 @@ const inputClass = "flex py-3 px-4 rounded-xl border border-border-default bg-su
 const CategoryModal = ({open, mode, category, onClose}: CategoryModalProps) => {
     const [name, setName] = useState("");
     const [icon, setIcon] = useState("");
-    const [categoryType, setCategoryType] = useState<CategoryType>("expense");
+    const [categoryType, setCategoryType] = useState<CategoryTypeId>("outcome");
 
     useEffect(() => {
         if (!open) return;
         setName(category?.title ?? "");
         setIcon("");
-        setCategoryType("expense");
+        setCategoryType("outcome");
     }, [category, open]);
 
     const isAddMode = mode === "add";
