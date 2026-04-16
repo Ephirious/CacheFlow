@@ -47,7 +47,7 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                             <Main component={child.component}/>
                         ))
                         .on(RootChild.StatsChild, (_child) => <>Stats</>)
-                        .on(RootChild.SettingsChild, (_child) => <Settings/>)
+                        .on(RootChild.SettingsChild, (child) => <Settings component={child.component}/>)
                         .run()}
                 </motion.div>
             </AnimatePresence>

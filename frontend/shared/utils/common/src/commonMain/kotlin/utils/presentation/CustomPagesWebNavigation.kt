@@ -1,6 +1,7 @@
-package root
+package utils.presentation
 
 import com.arkivanov.decompose.Child
+import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.router.pages.ChildPages
 import com.arkivanov.decompose.router.pages.Pages
 import com.arkivanov.decompose.router.pages.PagesNavigation
@@ -11,6 +12,7 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import kotlinx.serialization.KSerializer
 
+@OptIn(ExperimentalDecomposeApi::class)
 class CustomPagesWebNavigation<C : Any, T : Any>(
     private val navigator: PagesNavigation<C>,
     pages: Value<ChildPages<C, T>>,
@@ -26,7 +28,20 @@ class CustomPagesWebNavigation<C : Any, T : Any>(
     init {
         pages.subscribe { state ->
             val currentIndex = state.selectedIndex
-            if (pagesHistory.last() != currentIndex) {
+
+            // Если стек пустой -> инициализируем
+            if (pagesHistory.isEmpty()) {
+                pagesHistory.add(currentIndex)
+                return@subscribe
+            }
+
+            // Текущий индекс уже равен последнему в истории -> ничего не делаем
+            if (pagesHistory.last() == currentIndex) return@subscribe
+
+            // Если мы перешли на предпоследний индекс -> пользователь прожал back -> удаляем последний элемент
+            if (pagesHistory.size > 1 && pagesHistory[pagesHistory.size - 2] == currentIndex) {
+                pagesHistory.removeAt(pagesHistory.lastIndex)
+            } else {
                 pagesHistory.add(currentIndex)
             }
         }
@@ -37,7 +52,7 @@ class CustomPagesWebNavigation<C : Any, T : Any>(
     override val history: Value<List<WebNavigation.HistoryItem<Pages<C>>>> =
         pages.map { currentState ->
 
-            pagesHistory.map { index ->
+            pagesHistory.filter { index -> index < currentState.items.size }.map { index ->
                 val child = currentState.items[index]
                 val config = child.configuration
 

@@ -9,8 +9,8 @@ fun RootComponent.onRootOutput(
     output: RootOutput,
 ) {
     when (output) {
-        RootOutput.NavigateToMain -> nav.select(RootConfig.Main.INDEX)
-        RootOutput.NavigateToSettings -> nav.select(RootConfig.Settings.INDEX)
-        RootOutput.NavigateToStats -> nav.select(RootConfig.Stats.INDEX)
+        RootOutput.NavigateToMain -> nav.select(RootConfig.Main.index)
+        RootOutput.NavigateToSettings -> nav.select(RootConfig.Settings.index)
+        RootOutput.NavigateToStats -> nav.select(RootConfig.Stats.index)
     }
 }

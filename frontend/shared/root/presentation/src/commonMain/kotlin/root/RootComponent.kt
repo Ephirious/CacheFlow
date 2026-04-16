@@ -1,37 +1,34 @@
 package root
 
 
-import com.arkivanov.decompose.router.webhistory.WebNavigationOwner
+import kotlinx.serialization.Serializable
 import main.MainComponent
 import settings.SettingsComponent
 import stats.StatsComponent
 import utils.presentation.DefaultPages
 import kotlin.js.JsExport
-import kotlinx.serialization.Serializable as Serializable
 
 
 @JsExport
-interface RootComponent : DefaultPages<RootConfig, RootChild>, WebNavigationOwner {
+interface RootComponent : DefaultPages<RootConfig, RootChild> {
     fun onOutput(output: RootOutput)
 }
 
 @Serializable
-sealed interface RootConfig {
+sealed class RootConfig(val index: Int) {
 
-    @Serializable
-    data object Main : RootConfig {
-        const val INDEX = 0
+    companion object {
+        val list: List<RootConfig> = listOf(Main, Stats, Settings).sortedBy { it.index }
     }
 
     @Serializable
-    data object Stats : RootConfig {
-        const val INDEX = 1
-    }
+    data object Main : RootConfig(0)
 
     @Serializable
-    data object Settings : RootConfig {
-        const val INDEX = 2
-    }
+    data object Stats : RootConfig(1)
+
+    @Serializable
+    data object Settings : RootConfig(2)
 }
 
 @JsExport

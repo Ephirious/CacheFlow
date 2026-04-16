@@ -13,9 +13,12 @@ import {
     SyncSection
 } from "../ui/settings";
 import {accounts, categoryCards} from "../ui/settings/data.tsx";
+import { SettingsComponent, SettingsOutput } from "k2ts";
 
 const isStandalone = () =>
-    window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & { standalone?: boolean }).standalone;
+    window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & {
+        standalone?: boolean
+    }).standalone;
 
 const createTintBar = (color: string) => {
     const bar = document.createElement("div");
@@ -32,7 +35,7 @@ const createTintBar = (color: string) => {
     return bar;
 };
 
-const Settings = () => {
+const Settings = ({component}: { component: SettingsComponent }) => {
     const [tab, setTab] = useState<SettingsTab>("categories");
     const [categoryType, setCategoryType] = useState<CategoryType>("expense");
     const [addAccountOpen, setAddAccountOpen] = useState(false);
@@ -90,7 +93,14 @@ const Settings = () => {
 
     return (
         <div className="flex pb-6 flex-col bg-surface-subtle min-h-screen">
-            <SettingsHeader tab={tab} onTabChange={setTab}/>
+            <SettingsHeader tab={tab} onTabChange={(tab) => {
+                if (tab === "categories") {
+                    component.onOutput(SettingsOutput.NavigateToCategories)
+                } else {
+                    component.onOutput(SettingsOutput.NavigateToAccounts)
+                }
+                setTab(tab)
+            }}/>
             <SettingsMainSection
                 onAddClick={() => (tab === "categories" ? setAddCategoryOpen(true) : setAddAccountOpen(true))}
                 tab={tab}

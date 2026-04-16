@@ -22,11 +22,12 @@ import utils.interop.JsValue
 import utils.interop.asJsPages
 import utils.path
 import utils.pathSegmentOf
+import utils.presentation.CustomPagesWebNavigation
 
 
 class RealRootComponent(
     componentContext: ComponentContext,
-    deepLinkUrl: Url? = null,
+    private val deepLinkUrl: Url? = null,
 ) : RootComponent, KoinComponent, ComponentContext by componentContext {
     override val nav = PagesNavigation<RootConfig>()
     private val _pages = childPages(
@@ -54,8 +55,9 @@ class RealRootComponent(
             )
 
             RootConfig.Settings -> SettingsChild(
-                RealSettingsComponent(childCtx)
+                RealSettingsComponent(childCtx, deepLinkUrl = deepLinkUrl)
             )
+
         }
     }
 
@@ -65,26 +67,31 @@ class RealRootComponent(
             navigator = nav,
             pages = _pages,
             serializer = RootConfig.serializer(),
-            pathMapper = { config -> config.path() }
+            pathMapper = { config -> config.path() },
+            childSelector = { child ->
+                when (val inst = child.instance) {
+                    is MainChild -> null // TODO
+                    is SettingsChild -> inst.component
+                    is StatsChild -> null
+                }
+            }
         )
 
 
-
-
     private fun getInitialPages(deepLinkUrl: Url?): Pages<RootConfig> {
-        var selectedIndex = RootConfig.Main.INDEX
+        var selectedIndex = RootConfig.Main.index
         if (deepLinkUrl != null) {
             val (path, _) = deepLinkUrl.consumePathSegment()
 
             selectedIndex = when (path) {
-                pathSegmentOf<RootConfig.Stats>() -> RootConfig.Stats.INDEX
-                pathSegmentOf<RootConfig.Settings>() -> RootConfig.Settings.INDEX
-                else -> RootConfig.Main.INDEX
-            }
+                pathSegmentOf<RootConfig.Stats>() -> RootConfig.Stats
+                pathSegmentOf<RootConfig.Settings>() -> RootConfig.Settings
+                else -> RootConfig.Main
+            }.index
         }
 
         return Pages(
-            items = listOf(RootConfig.Main, RootConfig.Stats, RootConfig.Settings),
+            items = RootConfig.list,
             selectedIndex = selectedIndex
         )
     }
