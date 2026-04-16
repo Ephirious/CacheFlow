@@ -53,12 +53,6 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
             .on([ManageTransactionType.Transfer], (type) => type.validation.fromId)
             .otherwise(() => null)
         : null;
-    const transferToError = touched.transferTo
-        ? when(state.form.transactionType)
-            .on([ManageTransactionType.Transfer], (type) => type.validation.toId)
-            .otherwise(() => null)
-        : null;
-
     const revealValidationOnSaveAttempt = () => {
         const isTransfer = state.form.transactionType.type === "Transfer";
         setTouched((prev) => ({
@@ -155,7 +149,6 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         }}
                     />
                     {transferFromError && localz.get().byValidation(transferFromError)}
-                    {transferToError && localz.get().byValidation(transferToError)}
                 </div>
                 <div className={`flex w-full flex-col gap-2 ${state.form.transactionType.type == 'Transfer' ? "hidden" : ""}`}>
                     <span className="text-sm font-medium">Счёт</span>
