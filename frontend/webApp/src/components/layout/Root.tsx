@@ -1,6 +1,7 @@
 import {useValue, when} from "interop";
 import {RootChild, RootComponent} from "k2ts";
 import {motion, AnimatePresence} from "framer-motion";
+import {useLayoutEffect} from "react";
 import NavBar from "./NavBar.tsx";
 import Main from "./Main.tsx";
 import Settings from "./Settings.tsx";
@@ -9,6 +10,22 @@ import Settings from "./Settings.tsx";
 const RootScreen = ({component}: { component: RootComponent }) => {
     const pages = useValue(component.childPages)
     const activeChild = pages.active;
+    const isSettingsActive = activeChild instanceof RootChild.SettingsChild;
+
+    useLayoutEffect(() => {
+        const themeMeta = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+        const appleStatusMeta = document.head.querySelector<HTMLMetaElement>('meta[name="apple-mobile-web-app-status-bar-style"]');
+
+        const color = isSettingsActive ? "#ffffff" : "#4F39F6";
+        if (themeMeta) themeMeta.content = color;
+
+        document.documentElement.style.backgroundColor = color;
+        document.body.style.backgroundColor = color;
+
+        if (appleStatusMeta) {
+            appleStatusMeta.content = isSettingsActive ? "default" : "black-translucent";
+        }
+    }, [isSettingsActive]);
 
     return (
         <div
