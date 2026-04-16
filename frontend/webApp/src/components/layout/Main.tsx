@@ -52,6 +52,18 @@ const MainOK = ({component}: { component: MainComponent }) => {
     const manageTransactionComponent = manageTransactionSlot.instance
     const [isManageOpen, setIsManageOpen] = useState(false);
 
+    // Обработка нажатия "назад" (android, desktop)
+    useEffect(() => {
+        const handlePopState = (e: PopStateEvent) => {
+            if (isManageOpen) {
+                setIsManageOpen(false)
+            }
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, [isManageOpen, component]);
+
     useLayoutEffect(() => {
         if (manageTransactionComponent) {
             setIsManageOpen(true);

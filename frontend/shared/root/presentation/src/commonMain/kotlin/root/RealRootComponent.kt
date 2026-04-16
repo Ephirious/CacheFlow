@@ -69,6 +69,8 @@ class RealRootComponent(
         )
 
 
+
+
     private fun getInitialPages(deepLinkUrl: Url?): Pages<RootConfig> {
         var selectedIndex = RootConfig.Main.INDEX
         if (deepLinkUrl != null) {

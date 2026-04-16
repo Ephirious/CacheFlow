@@ -28,7 +28,9 @@ import utils.interop.JsChildSlot
 import utils.interop.JsValue
 import utils.interop.asJsSlot
 import utils.interop.jsStateSubscribe
+import utils.popUrlSegment
 import utils.presentation.componentCoroutineScope
+import utils.pushUrlSegment
 import kotlin.js.JsExport
 import kotlin.js.JsName
 
@@ -67,15 +69,16 @@ class RealMainComponent(
 ) : MainComponent, KoinComponent, ComponentContext by componentCtx,
     Store<MainState, MainIntent, MainAction> by componentCtx.retainedStore(factory = container) {
 
-
     private val manageTransactionNavigation = SlotNavigation<ManageTransactionConfig>()
 
 
     override fun setIsManageTransactionOpen(isOpen: Boolean) {
         if (isOpen) {
             manageTransactionNavigation.activate(ManageTransactionConfig(null))
+            pushUrlSegment("create_tr")
         } else {
             manageTransactionNavigation.dismiss()
+            popUrlSegment("create_tr")
         }
     }
 
@@ -83,11 +86,11 @@ class RealMainComponent(
         manageTransactionNavigation.activate(ManageTransactionConfig(transactionId))
     }
 
-    private val manageTransactionSlot: Value<ChildSlot<*, ManageTransactionComponent>> =
+    private val manageTransactionSlot: Value<ChildSlot<ManageTransactionConfig, ManageTransactionComponent>> =
         childSlot(
             source = manageTransactionNavigation,
-            serializer = ManageTransactionConfig.serializer(),
-            handleBackButton = true,
+            serializer = null, // т.к. после перезагрузки багуется в вебе //ManageTransactionConfig.serializer(),
+            handleBackButton = false,
         ) { config, childCtx ->
             RealManageTransactionComponent(
                 componentCtx = childCtx,
