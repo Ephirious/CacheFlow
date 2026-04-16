@@ -13,6 +13,7 @@
     "k2ts": "0.0.0-unspecified",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "recharts": "^2.15.4",
     "rollup-plugin-copy": "^2.0.1",
     "vaul": "^1.1.2",
     "vite-tsconfig-paths": "^6.1.1"
