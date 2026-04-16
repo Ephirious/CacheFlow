@@ -7,8 +7,8 @@ import utils.annotations.LinkedRule
 import utils.annotations.ValidationRule
 import utils.types.BigDecimal
 
-object StringAmountRule : ValidationRule<String, MVIState, StringAmountError> {
-    override fun validate(value: String, state: MVIState, param: Any?): StringAmountError? {
+object StringAmountRule : ValidationRule<String, MVIState, Nothing?, StringAmountError> {
+    override fun validate(value: String, ctx: MVIState, param: Nothing?): StringAmountError? {
         if (value.isBlank()) return EmptyAmount
 
         val decimal = try {

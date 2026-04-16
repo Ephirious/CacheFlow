@@ -2,7 +2,11 @@ package main
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.childContext
+import com.arkivanov.decompose.router.slot.*
+import com.arkivanov.decompose.value.Value
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import main.mvi.MainAction
 import main.mvi.MainContainer
 import main.mvi.MainIntent
 import main.mvi.MainState
@@ -13,22 +17,28 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.essenty.dsl.retainedStore
+import pro.respawn.flowmvi.essenty.dsl.subscribe
 import summary.RealSummaryComponent
 import summary.SummaryComponent
 import summary.mvi.SummaryContainer
 import transactions.RealTransactionsComponent
 import transactions.TransactionsComponent
 import transactions.mvi.TransactionsContainer
+import utils.interop.JsChildSlot
 import utils.interop.JsValue
+import utils.interop.asJsSlot
 import utils.interop.jsStateSubscribe
+import utils.popUrlSegment
 import utils.presentation.componentCoroutineScope
+import utils.pushUrlSegment
 import kotlin.js.JsExport
 import kotlin.js.JsName
 
 @JsExport
 interface MainComponent : ComponentContext {
 
-    val manageTransactionComponent: ManageTransactionComponent
+
+    val jsManageTransactionSlot: JsValue<JsChildSlot<ManageTransactionComponent>>
 
     val transactionsComponent: TransactionsComponent
     val summaryComponent: SummaryComponent
@@ -39,37 +49,83 @@ interface MainComponent : ComponentContext {
     @Suppress("unused")
     fun intent(intent: MainIntent)
 
+    fun subscribeActions(onAction: (MainAction) -> Unit)
+
     fun restartAllComponents()
+
+    fun setIsManageTransactionOpen(isOpen: Boolean)
+    fun openTransactionToEdit(transactionId: String)
 }
 
+
+@Serializable
+private data class ManageTransactionConfig(
+    val transactionId: String?,
+)
 
 class RealMainComponent(
     componentCtx: ComponentContext,
     container: () -> MainContainer,
 ) : MainComponent, KoinComponent, ComponentContext by componentCtx,
-    Store<MainState, MainIntent, Nothing> by componentCtx.retainedStore(factory = container) {
+    Store<MainState, MainIntent, MainAction> by componentCtx.retainedStore(factory = container) {
+
+    private val manageTransactionNavigation = SlotNavigation<ManageTransactionConfig>()
+
+
+    override fun setIsManageTransactionOpen(isOpen: Boolean) {
+        if (isOpen) {
+            manageTransactionNavigation.activate(ManageTransactionConfig(null))
+            pushUrlSegment("create_tr")
+        } else {
+            manageTransactionNavigation.dismiss()
+            popUrlSegment("create_tr")
+        }
+    }
+
+    override fun openTransactionToEdit(transactionId: String) {
+        manageTransactionNavigation.activate(ManageTransactionConfig(transactionId))
+    }
+
+    private val manageTransactionSlot: Value<ChildSlot<ManageTransactionConfig, ManageTransactionComponent>> =
+        childSlot(
+            source = manageTransactionNavigation,
+            serializer = null, // т.к. после перезагрузки багуется в вебе //ManageTransactionConfig.serializer(),
+            handleBackButton = false,
+        ) { config, childCtx ->
+            RealManageTransactionComponent(
+                componentCtx = childCtx,
+                container = {
+                    ManageTransactionContainer(
+                        transactionId = config.transactionId,
+                        getAccountsFlowUseCase = get(),
+                        getCategoriesFlowUseCase = get(),
+                        upsertTransactionUseCase = get(),
+                        closeRequest = { intent(MainIntent.CloseManage) }
+                    )
+                }
+            )
+        }
+
+    override val jsManageTransactionSlot: JsValue<JsChildSlot<ManageTransactionComponent>> by lazy {
+        manageTransactionSlot.asJsSlot()
+    }
 
     override val jsState: JsValue<MainState> by lazy {
         jsStateSubscribe(scope = componentCoroutineScope, lifecycleOwner = this)
     }
 
+    override fun subscribeActions(onAction: (MainAction) -> Unit) {
+        subscribe(scope = componentCoroutineScope) {
+            actions.collect { action ->
+                onAction(action)
+            }
+        }
+    }
 
     private fun throwErrorFromChild(message: () -> String) {
         intent(MainIntent.ThrowError(message()))
     }
 
-    override val manageTransactionComponent: ManageTransactionComponent =
-        RealManageTransactionComponent(
-            componentCtx = componentCtx.childContext("ManageTransactionComponent"),
-            container = {
-                ManageTransactionContainer(
-                    transactionId = null,
-                    getAccountsFlowUseCase = get(),
-                    getCategoriesFlowUseCase = get(),
-                    upsertTransactionUseCase = get(),
-                )
-            }
-        )
 
     override val transactionsComponent: TransactionsComponent =
         RealTransactionsComponent(
@@ -103,6 +159,4 @@ class RealMainComponent(
             summaryComponent.start(summaryComponent.componentCoroutineScope)
         }
     }
-
-
 }

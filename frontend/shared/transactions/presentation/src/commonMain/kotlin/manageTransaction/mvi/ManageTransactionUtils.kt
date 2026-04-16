@@ -2,17 +2,14 @@ package manageTransaction.mvi
 
 import editors.models.Account
 import editors.models.Category
-import manageTransaction.mvi.ManageTransactionType.Income
-import manageTransaction.mvi.ManageTransactionType.Outcome
-import manageTransaction.mvi.ManageTransactionType.Transfer
+import manageTransaction.mvi.ManageTransactionType.*
 import transactions.models.Transaction
 import transactions.models.TransactionType
 import utils.types.BigDecimal
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-fun ManageTransactionState.OK.FormState.toDomain(): Transaction {
+fun ManageTransactionState.OK.FormState.toDomain(id: String?): Transaction {
 
     val (accId, catId) = when (val type = transactionType) {
         is Income -> type.accountId to type.categoryId
@@ -28,7 +25,7 @@ fun ManageTransactionState.OK.FormState.toDomain(): Transaction {
 
 
     val transaction = Transaction(
-        id = Uuid.generateV7().toString(),
+        id = id,
         value = BigDecimal(value),
         account = account,
         note = note,

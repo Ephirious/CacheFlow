@@ -5,9 +5,9 @@ import localization.MaxLenError.MaxLengthExceeded
 import utils.annotations.LinkedRule
 import utils.annotations.ValidationRule
 
-object MaxLenRule : ValidationRule<String, Any, MaxLenError> {
-    override fun validate(value: String, state: Any, param: Any?): MaxLenError? {
-        return if (value.length > (param as Int)) {
+object MaxLenRule : ValidationRule<String, Any, Int, MaxLenError> {
+    override fun validate(value: String, ctx: Any, param: Int): MaxLenError? {
+        return if (value.length > param) {
             MaxLengthExceeded(param)
         } else null
     }

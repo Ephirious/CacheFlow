@@ -1,23 +1,25 @@
 package transactions.db
 
+import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import data.Accounts
-import data.AccountsQueries
-import data.CommonQueries
-import data.OperationsQueries
+import data.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import transactions.mappers.listToDomain
-import transactions.mappers.toData
 import transactions.models.Transaction
 import transactions.models.TransactionType
+import utils.bigDecimalExtensions.times
+import utils.bigDecimalExtensions.unaryMinus
 import utils.presentation.AsyncDispatcher
-import utils.types.BigDecimal
-import kotlin.time.Clock
+import utils.toInstant
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+
 
 class TransactionsDatabaseDataSource(
     private val transactionsQueries: OperationsQueries,
+    private val transfersQueries: TransfersQueries,
     private val accountsQueries: AccountsQueries,
     private val commonQueries: CommonQueries
 ) {
@@ -27,8 +29,8 @@ class TransactionsDatabaseDataSource(
         commonQueries.initDefaultData().await()
     }
 
-    fun getTransactionsFlow(): Flow<List<Transaction>> {
-        return transactionsQueries.selectAllWithAccountAndCategory()
+    fun getTransactionsFlow(accountId: String?): Flow<List<Transaction>> {
+        return transactionsQueries.selectAllWithAccountAndCategory(accountId)
             .asFlow()
             .mapToList(AsyncDispatcher)
             .map { entity ->
@@ -36,40 +38,98 @@ class TransactionsDatabaseDataSource(
             }
     }
 
-
-    // TODO: пока только создаём, доделать для редактирования
+    @OptIn(ExperimentalUuidApi::class)
     suspend fun upsertTransaction(transaction: Transaction) {
         transactionsQueries.transaction {
-            val curTime = Clock.System.now()
-            val transferId = null
+            // Смотрим только если операция уже была (transactionId != null)
+            val oldOps = if (transaction.id != null) transactionsQueries.selectRelatedOperations(transaction.id!!)
+                .awaitAsList() else listOf()
 
-            // TODO: Add Transfer and return id
-            // TODO: Update accounts
+            // Откат счетов
+            val oldTransferId = transaction.id?.let {
+                oldOps.forEach { op ->
+                    accountsQueries.updateAccountBalance(delta = -op.amount, id = op.account_uuid)
+                }
+                oldOps.firstOrNull()?.transfer_id
+            }
 
-            val diff = transaction.value * (if (transaction.type is TransactionType.Income) BigDecimal(
-                "1"
-            ) else BigDecimal("-1"))
+            // Если трансфер, то берём только отрицательное число – т.е. у отправителя, иначе любое подходящее
+            val primaryId =
+                oldOps.firstOrNull { it.amount.isNegative || (it.transfer_id == null) }?.id ?: Uuid.generateV7()
+                    .toString()
 
-            val acc = transaction.account.copy(
-                balance = transaction.account.balance + diff
-            )
+            // Обновление счетов, новые транзакции
+            applyNewTransaction(primaryId, transaction.copy(id = primaryId), oldTransferId, oldOps)
 
-            accountsQueries.upsert(
-                Accounts(
-                    id = acc.id,
-                    name = acc.title,
-                    funds = acc.balance,
-                    created_at = curTime,
-                    updated_at = curTime,
-                )
-            )
-            transactionsQueries.upsert(
-                transaction.copy(value = diff).toData(
-                    transferId = transferId,
-                    createdAt = null,
-                    updatedAt = curTime
-                )
-            )
+            // Если раньше это был перевод, а теперь нет
+            if (oldTransferId != null && transaction.type !is TransactionType.Transfer) {
+                // Удалит только вторую операцию перевода, т.к. главная уже обновилась (applyNewTransaction)
+                transactionsQueries.deleteByTransferId(oldTransferId)
+                // Удаление записи из Transaction
+                transfersQueries.delete(oldTransferId)
+            }
         }
+    }
+
+    private suspend fun applyNewTransaction(
+        primaryId: String,
+        transaction: Transaction,
+        oldTransferId: String?,
+        relatedOps: List<Operations>
+    ) {
+        when (val type = transaction.type) {
+            is TransactionType.Transfer -> applyTransfer(primaryId, transaction, type, oldTransferId, relatedOps)
+            else -> {
+                val amount = transaction.value * (if (type is TransactionType.Income) 1 else -1)
+                accountsQueries.updateAccountBalance(delta = amount, id = transaction.account.id)
+
+                transactionsQueries.upsertFrom(
+                    transaction.copy(
+                        value = amount
+                    ), transferId = null
+                )
+            }
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    private suspend fun applyTransfer(
+        primaryId: String,
+        transaction: Transaction,
+        type: TransactionType.Transfer,
+        oldTransferId: String?,
+        relatedOps: List<Operations>
+    ) {
+        val transferId = oldTransferId ?: Uuid.generateV7().toString()
+
+        transfersQueries.upsertFrom(transaction, transferId)
+
+        // Списание (Отправитель) – всегда привязана к primaryId
+        val senderAmount = -transaction.value
+        accountsQueries.updateAccountBalance(delta = senderAmount, id = type.from.id)
+        transactionsQueries.upsert(
+            id = primaryId,
+            account_uuid = type.from.id,
+            category_uuid = null,
+            transfer_id = transferId,
+            amount = senderAmount,
+            date = transaction.date.toInstant(),
+            notes = transaction.note
+        )
+
+        // Зачисление (Получатель)
+        val receiverAmount = transaction.value
+        accountsQueries.updateAccountBalance(delta = receiverAmount, id = type.to.id)
+
+        val secondaryId = relatedOps.firstOrNull { it.id != primaryId }?.id ?: Uuid.generateV7().toString()
+        transactionsQueries.upsert(
+            id = secondaryId,
+            account_uuid = type.to.id,
+            category_uuid = null,
+            transfer_id = transferId,
+            amount = receiverAmount,
+            date = transaction.date.toInstant(),
+            notes = transaction.note
+        )
     }
 }

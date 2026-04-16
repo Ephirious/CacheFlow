@@ -5,6 +5,7 @@ import editors.usecases.category.GetCategoriesFlowUseCase
 import manageTransaction.mvi.ManageTransactionType.*
 import manageTransaction.mvi.base.manageTransactionBasePlugin
 import manageTransaction.mvi.base.validated
+import manageTransaction.mvi.base.validationHasErrors
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
 import pro.respawn.flowmvi.api.PipelineContext
@@ -19,7 +20,6 @@ import utils.orUnknown
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
 import utils.presentation.flowMVI.observe
-import kotlin.uuid.ExperimentalUuidApi
 
 private typealias Ctx = PipelineContext<ManageTransactionState, ManageTransactionIntent, Nothing>
 
@@ -31,11 +31,20 @@ fun ManageTransactionContainer.getInitial(
     form: ManageTransactionState.OK.FormState? = null
 ) =
     ManageTransactionState.OK(
-        form = form ?: ManageTransactionState.OK.FormState().let {
-            it.copy(validation = it.validate(), transactionType = it.transactionType.validated())
-        },
+        form = form ?: ManageTransactionState.OK.FormState(),
         isCreateMode = isCreateMode,
-    )
+    ).allValidate()
+
+fun ManageTransactionState.OK.allValidate(
+) = copy(form = form.let {
+    it.copy(validation = it.validate(), transactionType = it.transactionType.validated())
+})
+
+fun ManageTransactionState.OK.allValidated(
+) = allValidate().isValid()
+
+fun ManageTransactionState.OK.isValid(
+) = !form.validation.hasErrors && !form.transactionType.validationHasErrors()
 
 
 class ManageTransactionContainer(
@@ -43,6 +52,7 @@ class ManageTransactionContainer(
     private val getAccountsFlowUseCase: GetAccountsFlowUseCase,
     private val getCategoriesFlowUseCase: GetCategoriesFlowUseCase,
     private val upsertTransactionUseCase: UpsertTransactionUseCase,
+    private val closeRequest: () -> Unit
 ) : Container<ManageTransactionState, ManageTransactionIntent, Nothing> {
     val isCreateMode = transactionId == null
 
@@ -82,10 +92,13 @@ class ManageTransactionContainer(
                         TODO()
                     }
 
-                    ManageTransactionIntent.ClickedSave -> if (isCreateMode) {
-                        createTransaction()
-                    } else {
-                        // TODO: EDIT
+                    ManageTransactionIntent.ClickedSave -> {
+                        withState<ManageTransactionState.OK, _> {
+                            if (allValidated()) {
+                                upsertTransactionUseCase(this.form.toDomain(transactionId))
+                                closeRequest()
+                            }
+                        }
                     }
 
                     ManageTransactionIntent.ClickedTryAgain -> updateState<ManageTransactionState.FatalError, _> {
@@ -94,13 +107,6 @@ class ManageTransactionContainer(
                 }
             }
         }
-
-    @OptIn(ExperimentalUuidApi::class)
-    private suspend fun Ctx.createTransaction() {
-        withState<ManageTransactionState.OK, _> {
-            upsertTransactionUseCase(this.form.toDomain())
-        }
-    }
 
     private fun Ctx.observeAccounts(jobs: JobManager<Jobs>) {
         observe(

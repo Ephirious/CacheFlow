@@ -8,7 +8,7 @@ import kotlin.js.JsExport
 
 @JsExport
 data class Transaction(
-    val id: String,
+    val id: String?,
     val value: BigDecimal,
     val type: TransactionType,
     val account: Account,

@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS Operations (
     amount TEXT AS BigDecimal NOT NULL,
     date TEXT AS Instant NOT NULL,
     notes TEXT NOT NULL,
-    created_at TEXT AS Instant NOT NULL,
-    updated_at TEXT AS Instant NOT NULL,
+    created_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    updated_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     FOREIGN KEY (account_uuid) REFERENCES Accounts(id),
     FOREIGN KEY (category_uuid) REFERENCES Categories(id),
     FOREIGN KEY (transfer_id) REFERENCES Transfers(id)
@@ -48,13 +48,44 @@ LEFT JOIN Accounts acc_to ON (
         ELSE t.account_from_id
     END = acc_to.id
 )
+WHERE
+    (
+        -- Общая лента (accountId не передан)
+        -- Показываем все доходы/расходы, а из переводов берем только сторону ПОЛУЧАТЕЛЯ (чтобы всё было с +)
+        :accountId IS NULL
+        AND (op.transfer_id IS NULL OR op.account_uuid = t.account_to_id)
+    )
+    OR
+    (
+        -- Фильтр по конкретному счету
+        -- Показываем строго те операции, которые привязаны к этому счету
+        op.account_uuid = :accountId
+    )
 ORDER BY op.date DESC, op.created_at DESC;
 
 selectById:
 SELECT * FROM Operations WHERE id = ?;
 
 upsert:
-INSERT OR REPLACE INTO Operations VALUES ?;
+INSERT INTO Operations(id, account_uuid, category_uuid, transfer_id, amount, date, notes)
+VALUES (?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(id) DO UPDATE SET
+    id = excluded.id,
+    account_uuid = excluded.account_uuid,
+    category_uuid = excluded.category_uuid,
+    transfer_id = excluded.transfer_id,
+    amount = excluded.amount,
+    date = excluded.date,
+    notes = excluded.notes,
+    updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+
+selectRelatedOperations:
+SELECT * FROM Operations
+WHERE id = :id
+OR (transfer_id IS NOT NULL AND transfer_id = (SELECT transfer_id FROM Operations WHERE id = :id));
+
+deleteByTransferId:
+DELETE FROM Operations WHERE transfer_id = ?;
 
 delete:
 DELETE FROM Operations WHERE id = ?;

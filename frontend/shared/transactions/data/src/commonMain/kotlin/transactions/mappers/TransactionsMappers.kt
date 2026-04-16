@@ -1,43 +1,14 @@
 package transactions.mappers
 
-import data.Operations
 import data.SelectAllWithAccountAndCategory
 import editors.models.Account
 import editors.models.Category
 import transactions.models.Transaction
 import transactions.models.TransactionType
-import utils.toInstant
 import utils.toLocalDate
 import utils.types.BigDecimal
-import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
-
-
-internal fun Transaction.toData(
-    transferId: String?,
-    createdAt: Instant? = null,
-    updatedAt: Instant
-): Operations {
-
-    val categoryId = when (val t = this.type) {
-        is TransactionType.Income -> t.category.id
-        is TransactionType.Outcome -> t.category.id
-        is TransactionType.Transfer -> null
-    }
-
-    return Operations(
-        id = this.id,
-        account_uuid = this.account.id,
-        category_uuid = categoryId,
-        transfer_id = transferId,
-        amount = this.value,
-        date = this.date.toInstant(),
-        notes = this.note,
-        created_at = createdAt ?: updatedAt,
-        updated_at = updatedAt,
-    )
-}
 
 @OptIn(ExperimentalUuidApi::class)
 internal fun SelectAllWithAccountAndCategory.toDomain(): Transaction {

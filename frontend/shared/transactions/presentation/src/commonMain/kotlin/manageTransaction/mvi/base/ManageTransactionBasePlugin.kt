@@ -56,7 +56,11 @@ fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction, F : ManageTra
                         is ManageTransactionBaseIntent.ChangedAccount -> {
                             copyBase(
                                 transactionType = transactionType.updateAccount(baseIntent.accountId).validated(
-                                    IncomeOrOutcomeValidationFields.categoryId)
+                                    IncomeOrOutcomeValidationFields.categoryId,
+                                    IncomeOrOutcomeValidationFields.accountId,
+                                    TransferValidationFields.fromId,
+                                    TransferValidationFields.toId,
+                                )
                             )
                         }
 

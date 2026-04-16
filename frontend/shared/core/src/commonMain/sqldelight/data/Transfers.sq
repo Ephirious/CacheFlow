@@ -4,8 +4,8 @@ CREATE TABLE IF NOT EXISTS Transfers (
     id TEXT NOT NULL PRIMARY KEY,
     account_from_id TEXT NOT NULL,
     account_to_id TEXT NOT NULL,
-    created_at TEXT AS Instant NOT NULL,
-    updated_at TEXT AS Instant NOT NULL,
+    created_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    updated_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     FOREIGN KEY (account_from_id) REFERENCES Accounts(id),
     FOREIGN KEY (account_to_id) REFERENCES Accounts(id)
 );
@@ -17,7 +17,13 @@ selectById:
 SELECT * FROM Transfers WHERE id = ?;
 
 upsert:
-INSERT OR REPLACE INTO Transfers VALUES ?;
+INSERT INTO Transfers(id, account_from_id, account_to_id)
+VALUES (?, ?, ?)
+ON CONFLICT(id) DO UPDATE SET
+    id = excluded.id,
+    account_from_id = excluded.account_from_id,
+    account_to_id = excluded.account_to_id,
+    updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
 
 delete:
 DELETE FROM Transfers WHERE id = ?;

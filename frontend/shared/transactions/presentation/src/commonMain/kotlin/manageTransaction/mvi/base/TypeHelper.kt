@@ -47,5 +47,11 @@ fun ManageTransactionType.validated(): ManageTransactionType = when (this) {
 fun ManageTransactionType.validated(vararg fields: Any?) = when (this) {
     is Income -> this.validatedAny(*fields) as Income
     is Outcome -> this.validatedAny(*fields) as Outcome
-    is Transfer -> this.validatedAny(fields)
+    is Transfer -> this.validatedAny(*fields)
+}
+
+fun ManageTransactionType.validationHasErrors() = when (this) {
+    is Income -> this.validation.hasErrors
+    is Outcome -> this.validation.hasErrors
+    is Transfer -> this.validation.hasErrors
 }
