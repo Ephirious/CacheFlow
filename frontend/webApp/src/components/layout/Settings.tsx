@@ -9,11 +9,11 @@ import {
     CategoryType,
     SettingsHeader,
     SettingsMainSection,
-    SettingsTab,
     SyncSection
 } from "../ui/settings";
 import {accounts, categoryCards} from "../ui/settings/data.tsx";
-import { SettingsComponent, SettingsOutput } from "k2ts";
+import {SettingsChild, SettingsComponent, SettingsOutput} from "k2ts";
+import {useValue} from "interop";
 
 const isStandalone = () =>
     window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & {
@@ -36,7 +36,14 @@ const createTintBar = (color: string) => {
 };
 
 const Settings = ({component}: { component: SettingsComponent }) => {
-    const [tab, setTab] = useState<SettingsTab>("categories");
+
+
+    const pages = useValue(component.childPages)
+    const activeChild = pages.active;
+    const isCategoriesActive = activeChild instanceof SettingsChild.CategoriesChild;
+
+    const tab = isCategoriesActive ? 'categories' : 'accounts'
+
     const [categoryType, setCategoryType] = useState<CategoryType>("expense");
     const [addAccountOpen, setAddAccountOpen] = useState(false);
     const [editAccountOpen, setEditAccountOpen] = useState(false);
@@ -93,19 +100,18 @@ const Settings = ({component}: { component: SettingsComponent }) => {
 
     return (
         <div className="flex pb-6 flex-col bg-surface-subtle min-h-screen">
-            <SettingsHeader tab={tab} onTabChange={(tab) => {
-                if (tab === "categories") {
+            <SettingsHeader tab={tab} onTabChange={(newTab) => {
+                if (newTab === "categories") {
                     component.onOutput(SettingsOutput.NavigateToCategories)
                 } else {
                     component.onOutput(SettingsOutput.NavigateToAccounts)
                 }
-                setTab(tab)
             }}/>
             <SettingsMainSection
-                onAddClick={() => (tab === "categories" ? setAddCategoryOpen(true) : setAddAccountOpen(true))}
-                tab={tab}
+                onAddClick={() => (isCategoriesActive ? setAddCategoryOpen(true) : setAddAccountOpen(true))}
+                tab={ tab }
             >
-                {tab === "categories" ? (
+                {isCategoriesActive ? (
                     <CategoriesSection
                         categoryType={categoryType}
                         onCategoryClick={(category) => {

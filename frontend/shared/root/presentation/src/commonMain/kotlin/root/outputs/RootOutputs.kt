@@ -10,7 +10,7 @@ fun RootComponent.onRootOutput(
 ) {
     when (output) {
         RootOutput.NavigateToMain -> nav.select(RootConfig.Main.index)
-        RootOutput.NavigateToSettings -> nav.select(RootConfig.Settings.index)
+        RootOutput.NavigateToSettings -> nav.select(RootConfig.Settings(null).index)
         RootOutput.NavigateToStats -> nav.select(RootConfig.Stats.index)
     }
 }

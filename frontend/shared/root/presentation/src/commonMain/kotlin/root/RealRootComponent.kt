@@ -27,7 +27,7 @@ import utils.presentation.CustomPagesWebNavigation
 
 class RealRootComponent(
     componentContext: ComponentContext,
-    private val deepLinkUrl: Url? = null,
+    deepLinkUrl: Url? = null,
 ) : RootComponent, KoinComponent, ComponentContext by componentContext {
     override val nav = PagesNavigation<RootConfig>()
     private val _pages = childPages(
@@ -54,8 +54,8 @@ class RealRootComponent(
                 RealStatsComponent(childCtx)
             )
 
-            RootConfig.Settings -> SettingsChild(
-                RealSettingsComponent(childCtx, deepLinkUrl = deepLinkUrl)
+            is RootConfig.Settings -> SettingsChild(
+                RealSettingsComponent(childCtx, deepLinkUrl = config.deepLinkUrl)
             )
 
         }
@@ -79,20 +79,17 @@ class RealRootComponent(
 
 
     private fun getInitialPages(deepLinkUrl: Url?): Pages<RootConfig> {
-        var selectedIndex = RootConfig.Main.index
-        if (deepLinkUrl != null) {
-            val (path, _) = deepLinkUrl.consumePathSegment()
+        val (segment, remainingUrl) = deepLinkUrl?.consumePathSegment() ?: (null to null)
 
-            selectedIndex = when (path) {
-                pathSegmentOf<RootConfig.Stats>() -> RootConfig.Stats
-                pathSegmentOf<RootConfig.Settings>() -> RootConfig.Settings
-                else -> RootConfig.Main
-            }.index
+        val selectedConfig = when (segment) {
+            pathSegmentOf<RootConfig.Stats>() -> RootConfig.Stats
+            pathSegmentOf<RootConfig.Settings>() -> RootConfig.Settings(remainingUrl)
+            else -> RootConfig.Main
         }
 
         return Pages(
-            items = RootConfig.list,
-            selectedIndex = selectedIndex
+            items = RootConfig.list(RootConfig.Settings(remainingUrl)),
+            selectedIndex = selectedConfig.index,
         )
     }
 }

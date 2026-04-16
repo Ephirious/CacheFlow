@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import main.MainComponent
 import settings.SettingsComponent
 import stats.StatsComponent
+import utils.Url
 import utils.presentation.DefaultPages
 import kotlin.js.JsExport
 
@@ -18,7 +19,9 @@ interface RootComponent : DefaultPages<RootConfig, RootChild> {
 sealed class RootConfig(val index: Int) {
 
     companion object {
-        val list: List<RootConfig> = listOf(Main, Stats, Settings).sortedBy { it.index }
+        val list: (Settings) -> List<RootConfig> = { settings ->
+            listOf(Main, Stats, settings).sortedBy { it.index }
+        }
     }
 
     @Serializable
@@ -28,7 +31,7 @@ sealed class RootConfig(val index: Int) {
     data object Stats : RootConfig(1)
 
     @Serializable
-    data object Settings : RootConfig(2)
+    data class Settings(val deepLinkUrl: Url?) : RootConfig(2)
 }
 
 @JsExport

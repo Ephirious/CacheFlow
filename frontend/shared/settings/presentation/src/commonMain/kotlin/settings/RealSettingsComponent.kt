@@ -68,20 +68,17 @@ class RealSettingsComponent(
 
     private fun getInitialPages(deepLinkUrl: Url?): Pages<SettingsConfig> {
 
-        var selectedIndex = SettingsConfig.Accounts.index
-        if (deepLinkUrl != null) {
-            val (path, _) = deepLinkUrl.consumePathSegment()
+        val (segment, _) = deepLinkUrl?.consumePathSegment() ?: (null to null)
 
-            selectedIndex = when (path) {
-                pathSegmentOf<SettingsConfig.Categories>() -> SettingsConfig.Categories
-                pathSegmentOf<SettingsConfig.Accounts>() -> SettingsConfig.Accounts
-                else -> SettingsConfig.Categories
-            }.index
+        val selectedConfig = when (segment) {
+            pathSegmentOf<SettingsConfig.Categories>() -> SettingsConfig.Categories
+            pathSegmentOf<SettingsConfig.Accounts>() -> SettingsConfig.Accounts
+            else -> SettingsConfig.Categories
         }
 
-        return Pages<SettingsConfig>(
+        return Pages(
             items = SettingsConfig.list,
-            selectedIndex = selectedIndex
+            selectedIndex = selectedConfig.index,
         )
     }
 
