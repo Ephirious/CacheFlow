@@ -7,8 +7,8 @@ import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
 
 class MainContainer(
-) : Container<MainState, MainIntent, Nothing> {
-    override val store: Store<MainState, MainIntent, Nothing> =
+) : Container<MainState, MainIntent, MainAction> {
+    override val store: Store<MainState, MainIntent, MainAction> =
         store(
             initial = MainState.OK
         ) {
@@ -21,9 +21,10 @@ class MainContainer(
 
             customReduce { intent ->
                 when (intent) {
-                    is MainIntent.ThrowError -> {
-                        updateState { MainState.Error(intent.message) }
-                    }
+                    is MainIntent.ThrowError -> updateState { MainState.Error(intent.message) }
+
+
+                    MainIntent.CloseManage -> action(MainAction.HideManageTransaction)
                 }
             }
         }

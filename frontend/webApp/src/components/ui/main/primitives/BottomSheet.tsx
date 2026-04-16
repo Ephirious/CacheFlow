@@ -58,6 +58,7 @@ interface BottomSheetProps {
     portalContainer?: HTMLElement | null;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
+    onAnimationEnd?: (open: boolean) => void;
     snapPoints?: Array<number | string>;
     initialSnapPoint?: number | string | null;
     dismissible?: boolean;
@@ -90,6 +91,7 @@ const BottomSheet = ({
     portalContainer,
     open = true,
     onOpenChange,
+    onAnimationEnd = undefined,
     snapPoints: propSnapPoints,
     initialSnapPoint = 0.5,
     dismissible = false,
@@ -243,6 +245,7 @@ const BottomSheet = ({
             modal={modal}
             open={open}
             onOpenChange={onOpenChange}
+            onAnimationEnd={onAnimationEnd}
         >
             <Drawer.Portal container={portalContainer ?? undefined}>
                 {showOverlay && <Drawer.Overlay className="fixed inset-0 bg-black/0" style={{ zIndex }} />}

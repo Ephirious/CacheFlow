@@ -1,7 +1,8 @@
-import { MainCard, Transactions, BottomSheet, CreateTransactionButton, CreateTransaction } from "../ui/main";
-import {MainComponent, MainState, ManageTransactionState} from "k2ts";
+import {MainCard, Transactions, BottomSheet, CreateTransactionButton, CreateTransaction} from "../ui/main";
+import {MainAction, MainComponent, MainState, ManageTransactionComponent, ManageTransactionState} from "k2ts";
 import {useValue, when} from "interop";
-import {useLayoutEffect, useRef, useState} from "react";
+import {useEffect, useLayoutEffect, useRef, useState} from "react";
+import {useActions} from "interop/useActions";
 
 
 const Main = ({component}: { component: MainComponent }) => {
@@ -20,14 +21,61 @@ const Main = ({component}: { component: MainComponent }) => {
     )
 }
 
-const MainOK = ({ component }: { component: MainComponent }) => {
+// TODO: Артём, отрефактори, пж – вынес, чтобы хук state был сверху
+const ManageTransactionContent = ({
+                                      component,
+                                      onClose
+                                  }: {
+    component: ManageTransactionComponent,
+    onClose: () => void
+}) => {
+    const state = useValue(component.state);
+
+    return when(state)
+        .on(ManageTransactionState.OK, (okState) => (
+            <CreateTransaction
+                component={component}
+                state={okState}
+                close={onClose}
+            />
+        ))
+        .otherwise(() => <div>error</div>);
+};
+
+const MainOK = ({component}: { component: MainComponent }) => {
     const sheetThemeThreshold = 0.92;
 
     const summaryState = useValue(component.summaryComponent.state);
     const transactionsState = useValue(component.transactionsComponent.state);
-    const manageTransactionState = useValue(component.manageTransactionComponent.state);
 
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const manageTransactionSlot = useValue(component.jsManageTransactionSlot);
+    const manageTransactionComponent = manageTransactionSlot.instance
+    const [isManageOpen, setIsManageOpen] = useState(false);
+
+    useLayoutEffect(() => {
+        if (manageTransactionComponent) {
+            setIsManageOpen(true);
+        }
+    }, [manageTransactionComponent]);
+
+    useActions(component, (action) => {
+        when(action)
+            .is(MainAction.HideManageTransaction, () => {
+                setIsManageOpen(false);
+            })
+            .run()
+    });
+
+    // TODO: Артём, отрефактори (спросишь потом, чё это)
+    useEffect(() => {
+        if (!isManageOpen && manageTransactionComponent) {
+            const timer = setTimeout(() => {
+                component.setIsManageTransactionOpen(false);
+            }, 350);
+            return () => clearTimeout(timer);
+        }
+    }, [isManageOpen, manageTransactionComponent]);
+
     const [themeElement, setThemeElement] = useState<HTMLElement>();
     const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(null);
 
@@ -59,7 +107,7 @@ const MainOK = ({ component }: { component: MainComponent }) => {
                     }}/>
                 </div>
 
-                <div ref={setSheetPortalEl} className="pointer-events-none fixed inset-0 z-30" aria-hidden />
+                <div ref={setSheetPortalEl} className="pointer-events-none fixed inset-0 z-30" aria-hidden/>
 
                 <BottomSheet
                     key={dynamicSnapPoint}
@@ -68,19 +116,20 @@ const MainOK = ({ component }: { component: MainComponent }) => {
                     snapPoints={[dynamicSnapPoint, 1]}
                     initialSnapPoint={dynamicSnapPoint}
                     themeMode="interpolate"
-                    themeEnabled={!isCreateModalOpen}
+                    themeEnabled={!isManageOpen}
                     themeInterpolationStartThreshold={sheetThemeThreshold}
                 >
                     <Transactions transactions={transactionsState.transactions.asJsReadonlyArrayView()}/>
                 </BottomSheet>
             </main>
 
-            <CreateTransactionButton onClick={() => setIsCreateModalOpen(true)}/>
+            <CreateTransactionButton onClick={() => component.setIsManageTransactionOpen(true)}/>
 
             <BottomSheet
                 containerEl={themeElement}
-                open={isCreateModalOpen}
-                onOpenChange={setIsCreateModalOpen}
+                open={isManageOpen}
+                onOpenChange={setIsManageOpen}
+                onAnimationEnd={() => {component.setIsManageTransactionOpen(false)}}
                 snapPoints={[1]}
                 initialSnapPoint={1}
                 dismissible={true}
@@ -94,15 +143,8 @@ const MainOK = ({ component }: { component: MainComponent }) => {
                 themeInterpolationStartThreshold={sheetThemeThreshold}
                 contentPaddingBottom="calc(env(safe-area-inset-bottom))"
             >
-                {when(manageTransactionState)
-                    .on(ManageTransactionState.OK, (okState) => (
-                        <CreateTransaction
-                            component={component.manageTransactionComponent}
-                            state={okState}
-                            close={() => setIsCreateModalOpen(false)}
-                        />
-                    ))
-                    .otherwise(() => <div>error</div>)}
+                {manageTransactionComponent && <ManageTransactionContent component={manageTransactionComponent}
+                                                                         onClose={() => setIsManageOpen(false)}/>}
             </BottomSheet>
         </div>
     );

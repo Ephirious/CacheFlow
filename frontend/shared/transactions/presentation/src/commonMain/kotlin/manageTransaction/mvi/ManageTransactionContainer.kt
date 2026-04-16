@@ -52,6 +52,7 @@ class ManageTransactionContainer(
     private val getAccountsFlowUseCase: GetAccountsFlowUseCase,
     private val getCategoriesFlowUseCase: GetCategoriesFlowUseCase,
     private val upsertTransactionUseCase: UpsertTransactionUseCase,
+    private val closeRequest: () -> Unit
 ) : Container<ManageTransactionState, ManageTransactionIntent, Nothing> {
     val isCreateMode = transactionId == null
 
@@ -95,6 +96,7 @@ class ManageTransactionContainer(
                         withState<ManageTransactionState.OK, _> {
                             if (allValidated()) {
                                 upsertTransactionUseCase(this.form.toDomain(transactionId))
+                                closeRequest()
                             }
                         }
                     }
