@@ -10,24 +10,34 @@ import com.arkivanov.decompose.router.webhistory.WebNavigationOwner
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import kotlinx.serialization.KSerializer
+
 class CustomPagesWebNavigation<C : Any, T : Any>(
     private val navigator: PagesNavigation<C>,
     pages: Value<ChildPages<C, T>>,
     serializer: KSerializer<C>,
     private val pathMapper: (C) -> String? = { null },
     private val parametersMapper: (C) -> Map<String, String>? = { null },
-    private val getHistory: () -> List<Int>,
     private val childSelector: (Child.Created<C, T>) -> WebNavigationOwner? = { null },
     private val onBeforeNavigate: () -> Boolean = { true },
 ) : WebNavigation<Pages<C>> {
+
+    val pagesHistory = mutableListOf(pages.value.selectedIndex)
+
+    init {
+        pages.subscribe { state ->
+            val currentIndex = state.selectedIndex
+            if (pagesHistory.last() != currentIndex) {
+                pagesHistory.add(currentIndex)
+            }
+        }
+    }
 
     override val serializer: KSerializer<Pages<C>> = Pages.serializer(serializer)
 
     override val history: Value<List<WebNavigation.HistoryItem<Pages<C>>>> =
         pages.map { currentState ->
-            val indices = getHistory()
 
-            indices.map { index ->
+            pagesHistory.map { index ->
                 val child = currentState.items[index]
                 val config = child.configuration
 

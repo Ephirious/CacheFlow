@@ -28,33 +28,19 @@ class RealRootComponent(
     componentContext: ComponentContext,
     deepLinkUrl: Url? = null,
 ) : RootComponent, KoinComponent, ComponentContext by componentContext {
-
-    private var pagesHistory = listOf(RootConfig.Main.INDEX)
-
-
     override val nav = PagesNavigation<RootConfig>()
     private val _pages = childPages(
         source = nav,
         serializer = RootConfig.serializer(),
         initialPages = { getInitialPages(deepLinkUrl) },
         childFactory = ::child,
-        handleBackButton = true
+        handleBackButton = false
     )
-
-    init {
-        _pages.subscribe { state ->
-            val currentIndex = state.selectedIndex
-            if (pagesHistory.last() != currentIndex) {
-                pagesHistory = pagesHistory + currentIndex
-            }
-        }
-    }
 
     override val pages: Value<ChildPages<RootConfig, RootChild>>
         get() = _pages
 
     override val jsPages: JsValue<JsChildPages<RootChild>> by lazy { _pages.asJsPages() }
-
 
     private fun child(config: RootConfig, childCtx: ComponentContext): RootChild {
         return when (config) {
@@ -79,10 +65,7 @@ class RealRootComponent(
             navigator = nav,
             pages = _pages,
             serializer = RootConfig.serializer(),
-            pathMapper = { config -> config.path() },
-            getHistory = {
-                pagesHistory
-            }
+            pathMapper = { config -> config.path() }
         )
 
 
