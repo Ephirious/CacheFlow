@@ -20,11 +20,11 @@ class SyncOperationBase(BaseModel):
     created_at: datetime
     action: Action
     table_type: TableType
+    field_to_update: Optional[str] = None
+    value_to_update: Optional[Any] = None
 
 
 class SyncOperation(SyncOperationBase):
-    field_to_update: Optional[str] = None
-    value_to_update: Optional[Any] = None
     record_to_create: Optional[RECORD] = None
 
     @model_validator(mode='after')
@@ -68,4 +68,3 @@ class SyncResponse(BaseModel):
     delete_operations: list[StateDelete]
     update_state: list[StateUpdate]
     
-
