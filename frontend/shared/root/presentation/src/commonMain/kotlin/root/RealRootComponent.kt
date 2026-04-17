@@ -1,86 +1,95 @@
 package root
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.router.stack.ChildStack
-import com.arkivanov.decompose.router.stack.StackNavigation
-import com.arkivanov.decompose.router.stack.childStack
-import com.arkivanov.decompose.router.stack.childStackWebNavigation
+import com.arkivanov.decompose.router.pages.ChildPages
+import com.arkivanov.decompose.router.pages.Pages
+import com.arkivanov.decompose.router.pages.PagesNavigation
+import com.arkivanov.decompose.router.pages.childPages
 import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
+import main.RealMainComponent
+import main.mvi.MainContainer
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import root.RootChild.*
 import root.outputs.onRootOutput
+import settings.RealSettingsComponent
+import stats.RealStatsComponent
 import utils.Url
 import utils.consumePathSegment
-import utils.interop.JsChildStack
+import utils.interop.JsChildPages
 import utils.interop.JsValue
-import utils.interop.asJsStack
+import utils.interop.asJsPages
 import utils.path
 import utils.pathSegmentOf
+import utils.presentation.CustomPagesWebNavigation
 
 
 class RealRootComponent(
     componentContext: ComponentContext,
     deepLinkUrl: Url? = null,
 ) : RootComponent, KoinComponent, ComponentContext by componentContext {
-
-    // ОБЯЗАТЕЛЬНО ОБЪЯВЛЯТЬ СВЕРХУ – ИНАЧЕ ОШИБКА unified в get (kotlin/js moment)
-    private val components = PersistentRootComponents(this)
-
-    override val nav = StackNavigation<RootConfig>()
-    private val _stack = childStack(
+    override val nav = PagesNavigation<RootConfig>()
+    private val _pages = childPages(
         source = nav,
         serializer = RootConfig.serializer(),
-        initialStack = { getInitialStack(deepLinkUrl) },
+        initialPages = { getInitialPages(deepLinkUrl) },
         childFactory = ::child,
-        handleBackButton = true
+        handleBackButton = false
     )
 
-    override val stack: Value<ChildStack<RootConfig, RootChild>>
-        get() = _stack
+    override val pages: Value<ChildPages<RootConfig, RootChild>>
+        get() = _pages
 
-    override val jsStack: JsValue<JsChildStack<RootChild>> by lazy { _stack.asJsStack() }
-
+    override val jsPages: JsValue<JsChildPages<RootChild>> by lazy { _pages.asJsPages() }
 
     private fun child(config: RootConfig, childCtx: ComponentContext): RootChild {
         return when (config) {
-            is RootConfig.InteropTest -> {
-                InteropSampleFlowChild(
-                    components.interop.get(childCtx.lifecycle)
-                )
-            }
 
             RootConfig.Main -> MainChild(
-                components.main.get(childCtx.lifecycle)
+                RealMainComponent(childCtx, container = { get<MainContainer>() })
             )
 
             RootConfig.Stats -> StatsChild(
-                components.stats.get(childCtx.lifecycle)
+                RealStatsComponent(childCtx)
             )
 
-            RootConfig.Settings -> SettingsChild(
-                components.settings.get(childCtx.lifecycle)
+            is RootConfig.Settings -> SettingsChild(
+                RealSettingsComponent(childCtx, deepLinkUrl = config.deepLinkUrl)
             )
+
         }
     }
 
     override fun onOutput(output: RootOutput) = onRootOutput(output)
     override val webNavigation: WebNavigation<*> =
-        childStackWebNavigation(
+        CustomPagesWebNavigation(
             navigator = nav,
-            stack = _stack,
+            pages = _pages,
             serializer = RootConfig.serializer(),
-            pathMapper = { it.configuration.path() }
+            pathMapper = { config -> config.path() },
+            childSelector = { child ->
+                when (val inst = child.instance) {
+                    is MainChild -> null // TODO
+                    is SettingsChild -> inst.component
+                    is StatsChild -> null
+                }
+            }
         )
 
-    private fun getInitialStack(deepLinkUrl: Url?): List<RootConfig> {
-        val (path, _) = deepLinkUrl?.consumePathSegment() ?: return listOf(RootConfig.Main) // _ - childUrl
 
-        return when (path) {
-            pathSegmentOf<RootConfig.Stats>() -> listOf(RootConfig.Main, RootConfig.Stats)
-            pathSegmentOf<RootConfig.Settings>() -> listOf(RootConfig.Main, RootConfig.Settings)
-            pathSegmentOf<RootConfig.InteropTest>() -> listOf(RootConfig.Main, RootConfig.InteropTest)
-            else -> listOf(RootConfig.Main)
+    private fun getInitialPages(deepLinkUrl: Url?): Pages<RootConfig> {
+        val (segment, remainingUrl) = deepLinkUrl?.consumePathSegment() ?: (null to null)
+
+        val selectedConfig = when (segment) {
+            pathSegmentOf<RootConfig.Stats>() -> RootConfig.Stats
+            pathSegmentOf<RootConfig.Settings>() -> RootConfig.Settings(remainingUrl)
+            else -> RootConfig.Main
         }
+
+        return Pages(
+            items = RootConfig.list(RootConfig.Settings(remainingUrl)),
+            selectedIndex = selectedConfig.index,
+        )
     }
 }

@@ -1,10 +1,13 @@
+import dbEnums.CategoryType;
 import kotlin.time.Instant;
 
 CREATE TABLE IF NOT EXISTS Categories (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
-    created_at TEXT AS Instant NOT NULL,
-    updated_at TEXT AS Instant NOT NULL
+    emoji TEXT NOT NULL,
+    type TEXT AS CategoryType NOT NULL,
+    created_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    updated_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
 selectAll:
@@ -14,7 +17,24 @@ selectById:
 SELECT * FROM Categories WHERE id = ? ORDER BY name ASC;
 
 upsert:
-INSERT OR REPLACE INTO Categories VALUES ?;
+INSERT INTO Categories(id, name, emoji, type)
+VALUES (?, ?, ?, ?)
+ON CONFLICT(id) DO UPDATE SET
+    name = excluded.name,
+    updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+
+
+insert:
+INSERT INTO Categories(id, name, emoji, type)
+VALUES (?, ?, ?, ?);
+
+update:
+UPDATE Categories
+SET
+    name = ?,
+    emoji = ?,
+    updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+WHERE id = ?;
 
 delete:
 DELETE FROM Categories WHERE id = ?;

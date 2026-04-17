@@ -35,10 +35,6 @@ include(":ksp-processor")
 include(":shared:core")
 include(":shared:root:presentation")
 
-include(":shared:interop-sample:data")
-include(":shared:interop-sample:domain")
-include(":shared:interop-sample:presentation")
-
 include(":shared:transactions:data")
 include(":shared:transactions:domain")
 include(":shared:transactions:presentation")

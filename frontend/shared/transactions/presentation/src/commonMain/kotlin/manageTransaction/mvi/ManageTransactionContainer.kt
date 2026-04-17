@@ -2,28 +2,27 @@ package manageTransaction.mvi
 
 import editors.usecases.account.GetAccountsFlowUseCase
 import editors.usecases.category.GetCategoriesFlowUseCase
-import kotlinx.coroutines.launch
 import manageTransaction.mvi.ManageTransactionType.*
+import manageTransaction.mvi.base.manageTransactionBasePlugin
+import manageTransaction.mvi.base.toFormState
+import manageTransaction.mvi.base.validated
+import manageTransaction.mvi.base.validationHasErrors
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
 import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.dsl.updateState
+import pro.respawn.flowmvi.dsl.withState
 import pro.respawn.flowmvi.plugins.JobManager
-import pro.respawn.flowmvi.plugins.reduce
+import pro.respawn.flowmvi.plugins.init
 import pro.respawn.flowmvi.plugins.whileSubscribed
-import transactions.models.Transaction
-import transactions.models.TransactionType
+import transactions.usecases.GetTransactionUseCase
 import transactions.usecases.UpsertTransactionUseCase
 import utils.orUnknown
+import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
-import utils.presentation.flowMVI.registerOrIgnore
-import utils.toLocalDate
-import utils.types.BigDecimal
-import kotlin.time.Clock
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+import utils.presentation.flowMVI.observe
 
 private typealias Ctx = PipelineContext<ManageTransactionState, ManageTransactionIntent, Nothing>
 
@@ -31,34 +30,63 @@ private enum class Jobs {
     ObserveAccounts, ObserveCategories
 }
 
+fun ManageTransactionContainer.getInitial(
+    form: ManageTransactionState.OK.FormState? = null
+) =
+    ManageTransactionState.OK(
+        form = form ?: ManageTransactionState.OK.FormState(),
+        isCreateMode = isCreateMode,
+    ).allValidate()
+
+fun ManageTransactionState.OK.allValidate(
+) = copy(form = form.let {
+    it.copy(validation = it.validate(), transactionType = it.transactionType.validated())
+})
+
+fun ManageTransactionState.OK.allValidated(
+) = allValidate().isValid()
+
+fun ManageTransactionState.OK.isValid(
+) = !form.validation.hasErrors && !form.transactionType.validationHasErrors()
+
+
 class ManageTransactionContainer(
-    transactionId: String?,
+    private val transactionId: String?,
     private val getAccountsFlowUseCase: GetAccountsFlowUseCase,
     private val getCategoriesFlowUseCase: GetCategoriesFlowUseCase,
     private val upsertTransactionUseCase: UpsertTransactionUseCase,
+    private val getTransactionUseCase: GetTransactionUseCase,
+    private val closeRequest: () -> Unit
 ) : Container<ManageTransactionState, ManageTransactionIntent, Nothing> {
-    private val isCreateMode = transactionId == null
+    val isCreateMode = transactionId == null
 
-    @OptIn(ExperimentalUuidApi::class, DelicateStoreApi::class)
+    @OptIn(DelicateStoreApi::class)
     override val store: Store<ManageTransactionState, ManageTransactionIntent, Nothing> =
         store(
-            initial = ManageTransactionState.OK(
-                form = ManageTransactionState.OK.FormState(
-                    categories = emptyList(),
-                    accounts = emptyList(),
-                    value = BigDecimal("0"),
-                    transactionType = ManageTransactionType.Outcome(categoryId = null, accountId = null),
-                    note = "",
-                    date = Clock.System.now().toLocalDate(),
-                ),
-                isCreateMode = isCreateMode,
-            )
+            initial = getInitial()
         ) {
             fastConfig(
-                name = "ManageTransaction", resetOnStop = true,
-                doOnRecover = { ManageTransactionState.FatalError(it.message.orUnknown) }
+                name = "ManageTransaction", resetOnStop = false,
+                doOnRecover = {
+                    ManageTransactionState.FatalError(it.message.orUnknown, (this as? ManageTransactionState.OK)?.form)
+                }
             )
-            install(manageTransactionBasePlugin())
+            install(
+                manageTransactionBasePlugin(
+                    getForm = { (this as? ManageTransactionState.OK)?.form },
+                    setForm = { newForm ->
+                        if (this is ManageTransactionState.OK) {
+                            copy(form = newForm)
+                        } else this
+                    }
+                )
+            )
+
+            init {
+                if (!isCreateMode) {
+                    setupInitial()
+                }
+            }
 
             val jobs = JobManager<Jobs>()
 
@@ -68,96 +96,59 @@ class ManageTransactionContainer(
             }
 
 
-            reduce { intent ->
-                println(intent)
+            customReduce { intent ->
                 when (intent) {
                     ManageTransactionIntent.ClickedDelete -> if (!isCreateMode) {
                         TODO()
                     }
 
-                    ManageTransactionIntent.ClickedSave -> if (true) {
-                        withState {
-                            if (this is ManageTransactionState.OK) {
-                                val (accountId, categoryId) =
-                                    when (val type = this.form.transactionType) {
-                                        is Income -> type.accountId to type.categoryId
-                                        is Outcome -> type.accountId to type.categoryId
-                                        is Transfer -> type.fromId to null
-                                    }
-
-                                val account = this.form.accounts.firstOrNull {
-                                    it.id == accountId
-                                }
-                                val category = this.form.categories.firstOrNull {
-                                    it.id == categoryId
-                                }
-                                upsertTransactionUseCase(
-                                    Transaction(
-                                        id = Uuid.generateV7().toString(),
-                                        value = this.form.value,
-                                        type = when (val t = this.form.transactionType) {
-                                            is Income -> TransactionType.Income(
-                                                category = category!!
-                                            )
-
-                                            is Outcome -> TransactionType.Outcome(
-                                                category = category!!
-                                            )
-
-                                            is Transfer -> TransactionType.Transfer(
-                                                from = account!!,
-                                                to = this.form.accounts.first {
-                                                    it.id == t.toId
-                                                }
-                                            )
-                                        },
-                                        account = account!!,
-                                        note = this.form.note,
-                                        date = this.form.date
-                                    )
-                                )
-                                updateState {
-                                    copy(
-                                        form = form.copy(
-                                            value = BigDecimal("0"),
-                                            transactionType = ManageTransactionType.Outcome(
-                                                categoryId = null,
-                                                accountId = null
-                                            ),
-                                            note = "",
-                                            date = Clock.System.now().toLocalDate(),
-                                        )
-                                    )
-                                }
+                    ManageTransactionIntent.ClickedSave -> {
+                        withState<ManageTransactionState.OK, _> {
+                            if (allValidated()) {
+                                upsertTransactionUseCase(this.form.toDomain(transactionId))
+                                closeRequest()
                             }
                         }
-                    } else {
-                        TODO()
+                    }
+
+                    ManageTransactionIntent.ClickedTryAgain -> updateState<ManageTransactionState.FatalError, _> {
+                        getInitial(this.lastValidForm)
                     }
                 }
             }
         }
 
     private fun Ctx.observeAccounts(jobs: JobManager<Jobs>) {
-        launch {
-            getAccountsFlowUseCase().collect { accounts ->
-                updateState<ManageTransactionState.OK, _> {
-                    println("meowx")
-                    this.copy(form = this.form.copy(accounts = accounts))
-                }
-            }
-        }.registerOrIgnore(jobs, Jobs.ObserveAccounts)
+        observe(
+            flow = getAccountsFlowUseCase(), key = Jobs.ObserveAccounts, jobs = jobs
+        ) { accounts ->
+            updateState<ManageTransactionState.OK, _> { copy(form = form.copy(accounts = accounts)) }
+        }
     }
 
     private fun Ctx.observeCategories(jobs: JobManager<Jobs>) {
-        launch {
-            getCategoriesFlowUseCase().collect { categories ->
-                updateState<ManageTransactionState.OK, _> {
-                    if (form.categories === categories) return@updateState this
-
-                    copy(form = form.copy(categories = categories))
-                }
+        observe(
+            flow = getCategoriesFlowUseCase(), key = Jobs.ObserveCategories, jobs = jobs
+        ) { categoriesLists ->
+            updateState<ManageTransactionState.OK, _> {
+                copy(
+                    form = form.copy(
+                        incomeCategories = categoriesLists.income,
+                        outcomeCategories = categoriesLists.outcome,
+                    )
+                )
             }
-        }.registerOrIgnore(jobs, Jobs.ObserveCategories)
+        }
+    }
+
+    private suspend fun Ctx.setupInitial() {
+        if (transactionId != null) {
+            val transaction = getTransactionUseCase(transactionId)
+            updateState<ManageTransactionState.OK, _> {
+                getInitial(
+                    form = transaction.toFormState(current = form)
+                )
+            }
+        }
     }
 }

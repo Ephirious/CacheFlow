@@ -1,34 +1,37 @@
 package root
 
 
-import com.arkivanov.decompose.router.webhistory.WebNavigationOwner
-import interopSampleFlow.InteropSampleFlowComponent
+import kotlinx.serialization.Serializable
 import main.MainComponent
 import settings.SettingsComponent
 import stats.StatsComponent
-import utils.presentation.DefaultStack
+import utils.Url
+import utils.presentation.DefaultPages
 import kotlin.js.JsExport
-import kotlinx.serialization.Serializable as Serializable
 
 
 @JsExport
-interface RootComponent : DefaultStack<RootConfig, RootChild>, WebNavigationOwner {
+interface RootComponent : DefaultPages<RootConfig, RootChild> {
     fun onOutput(output: RootOutput)
 }
 
 @Serializable
-sealed interface RootConfig {
-    @Serializable
-    data object InteropTest : RootConfig
+sealed class RootConfig(val index: Int) {
+
+    companion object {
+        val list: (Settings) -> List<RootConfig> = { settings ->
+            listOf(Main, Stats, settings).sortedBy { it.index }
+        }
+    }
 
     @Serializable
-    data object Main : RootConfig
+    data object Main : RootConfig(0)
 
     @Serializable
-    data object Stats : RootConfig
+    data object Stats : RootConfig(1)
 
     @Serializable
-    data object Settings : RootConfig
+    data class Settings(val deepLinkUrl: Url?) : RootConfig(2)
 }
 
 @JsExport
@@ -36,13 +39,10 @@ sealed class RootOutput {
     data object NavigateToMain : RootOutput()
     data object NavigateToStats : RootOutput()
     data object NavigateToSettings : RootOutput()
-    data object NavigateToInteropTest : RootOutput()
 }
 
 @JsExport
 sealed class RootChild {
-    @Suppress("unused")
-    class InteropSampleFlowChild(val component: InteropSampleFlowComponent) : RootChild()
 
     @Suppress("unused")
     class MainChild(val component: MainComponent) : RootChild()

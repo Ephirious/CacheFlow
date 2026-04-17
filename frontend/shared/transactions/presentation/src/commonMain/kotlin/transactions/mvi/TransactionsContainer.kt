@@ -1,17 +1,16 @@
 package transactions.mvi
 
-import kotlinx.coroutines.launch
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.plugins.JobManager
-import pro.respawn.flowmvi.plugins.reduce
 import pro.respawn.flowmvi.plugins.whileSubscribed
 import transactions.usecases.GetTransactionsFlowUseCase
 import utils.orUnknown
+import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
-import utils.presentation.flowMVI.registerOrIgnore
+import utils.presentation.flowMVI.observe
 
 private typealias Ctx = PipelineContext<TransactionsState, TransactionsIntent, Nothing>
 
@@ -42,7 +41,7 @@ class TransactionsContainer(
                 observeTransactions(jobs)
             }
 
-            reduce { intent ->
+            customReduce { intent ->
                 when (intent) {
                     is TransactionsIntent.TransactionClicked -> TODO()
                 }
@@ -51,10 +50,13 @@ class TransactionsContainer(
 
 
     private fun Ctx.observeTransactions(jobs: JobManager<Jobs>) {
-        launch {
-            getTransactionsFlowUseCase().collect { transactions ->
-                updateState { copy(transactions = transactions) }
-            }
-        }.registerOrIgnore(jobs, Jobs.ObserveTransactions)
+
+        observe(
+            flow = getTransactionsFlowUseCase(accountId = null),
+            jobs = jobs,
+            key = Jobs.ObserveTransactions
+        ) { transactions ->
+            updateState { copy(transactions = transactions) }
+        }
     }
 }

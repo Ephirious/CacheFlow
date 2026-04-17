@@ -5,8 +5,9 @@ CREATE TABLE IF NOT EXISTS Accounts (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     funds TEXT AS BigDecimal NOT NULL,
-    created_at TEXT AS Instant NOT NULL,
-    updated_at TEXT AS Instant NOT NULL
+    color TEXT NOT NULL,
+    created_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    updated_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
 selectAll:
@@ -16,7 +17,30 @@ selectById:
 SELECT * FROM Accounts WHERE id = ? ORDER BY name ASC;
 
 upsert:
-INSERT OR REPLACE INTO Accounts VALUES ?;
+INSERT INTO Accounts(id, name, funds, color)
+VALUES (?, ?, ?, ?)
+ON CONFLICT(id) DO UPDATE SET
+    name = excluded.name,
+    funds = excluded.funds,
+    updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+
+insert:
+INSERT INTO Accounts(id, name, funds, color)
+VALUES (?, ?, ?, ?);
+
+update:
+UPDATE Accounts
+SET
+    name = ?,
+    color = ?,
+    updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+WHERE id = ?;
+
+updateAccountBalance:
+UPDATE Accounts
+SET funds = funds + :delta,
+    updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+WHERE id = :id;
 
 delete:
 DELETE FROM Accounts WHERE id = ?;

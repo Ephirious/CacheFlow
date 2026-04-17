@@ -20,6 +20,8 @@ interface ManageTransactionComponent : ComponentContext {
 
     @Suppress("unused")
     fun intent(intent: ManageTransactionIntent)
+
+
 }
 
 
