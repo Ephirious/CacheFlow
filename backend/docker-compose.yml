@@ -1,0 +1,82 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cacheflow_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${DATABASE_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app
+
+  migrations:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: cacheflow_migrations
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "cd /app/backend && uv run python -m alembic -c alembic.ini upgrade head"]
+    restart: "no"
+    networks:
+      - app
+
+  backend:
+    build:
+      network: host
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: cacheflow_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app/backend
+    command: ["sh", "-c", "cd /app/backend && uv run python -m uvicorn backend.src.main:app --host 0.0.0.0 --port 8000 --reload"]
+    networks:
+      - app
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: cacheflow_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - app
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  app:
+    driver: bridge
