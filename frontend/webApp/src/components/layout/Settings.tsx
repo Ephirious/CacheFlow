@@ -17,9 +17,10 @@ import {
     SettingsComponent,
     SettingsOutput,
     CategoryType,
-    CategoriesPagesOutput
+    CategoriesPagesOutput,
+    AccountsComponent
 } from "k2ts";
-import {useValue} from "interop";
+import {useValue, when} from "interop";
 
 const isStandalone = () =>
     window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & {
@@ -50,6 +51,7 @@ const CategoriesPages = ({component}: { component: CategoriesPagesComponent }) =
 
     const categories = useValue(activeChild.categoriesList);
 
+
     return <CategoriesSection
         categories={categories.asJsReadonlyArrayView()}
         categoryType={tsCategoryType}
@@ -62,6 +64,18 @@ const CategoriesPages = ({component}: { component: CategoriesPagesComponent }) =
                 component.onOutput(tsCategory === 'income' ? CategoriesPagesOutput.NavigateToIncome : CategoriesPagesOutput.NavigateToOutcome)
             }
         }
+    />
+}
+
+const Accounts = ({component}: { component: AccountsComponent }) => {
+    const accounts = useValue(component.accountsList);
+
+    return <AccountsSection
+        accounts={accounts.asJsReadonlyArrayView()}
+        onAccountClick={(_account) => {
+            //     setSelectedAccount(account);
+            //     setEditAccountOpen(true);
+        }}
     />
 }
 
@@ -79,8 +93,8 @@ const Settings = ({component}: { component: SettingsComponent }) => {
     const [editAccountOpen, setEditAccountOpen] = useState(false);
     const [addCategoryOpen, setAddCategoryOpen] = useState(false);
     const [editCategoryOpen, setEditCategoryOpen] = useState(false);
-    const [selectedAccount, setSelectedAccount] = useState<AccountItem | undefined>(accounts[0]);
-    const [selectedCategory, setSelectedCategory] = useState<CategoryItem | undefined>(categoryCards[0]);
+    const [selectedAccount, _x] = useState<AccountItem | undefined>(accounts[0]);
+    const [selectedCategory, _s] = useState<CategoryItem | undefined>(categoryCards[0]);
     const iosTintKickId = useRef<number | null>(null);
 
     useEffect(() => {
@@ -141,17 +155,16 @@ const Settings = ({component}: { component: SettingsComponent }) => {
                 onAddClick={() => (isCategoriesActive ? setAddCategoryOpen(true) : setAddAccountOpen(true))}
                 tab={tab}
             >
-                {isCategoriesActive ? (
-                        <CategoriesPages component={activeChild.component}/>
-                    )
-                    : (
-                        <AccountsSection
-                            onAccountClick={(account) => {
-                                setSelectedAccount(account);
-                                setEditAccountOpen(true);
-                            }}
-                        />
-                    )}
+                {
+                    when(activeChild)
+                        .on(SettingsChild.CategoriesChild, (child) => (
+                            <CategoriesPages component={child.component}/>
+                        ))
+                        .on(SettingsChild.AccountsChild, (child) => (
+                            <Accounts component={child.component}/>
+                        ))
+                        .run()
+                }
             </SettingsMainSection>
             <SyncSection/>
 

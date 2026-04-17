@@ -54,7 +54,7 @@ class RealSettingsComponent(
             serializer = SettingsConfig.serializer(),
             pathMapper = { config -> config.path() },
             childSelector = { child ->
-                when(val inst = child.instance) {
+                when (val inst = child.instance) {
                     is AccountsChild -> null
                     is CategoriesChild -> inst.component
                 }
@@ -65,7 +65,7 @@ class RealSettingsComponent(
     private fun child(config: SettingsConfig, childCtx: ComponentContext): SettingsChild {
         return when (config) {
             SettingsConfig.Accounts -> AccountsChild(
-                component = RealAccountsComponent(childCtx)
+                component = RealAccountsComponent(childCtx, getAccountsFlowUseCase = get())
             )
 
             is SettingsConfig.Categories -> CategoriesChild(

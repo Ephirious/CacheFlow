@@ -1,5 +1,3 @@
-import {ReactNode} from "react";
-
 export type SettingsTab = "categories" | "accounts";
 export type CategoryTypeId = "outcome" | "income";
 

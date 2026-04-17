@@ -6,13 +6,10 @@ import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
-import com.arkivanov.essenty.instancekeeper.InstanceKeeper
-import com.arkivanov.essenty.instancekeeper.getOrCreate
 import com.arkivanov.essenty.instancekeeper.getOrCreateSimple
 import dbEnums.CategoryType
 import editors.usecases.category.CategoriesLists
 import editors.usecases.category.GetCategoriesFlowUseCase
-import kotlinx.coroutines.*
 import settings.pages.categories.page.CategoriesComponent
 import settings.pages.categories.page.RealCategoriesComponent
 import utils.Url
@@ -21,6 +18,7 @@ import utils.interop.asJsPages
 import utils.path
 import utils.pathSegmentOf
 import utils.presentation.CustomPagesWebNavigation
+import utils.presentation.launchPersistentCoroutine
 
 
 class RealCategoriesPagesComponent(
@@ -62,17 +60,9 @@ class RealCategoriesPagesComponent(
         )
 
     init {
-        instanceKeeper.getOrCreate(key = "CategoriesSubscription") {
-            val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-            scope.launch {
-                getCategoriesFlowUseCase().collect { lists ->
-                    _categories.value = lists
-                }
-            }
-            object : InstanceKeeper.Instance {
-                override fun onDestroy() {
-                    scope.cancel()
-                }
+        launchPersistentCoroutine(key = "CategoriesSubscription") {
+            getCategoriesFlowUseCase().collect { lists ->
+                _categories.value = lists
             }
         }
     }
