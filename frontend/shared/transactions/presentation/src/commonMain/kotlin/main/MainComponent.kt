@@ -100,6 +100,7 @@ class RealMainComponent(
                         getAccountsFlowUseCase = get(),
                         getCategoriesFlowUseCase = get(),
                         upsertTransactionUseCase = get(),
+                        getTransactionUseCase = get(),
                         closeRequest = { intent(MainIntent.CloseManage) }
                     )
                 }

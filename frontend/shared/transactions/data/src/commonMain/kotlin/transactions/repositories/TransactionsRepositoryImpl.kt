@@ -38,4 +38,7 @@ class TransactionsRepositoryImpl(
         syncManager.requestSync()
     }
 
+    override suspend fun selectTransactionById(id: String): Transaction =
+        dbDataSource.selectPrimaryTransaction(id)
+
 }

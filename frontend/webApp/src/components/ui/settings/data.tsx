@@ -1,6 +1,4 @@
-import {FiCpu, FiSmile, FiShoppingCart, FiTruck} from "react-icons/fi";
-import {LuShirt, LuUtensils} from "react-icons/lu";
-import {AccountItem, CategoryItem, CategoryTypeId, SettingsTab, SettingsTabOption} from "./types.ts";
+import {AccountItem, CategoryTypeId, SettingsTab, SettingsTabOption} from "./types.ts";
 
 export const settingsTabs: SettingsTabOption<SettingsTab>[] = [
     {id: "categories", label: "Категории"},
@@ -10,15 +8,6 @@ export const settingsTabs: SettingsTabOption<SettingsTab>[] = [
 export const categoryTypeTabs: SettingsTabOption<CategoryTypeId>[] = [
     {id: "outcome", label: "Расход"},
     {id: "income", label: "Доход"}
-];
-
-export const categoryCards: CategoryItem[] = [
-    {id: "groceries", title: "Продукты", color: "text-category-groceries bg-category-groceries-soft", icon: <FiShoppingCart className="h-6 w-6"/>},
-    {id: "transport", title: "Транспорт", color: "text-category-transport bg-category-transport-soft", icon: <FiTruck className="h-6 w-6"/>},
-    {id: "fun", title: "Развлечения", color: "text-category-fun bg-category-fun-soft", icon: <FiSmile className="h-6 w-6"/>},
-    {id: "clothes", title: "Одежда", color: "text-category-clothes bg-category-clothes-soft", icon: <LuShirt className="h-6 w-6"/>},
-    {id: "food", title: "Еда", color: "text-category-food bg-category-food-soft", icon: <LuUtensils className="h-6 w-6"/>},
-    {id: "tech", title: "Техника", color: "text-category-tech bg-category-tech-soft", icon: <FiCpu className="h-6 w-6"/>}
 ];
 
 export const accounts: AccountItem[] = [

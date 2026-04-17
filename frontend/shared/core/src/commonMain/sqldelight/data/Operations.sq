@@ -91,5 +91,49 @@ OR (transfer_id IS NOT NULL AND transfer_id = (SELECT transfer_id FROM Operation
 deleteByTransferId:
 DELETE FROM Operations WHERE transfer_id = ?;
 
+selectPrimaryWithAccountAndCategoryById:
+WITH PrimaryOp AS (
+    SELECT * FROM Operations
+    WHERE
+        (transfer_id IS NOT NULL AND transfer_id = (SELECT transfer_id FROM Operations WHERE id = :id))
+        OR id = :id
+    ORDER BY
+        CASE WHEN amount LIKE '-%' THEN 0 ELSE 1 END ASC,
+        CASE WHEN id = :id THEN 0 ELSE 1 END ASC
+    LIMIT 1
+)
+SELECT
+    op.id,
+    op.amount,
+    op.date,
+    op.notes,
+    op.created_at,
+    -- account
+    acc.id AS acc_id,
+    acc.name AS acc_name,
+    acc.funds AS acc_funds,
+    acc.color AS acc_color,
+    -- category
+    cat.id AS cat_id,
+    cat.name AS cat_name,
+    cat.emoji AS cat_emoji,
+    cat.type AS cat_type,
+    -- transfer_data
+    t.id AS transfer_id,
+    acc_to.id AS target_acc_id,
+    acc_to.name AS target_acc_name,
+    acc_to.funds AS target_acc_funds,
+    acc_to.color AS target_acc_color
+FROM PrimaryOp op
+JOIN Accounts acc ON op.account_uuid = acc.id
+LEFT JOIN Categories cat ON op.category_uuid = cat.id
+LEFT JOIN Transfers t ON op.transfer_id = t.id
+LEFT JOIN Accounts acc_to ON (
+    CASE
+        WHEN t.account_from_id = op.account_uuid THEN t.account_to_id
+        ELSE t.account_from_id
+    END = acc_to.id
+);
+
 delete:
 DELETE FROM Operations WHERE id = ?;

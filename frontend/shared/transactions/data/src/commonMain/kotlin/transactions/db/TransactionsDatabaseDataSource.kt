@@ -1,12 +1,14 @@
 package transactions.db
 
 import app.cash.sqldelight.async.coroutines.awaitAsList
+import app.cash.sqldelight.async.coroutines.awaitAsOne
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import data.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import transactions.mappers.listToDomain
+import transactions.mappers.toDomain
 import transactions.models.Transaction
 import transactions.models.TransactionType
 import utils.bigDecimalExtensions.times
@@ -37,6 +39,10 @@ class TransactionsDatabaseDataSource(
                 entity.listToDomain()
             }
     }
+
+
+    suspend fun selectPrimaryTransaction(id: String) =
+        transactionsQueries.selectPrimaryWithAccountAndCategoryById(id).awaitAsOne().toDomain()
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun upsertTransaction(transaction: Transaction) {

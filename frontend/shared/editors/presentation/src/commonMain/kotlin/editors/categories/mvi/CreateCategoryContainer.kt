@@ -1,17 +1,24 @@
 package editors.categories.mvi
 
 import dbEnums.CategoryType
+import editors.usecases.category.CreateCategoryUseCase
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
+import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.dsl.updateState
+import pro.respawn.flowmvi.dsl.withState
 import utils.orUnknown
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
 
 
+private typealias CtxCreate = PipelineContext<CreateCategoryState, CreateCategoryIntent, Nothing>
+
 class CreateCategoryContainer(
+    private val createCategoryUseCase: CreateCategoryUseCase,
+    private val closeModal: () -> Unit
 ) : Container<CreateCategoryState, CreateCategoryIntent, Nothing> {
 
     @OptIn(DelicateStoreApi::class)
@@ -47,11 +54,23 @@ class CreateCategoryContainer(
 
             customReduce { intent ->
                 when (intent) {
-                    CreateCategoryIntent.ClickedCreate -> TODO()
+                    CreateCategoryIntent.ClickedCreate -> createCategory()
                     is CreateCategoryIntent.ChangedCategoryType -> updateState<CreateCategoryState.OK, _> {
                         copy(form = form.copy(categoryType = if (intent.type == "income") CategoryType.INCOME else CategoryType.OUTCOME))
                     }
                 }
             }
         }
+
+    private suspend fun CtxCreate.createCategory() {
+        withState<CreateCategoryState.OK, _> {
+            createCategoryUseCase(
+                name = this.form.name,
+                emoji = this.form.emoji,
+                type = this.form.categoryType
+            )
+            closeModal()
+        }
+
+    }
 }

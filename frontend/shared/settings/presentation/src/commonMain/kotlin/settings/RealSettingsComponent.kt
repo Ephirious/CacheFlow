@@ -10,7 +10,9 @@ import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
 import editors.accounts.RealCreateAccountComponent
+import editors.accounts.RealEditAccountComponent
 import editors.accounts.mvi.CreateAccountContainer
+import editors.accounts.mvi.EditAccountContainer
 import editors.categories.RealCreateCategoryComponent
 import editors.categories.RealEditCategoryComponent
 import editors.categories.mvi.CreateCategoryContainer
@@ -22,6 +24,7 @@ import settings.SettingsChild.CategoriesChild
 import settings.modals.SettingsModalChild
 import settings.modals.SettingsModalChild.CreateAccountChild
 import settings.modals.SettingsModalChild.CreateCategoryChild
+import settings.modals.SettingsModalChild.EditAccountChild
 import settings.modals.SettingsModalChild.EditCategoryChild
 import settings.modals.SettingsModalConfig
 import settings.pages.accounts.RealAccountsComponent
@@ -56,19 +59,51 @@ class RealSettingsComponent(
             when (config) {
                 SettingsModalConfig.CreateAccount -> CreateAccountChild(
                     RealCreateAccountComponent(
-                        childCtx, container = { CreateAccountContainer() }
+                        childCtx, container = {
+                            CreateAccountContainer(
+                                createAccountUseCase = get(),
+                                closeModal = ::dismissSlot
+                            )
+                        }
                     )
                 )
 
                 SettingsModalConfig.CreateCategory -> CreateCategoryChild(
                     RealCreateCategoryComponent(
-                        childCtx, container = { CreateCategoryContainer() }
+                        childCtx, container = {
+                            CreateCategoryContainer(
+                                createCategoryUseCase = get(),
+                                closeModal = ::dismissSlot
+                            )
+                        }
                     )
                 )
 
                 is SettingsModalConfig.EditCategory -> EditCategoryChild(
                     RealEditCategoryComponent(
-                        childCtx, container = { EditCategoryContainer(config.id, getCategoryByIdUseCase = get()) }
+                        childCtx,
+                        container = {
+                            EditCategoryContainer(
+                                config.id,
+                                getCategoryByIdUseCase = get(),
+                                editCategoryUseCase = get(),
+                                closeModal = ::dismissSlot
+                            )
+                        }
+                    )
+                )
+
+                is SettingsModalConfig.EditAccount -> EditAccountChild(
+                    RealEditAccountComponent(
+                        childCtx,
+                        container = {
+                            EditAccountContainer(
+                                config.id,
+                                getAccountByIdUseCase = get(),
+                                editAccountUseCase = get(),
+                                closeModal = ::dismissSlot
+                            )
+                        }
                     )
                 )
             }
@@ -118,7 +153,7 @@ class RealSettingsComponent(
                         modalNavigation.activate(SettingsModalConfig.CreateAccount)
                     },
                     onItemClick = { id ->
-
+                        modalNavigation.activate(SettingsModalConfig.EditAccount(id))
                     }
                 )
             )
