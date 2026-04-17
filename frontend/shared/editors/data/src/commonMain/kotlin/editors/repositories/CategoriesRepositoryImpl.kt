@@ -11,4 +11,7 @@ class CategoriesRepositoryImpl(
 ) : CategoriesRepository {
     override fun getCategoriesFlow(): Flow<List<Category>> =
         databaseDataSource.getCategoriesFlow().flowOn(AsyncDispatcher)
+
+    override suspend fun getCategoryById(id: String): Category =
+        databaseDataSource.getCategoryById(id)
 }

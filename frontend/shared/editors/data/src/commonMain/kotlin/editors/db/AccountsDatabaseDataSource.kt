@@ -1,9 +1,11 @@
 package editors.db
 
+import app.cash.sqldelight.async.coroutines.awaitAsOne
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import data.AccountsQueries
 import editors.mappers.listToDomain
+import editors.mappers.toDomain
 import editors.models.Account
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -20,4 +22,6 @@ class AccountsDatabaseDataSource(
                 entity.listToDomain()
             }
     }
+
+    suspend fun getAccountById(id: String): Account = accountsQueries.selectById(id).awaitAsOne().toDomain()
 }

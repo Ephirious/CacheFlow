@@ -14,5 +14,8 @@ class AccountsRepositoryImpl(
     override fun getAccountsFlow(): Flow<List<Account>> =
         dbDataSource.getAccountsFlow().flowOn(AsyncDispatcher)
 
+    override suspend fun getAccountById(id: String): Account =
+        dbDataSource.getAccountById(id)
+
 
 }
