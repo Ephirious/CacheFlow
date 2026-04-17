@@ -1,12 +1,42 @@
 package manageTransaction.mvi.base
 
 import dbEnums.CategoryType
+import manageTransaction.mvi.ManageTransactionState
 import manageTransaction.mvi.ManageTransactionType
 import manageTransaction.mvi.ManageTransactionType.*
 import manageTransaction.mvi.copyBase
 import manageTransaction.mvi.validated
 import manageTransaction.mvi.validatedAny
+import transactions.models.Transaction
+import transactions.models.TransactionType
 
+fun Transaction.toFormState(
+    current: ManageTransactionState.OK.FormState
+): ManageTransactionState.OK.FormState {
+    val manageType = when (val t = type) {
+        is TransactionType.Income -> Income(
+            categoryId = t.category.id,
+            accountId = account.id
+        )
+
+        is TransactionType.Outcome -> Outcome(
+            categoryId = t.category.id,
+            accountId = account.id
+        )
+
+        is TransactionType.Transfer -> Transfer(
+            fromId = t.from.id,
+            toId = t.to.id
+        )
+    }
+
+    return current.copy(
+        value = value.toString(),
+        transactionType = manageType,
+        note = note,
+        date = date
+    )
+}
 
 fun ManageTransactionType.updateAccount(newAccountId: String): ManageTransactionType = when (this) {
     is IncomeOrOutcome<*> -> copyBase(accountId = newAccountId)
