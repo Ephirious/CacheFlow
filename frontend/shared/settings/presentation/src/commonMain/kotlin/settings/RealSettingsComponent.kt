@@ -9,6 +9,8 @@ import com.arkivanov.decompose.router.slot.childSlot
 import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
+import editors.accounts.RealCreateAccountComponent
+import editors.accounts.mvi.CreateAccountContainer
 import editors.categories.RealCreateCategoryComponent
 import editors.categories.RealEditCategoryComponent
 import editors.categories.mvi.CreateCategoryContainer
@@ -18,6 +20,7 @@ import org.koin.core.component.get
 import settings.SettingsChild.AccountsChild
 import settings.SettingsChild.CategoriesChild
 import settings.modals.SettingsModalChild
+import settings.modals.SettingsModalChild.CreateAccountChild
 import settings.modals.SettingsModalChild.CreateCategoryChild
 import settings.modals.SettingsModalChild.EditCategoryChild
 import settings.modals.SettingsModalConfig
@@ -51,7 +54,12 @@ class RealSettingsComponent(
             handleBackButton = false,
         ) { config, childCtx ->
             when (config) {
-                SettingsModalConfig.CreateAccount -> TODO()
+                SettingsModalConfig.CreateAccount -> CreateAccountChild(
+                    RealCreateAccountComponent(
+                        childCtx, container = { CreateAccountContainer() }
+                    )
+                )
+
                 SettingsModalConfig.CreateCategory -> CreateCategoryChild(
                     RealCreateCategoryComponent(
                         childCtx, container = { CreateCategoryContainer() }

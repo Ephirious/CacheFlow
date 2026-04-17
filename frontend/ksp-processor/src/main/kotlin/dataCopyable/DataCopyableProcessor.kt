@@ -109,8 +109,20 @@ class DataCopyableProcessor(
 
                     val copyParams = properties.joinToString(", ") { p ->
                         val pName = p.simpleName.asString()
+
                         if (pName == "validation" && hasGenerics) {
-                            "$pName = $pName as ${interfaceSimpleName.removeSuffix("State")}ValidationErrors"
+                            val constructorParam = impl.primaryConstructor?.parameters
+                                ?.find { it.name?.asString() == pName }
+
+                            val targetTypeName = if (constructorParam != null) {
+                                resolveTypeName(constructorParam.type)
+                                    .replace("<ERROR TYPE: ", "") // sry
+                                    .replace(">", "")
+                            } else {
+                                "${interfaceSimpleName.removeSuffix("State")}ValidationErrors"
+                            }
+
+                            "$pName = $pName as $targetTypeName"
                         } else {
                             "$pName = $pName"
                         }

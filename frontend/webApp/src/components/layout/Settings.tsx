@@ -56,7 +56,7 @@ const CategoriesPages = ({component}: { component: CategoriesPagesComponent }) =
         categories={categories.asJsReadonlyArrayView()}
         categoryType={tsCategoryType}
         onCategoryClick={(category) => {
-           component.onItemClick(category.id);
+            component.onItemClick(category.id);
         }}
         onCategoryTypeChange={
             (tsCategory) => {
@@ -71,9 +71,8 @@ const Accounts = ({component}: { component: AccountsComponent }) => {
 
     return <AccountsSection
         accounts={accounts.asJsReadonlyArrayView()}
-        onAccountClick={(_account) => {
-            //     setSelectedAccount(account);
-            //     setEditAccountOpen(true);
+        onAccountClick={(account) => {
+            component.onItemClick(account.id);
         }}
     />
 }
@@ -89,10 +88,6 @@ const Settings = ({component}: { component: SettingsComponent }) => {
 
     const modalSlot = useValue(component.jsModalSlot);
     const modalChild = modalSlot.instance
-
-    const [addAccountOpen, setAddAccountOpen] = useState(false);
-    const [editAccountOpen, setEditAccountOpen] = useState(false);
-    const [selectedAccount, _x] = useState<AccountItem | undefined>(accounts[0]);
     const iosTintKickId = useRef<number | null>(null);
 
     useEffect(() => {
@@ -188,12 +183,12 @@ const Settings = ({component}: { component: SettingsComponent }) => {
             }
 
             <AccountModal mode="add" onClose={() => setAddAccountOpen(false)} open={addAccountOpen}/>
-            <AccountModal
-                account={selectedAccount}
-                mode="edit"
-                onClose={() => setEditAccountOpen(false)}
-                open={editAccountOpen}
-            />
+            {/*<AccountModal*/}
+            {/*    account={selectedAccount}*/}
+            {/*    mode="edit"*/}
+            {/*    onClose={() => setEditAccountOpen(false)}*/}
+            {/*    open={editAccountOpen}*/}
+            {/*/>*/}
         </div>
     );
 };

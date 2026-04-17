@@ -4,7 +4,7 @@ import editors.models.Account
 import editors.models.Category
 import kotlinx.datetime.LocalDate
 import manageTransaction.validation.DiffTransferAccounts
-import manageTransaction.validation.StringAmount
+import utils.annotations.validation.StringAmount
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
 import utils.annotations.DataCopyable

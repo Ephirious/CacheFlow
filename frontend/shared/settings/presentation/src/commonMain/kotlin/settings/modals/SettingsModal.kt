@@ -1,5 +1,6 @@
 package settings.modals
 
+import editors.accounts.CreateAccountComponent
 import editors.categories.CreateCategoryComponent
 import editors.categories.EditCategoryComponent
 import kotlinx.serialization.Serializable
@@ -23,8 +24,8 @@ sealed class SettingsModalChild {
     @Suppress("unused")
     class CreateCategoryChild(val component: CreateCategoryComponent) : SettingsModalChild()
 
-//    @Suppress("unused")
-//    class CreateAccountChild(val component: Any) : SettingsModalChild()
+    @Suppress("unused")
+    class CreateAccountChild(val component: CreateAccountComponent) : SettingsModalChild()
 
 
     @Suppress("unused")
