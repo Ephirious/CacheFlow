@@ -11,8 +11,8 @@ export interface SettingsTabOption<T extends string> {
 export interface CategoryItem {
     id: string;
     title: string;
-    color: string;
-    icon: ReactNode;
+    // color: string; TODO: Артём?
+    icon: string;
 }
 
 export interface AccountItem {

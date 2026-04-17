@@ -3,7 +3,6 @@ import {categoryCards, categoryTypeTabs} from "../data.tsx";
 import {SegmentedTabs} from "../primitives";
 import {CategoryCard} from "../display";
 import { Category } from "k2ts";
-import transactions from "../../main/display/Transactions.tsx";
 
 interface CategoriesSectionProps {
     categories: readonly Category[]
@@ -20,7 +19,12 @@ const CategoriesSection = ({categories, categoryType, onCategoryTypeChange, onCa
 
                 {categories.map((item) => (
                     <CategoryCard item={
-                        new CategoryItem()
+                        {
+                            id: item.id,
+                            title: item.name,
+                            // color: string; // TODO: Артём?
+                            icon: item.emoji
+                        }
                     } key={item.id} onClick={onCategoryClick}/>
                 ))
 

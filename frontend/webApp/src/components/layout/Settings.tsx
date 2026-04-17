@@ -48,7 +48,10 @@ const CategoriesPages = ({component}: { component: CategoriesPagesComponent }) =
 
     const tsCategoryType: CategoryTypeId = activeChild.type === CategoryType.INCOME ? "income" : "outcome"
 
+    const categories = useValue(activeChild.categoriesList);
+
     return <CategoriesSection
+        categories={categories.asJsReadonlyArrayView()}
         categoryType={tsCategoryType}
         onCategoryClick={(_category) => {
             // setSelectedCategory(category);
