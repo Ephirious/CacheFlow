@@ -24,6 +24,18 @@ ON CONFLICT(id) DO UPDATE SET
     funds = excluded.funds,
     updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
 
+insert:
+INSERT INTO Accounts(id, name, funds, color)
+VALUES (?, ?, ?, ?);
+
+update:
+UPDATE Accounts
+SET
+    name = ?,
+    color = ?,
+    updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+WHERE id = ?;
+
 updateAccountBalance:
 UPDATE Accounts
 SET funds = funds + :delta,

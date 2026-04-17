@@ -4,6 +4,7 @@ import editors.usecases.account.GetAccountsFlowUseCase
 import editors.usecases.category.GetCategoriesFlowUseCase
 import manageTransaction.mvi.ManageTransactionType.*
 import manageTransaction.mvi.base.manageTransactionBasePlugin
+import manageTransaction.mvi.base.toFormState
 import manageTransaction.mvi.base.validated
 import manageTransaction.mvi.base.validationHasErrors
 import pro.respawn.flowmvi.api.Container
@@ -14,7 +15,9 @@ import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.dsl.updateState
 import pro.respawn.flowmvi.dsl.withState
 import pro.respawn.flowmvi.plugins.JobManager
+import pro.respawn.flowmvi.plugins.init
 import pro.respawn.flowmvi.plugins.whileSubscribed
+import transactions.usecases.GetTransactionUseCase
 import transactions.usecases.UpsertTransactionUseCase
 import utils.orUnknown
 import utils.presentation.flowMVI.customReduce
@@ -48,10 +51,11 @@ fun ManageTransactionState.OK.isValid(
 
 
 class ManageTransactionContainer(
-    transactionId: String?,
+    private val transactionId: String?,
     private val getAccountsFlowUseCase: GetAccountsFlowUseCase,
     private val getCategoriesFlowUseCase: GetCategoriesFlowUseCase,
     private val upsertTransactionUseCase: UpsertTransactionUseCase,
+    private val getTransactionUseCase: GetTransactionUseCase,
     private val closeRequest: () -> Unit
 ) : Container<ManageTransactionState, ManageTransactionIntent, Nothing> {
     val isCreateMode = transactionId == null
@@ -77,6 +81,12 @@ class ManageTransactionContainer(
                     }
                 )
             )
+
+            init {
+                if (!isCreateMode) {
+                    setupInitial()
+                }
+            }
 
             val jobs = JobManager<Jobs>()
 
@@ -126,6 +136,17 @@ class ManageTransactionContainer(
                         incomeCategories = categoriesLists.income,
                         outcomeCategories = categoriesLists.outcome,
                     )
+                )
+            }
+        }
+    }
+
+    private suspend fun Ctx.setupInitial() {
+        if (transactionId != null) {
+            val transaction = getTransactionUseCase(transactionId)
+            updateState<ManageTransactionState.OK, _> {
+                getInitial(
+                    form = transaction.toFormState(current = form)
                 )
             }
         }

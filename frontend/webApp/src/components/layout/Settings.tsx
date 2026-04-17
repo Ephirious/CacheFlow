@@ -1,6 +1,5 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef} from "react";
 import {
-    AccountItem,
     AccountModal,
     AccountsSection,
     CategoryModal,
@@ -9,7 +8,6 @@ import {
     SettingsMainSection,
     SyncSection, CategoryTypeId
 } from "../ui/settings";
-import {accounts} from "../ui/settings/data.tsx";
 import {
     CategoriesPagesComponent,
     SettingsChild,
@@ -186,17 +184,16 @@ const Settings = ({component}: { component: SettingsComponent }) => {
                             onClose={() => component.dismissSlot()}
                             open={true}/>
                     ))
+                    .on(SettingsModalChild.EditAccountChild, (child) => (
+                        <AccountModal
+                            component={child.component}
+                            mode="edit"
+                            onClose={() => component.dismissSlot()}
+                            open={true}/>
+                    ))
 
                     .run()
             }
-
-            {/*
-            {/*<AccountModal*/}
-            {/*    account={selectedAccount}*/}
-            {/*    mode="edit"*/}
-            {/*    onClose={() => setEditAccountOpen(false)}*/}
-            {/*    open={editAccountOpen}*/}
-            {/*/>*/}
         </div>
     );
 };
