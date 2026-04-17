@@ -74,7 +74,9 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
     return (
         <div className="flex w-full flex-col px-6 py-2 gap-4">
             <span
-                className="flex text-2xl font-bold justify-center">{localz.get().by(ManageTransactionKey.CreateTransaction)}</span>
+                className="flex text-2xl font-bold justify-center">
+                {localz.get().by(state.isCreateMode ? ManageTransactionKey.CreateTransaction : ManageTransactionKey.EditTransaction)}
+            </span>
             <div className="flex flex-col w-full gap-3">
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium">Сумма</span>

@@ -1,5 +1,11 @@
 import {MainCard, Transactions, BottomSheet, CreateTransactionButton, CreateTransaction} from "../ui/main";
-import {MainAction, MainComponent, MainState, ManageTransactionComponent, ManageTransactionState} from "k2ts";
+import {
+    MainAction,
+    MainComponent,
+    MainState,
+    ManageTransactionComponent,
+    ManageTransactionState
+} from "k2ts";
 import {useValue, when} from "interop";
 import {useEffect, useLayoutEffect, useRef, useState} from "react";
 import {useActions} from "interop/useActions";
@@ -132,7 +138,12 @@ const MainOK = ({component}: { component: MainComponent }) => {
                     themeEnabled={!isManageOpen}
                     themeInterpolationStartThreshold={sheetThemeThreshold}
                 >
-                    <Transactions transactions={transactionsState.transactions.asJsReadonlyArrayView()}/>
+                    <Transactions
+                        transactions={transactionsState.transactions.asJsReadonlyArrayView()}
+                        onEditClick={(transactionId) => {
+                            component.openTransactionToEdit(transactionId);
+                        }}
+                    />
                 </BottomSheet>
             </main>
 
