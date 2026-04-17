@@ -1,12 +1,19 @@
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {AccountItem} from "../types.ts";
 import {accountColorOptions} from "../data.tsx";
 import SettingsModalShell from "./SettingsModalShell.tsx";
-import {CreateAccountComponent, CreateAccountIntent, CreateAccountState, ManageAccountBaseIntent} from "k2ts"
+import {
+    CreateAccountComponent,
+    EditAccountComponent,
+    CreateAccountIntent,
+    CreateAccountState,
+    EditAccountState,
+    ManageAccountBaseIntent
+} from "k2ts"
 import {useValue} from "interop";
 
 interface AccountModalProps {
-    component: CreateAccountComponent
+    component: CreateAccountComponent | EditAccountComponent
     open: boolean;
     mode: "add" | "edit";
     account?: AccountItem;
@@ -23,7 +30,7 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
 
     const state = useValue(component.state)
 
-    if (state instanceof CreateAccountState.OK) {
+    if (state instanceof CreateAccountState.OK || state instanceof EditAccountState.OK) {
         const canSubmit = state.getForm().title.trim().length > 0;
         return (
             <SettingsModalShell onClose={onClose} open={open}
@@ -47,7 +54,7 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                         />
                     </div>
 
-                    {isAddMode && (
+                    {isAddMode && component.type === 'create' && (
                         <div className="flex flex-col gap-1.5">
                             <label className="text-sm font-semibold text-text-label">Начальный баланс</label>
                             <input
@@ -56,7 +63,7 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                                 onChange={(e) => component.intent(new CreateAccountIntent.ChangedBalance(e.target.value))}
                                 placeholder="0"
                                 type="text"
-                                value={state.getForm().initialBalance}
+                                value={(state as CreateAccountState.OK).getForm().initialBalance}
                             />
                         </div>
                     )}

@@ -186,17 +186,16 @@ const Settings = ({component}: { component: SettingsComponent }) => {
                             onClose={() => component.dismissSlot()}
                             open={true}/>
                     ))
+                    .on(SettingsModalChild.EditAccountChild, (child) => (
+                        <AccountModal
+                            component={child.component}
+                            mode="edit"
+                            onClose={() => component.dismissSlot()}
+                            open={true}/>
+                    ))
 
                     .run()
             }
-
-            {/*
-            {/*<AccountModal*/}
-            {/*    account={selectedAccount}*/}
-            {/*    mode="edit"*/}
-            {/*    onClose={() => setEditAccountOpen(false)}*/}
-            {/*    open={editAccountOpen}*/}
-            {/*/>*/}
         </div>
     );
 };
