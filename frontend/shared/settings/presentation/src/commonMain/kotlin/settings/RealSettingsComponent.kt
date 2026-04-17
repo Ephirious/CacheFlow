@@ -2,19 +2,32 @@ package settings
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.pages.*
+import com.arkivanov.decompose.router.slot.ChildSlot
+import com.arkivanov.decompose.router.slot.SlotNavigation
+import com.arkivanov.decompose.router.slot.activate
+import com.arkivanov.decompose.router.slot.childSlot
+import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
+import editors.categories.RealCreateCategoryComponent
+import editors.categories.mvi.CreateCategoryContainer
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import settings.SettingsChild.AccountsChild
 import settings.SettingsChild.CategoriesChild
+import settings.modals.SettingsModalChild
+import settings.modals.SettingsModalChild.CreateAccountChild
+import settings.modals.SettingsModalChild.CreateCategoryChild
+import settings.modals.SettingsModalConfig
 import settings.pages.accounts.RealAccountsComponent
 import settings.pages.categories.RealCategoriesPagesComponent
 import utils.Url
 import utils.consumePathSegment
 import utils.interop.JsChildPages
+import utils.interop.JsChildSlot
 import utils.interop.JsValue
 import utils.interop.asJsPages
+import utils.interop.asJsSlot
 import utils.path
 import utils.pathSegmentOf
 import utils.presentation.CustomPagesWebNavigation
@@ -23,14 +36,32 @@ import utils.presentation.CustomPagesWebNavigation
 class RealSettingsComponent(
     componentCtx: ComponentContext,
     deepLinkUrl: Url? = null,
-//    container: () -> MoreContainer,
 ) : SettingsComponent, KoinComponent, ComponentContext by componentCtx {
-//    Store<MoreState, MoreIntent, Nothing> by componentCtx.retainedStore(factory = container)
 
-    //    @OptIn(InternalFlowMVIAPI::class)
-//    override val jsState: JsValue<MoreState> by lazy {
-//        jsStateSubscribe(scope = componentCoroutineScope, lifecycleOwner = this)
-//    }
+
+    private val modalNavigation = SlotNavigation<SettingsModalConfig>()
+
+
+    private val modalSlot: Value<ChildSlot<SettingsModalConfig, SettingsModalChild>> =
+        childSlot(
+            source = modalNavigation,
+            serializer = null, // т.к. после перезагрузки багуется в вебе (?) //ManageTransactionConfig.serializer(),
+            handleBackButton = false,
+        ) { config, childCtx ->
+            when (config) {
+                SettingsModalConfig.CreateAccount -> CreateAccountChild("sad")
+                SettingsModalConfig.CreateCategory -> CreateCategoryChild(
+                    RealCreateCategoryComponent(
+                        childCtx, container = { CreateCategoryContainer() }
+                    )
+                )
+            }
+        }
+
+    override fun dismissSlot() {
+        modalNavigation.dismiss()
+    }
+
     override val nav = PagesNavigation<SettingsConfig>()
     private val _pages = childPages(
         source = nav,
@@ -65,14 +96,28 @@ class RealSettingsComponent(
     private fun child(config: SettingsConfig, childCtx: ComponentContext): SettingsChild {
         return when (config) {
             SettingsConfig.Accounts -> AccountsChild(
-                component = RealAccountsComponent(childCtx, getAccountsFlowUseCase = get())
+                component = RealAccountsComponent(
+                    childCtx, getAccountsFlowUseCase = get(),
+                    onCreateClick = {
+                        modalNavigation.activate(SettingsModalConfig.CreateAccount)
+                    },
+                    onItemClick = { id ->
+
+                    }
+                )
             )
 
             is SettingsConfig.Categories -> CategoriesChild(
                 component = RealCategoriesPagesComponent(
                     childCtx,
                     deepLinkUrl = config.deepLinkUrl,
-                    getCategoriesFlowUseCase = get()
+                    getCategoriesFlowUseCase = get(),
+                    onCreateClick = {
+                        modalNavigation.activate(SettingsModalConfig.CreateCategory)
+                    },
+                    onItemClick = { id ->
+
+                    }
                 )
             )
         }
@@ -92,6 +137,10 @@ class RealSettingsComponent(
             items = SettingsConfig.list(SettingsConfig.Categories(remainingUrl)),
             selectedIndex = selectedConfig.index,
         )
+    }
+
+    override val jsModalSlot: JsValue<JsChildSlot<SettingsModalChild>> by lazy {
+        modalSlot.asJsSlot()
     }
 
     override fun onOutput(output: SettingsOutput) {

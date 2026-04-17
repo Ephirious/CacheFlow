@@ -21,7 +21,9 @@ interface AccountsComponent : SettingsPageComponent {
 
 class RealAccountsComponent(
     componentCtx: ComponentContext,
-    getAccountsFlowUseCase: GetAccountsFlowUseCase
+    getAccountsFlowUseCase: GetAccountsFlowUseCase,
+    override val onCreateClick: () -> Unit,
+    override val onItemClick: (id: String) -> Unit
 ) : AccountsComponent, ComponentContext by componentCtx {
 
 
@@ -39,8 +41,6 @@ class RealAccountsComponent(
         }
     }
 
-    override fun onCreateClick() {
-        TODO("Not yet implemented")
-    }
+
 
 }

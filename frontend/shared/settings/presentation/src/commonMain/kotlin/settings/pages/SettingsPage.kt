@@ -5,5 +5,6 @@ import kotlin.js.JsExport
 
 @JsExport
 interface SettingsPageComponent {
-    fun onCreateClick()
+    val onCreateClick: () -> Unit
+    val onItemClick: (id: String) -> Unit
 }

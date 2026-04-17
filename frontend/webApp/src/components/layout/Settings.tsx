@@ -18,7 +18,8 @@ import {
     SettingsOutput,
     CategoryType,
     CategoriesPagesOutput,
-    AccountsComponent
+    AccountsComponent,
+    SettingsModalChild
 } from "k2ts";
 import {useValue, when} from "interop";
 
@@ -88,13 +89,12 @@ const Settings = ({component}: { component: SettingsComponent }) => {
 
     const tab = isCategoriesActive ? 'categories' : 'accounts'
 
+    const modalSlot = useValue(component.jsModalSlot);
+    const modalChild = modalSlot.instance
 
     const [addAccountOpen, setAddAccountOpen] = useState(false);
     const [editAccountOpen, setEditAccountOpen] = useState(false);
-    const [addCategoryOpen, setAddCategoryOpen] = useState(false);
-    const [editCategoryOpen, setEditCategoryOpen] = useState(false);
     const [selectedAccount, _x] = useState<AccountItem | undefined>(accounts[0]);
-    const [selectedCategory, _s] = useState<CategoryItem | undefined>(categoryCards[0]);
     const iosTintKickId = useRef<number | null>(null);
 
     useEffect(() => {
@@ -152,7 +152,7 @@ const Settings = ({component}: { component: SettingsComponent }) => {
                 }
             }}/>
             <SettingsMainSection
-                onAddClick={() => (isCategoriesActive ? setAddCategoryOpen(true) : setAddAccountOpen(true))}
+                onAddClick={() => (activeChild.component.onCreateClick())}
                 tab={tab}
             >
                 {
@@ -168,6 +168,20 @@ const Settings = ({component}: { component: SettingsComponent }) => {
             </SettingsMainSection>
             <SyncSection/>
 
+            {modalChild?.toString()}
+            {
+                modalChild && when(modalChild)
+                    .on(SettingsModalChild.CreateCategoryChild, (child) => (
+                        <CategoryModal
+                            component={child.component}
+                            mode="add"
+                            onClose={() => component.dismissSlot()}
+                            open={true}
+                        />
+                    ))
+                    .run()
+            }
+
             <AccountModal mode="add" onClose={() => setAddAccountOpen(false)} open={addAccountOpen}/>
             <AccountModal
                 account={selectedAccount}
@@ -175,13 +189,13 @@ const Settings = ({component}: { component: SettingsComponent }) => {
                 onClose={() => setEditAccountOpen(false)}
                 open={editAccountOpen}
             />
-            <CategoryModal mode="add" onClose={() => setAddCategoryOpen(false)} open={addCategoryOpen}/>
-            <CategoryModal
-                category={selectedCategory}
-                mode="edit"
-                onClose={() => setEditCategoryOpen(false)}
-                open={editCategoryOpen}
-            />
+
+            {/*<CategoryModal*/}
+            {/*    category={selectedCategory}*/}
+            {/*    mode="edit"*/}
+            {/*    onClose={() => setEditCategoryOpen(false)}*/}
+            {/*    open={editCategoryOpen}*/}
+            {/*/>*/}
         </div>
     );
 };

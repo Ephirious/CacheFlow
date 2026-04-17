@@ -24,12 +24,13 @@ import utils.presentation.launchPersistentCoroutine
 class RealCategoriesPagesComponent(
     componentCtx: ComponentContext,
     deepLinkUrl: Url?,
-    getCategoriesFlowUseCase: GetCategoriesFlowUseCase
+    getCategoriesFlowUseCase: GetCategoriesFlowUseCase,
+    override val onCreateClick: () -> Unit,
+    override val onItemClick: (id: String) -> Unit
 ) : CategoriesPagesComponent, ComponentContext by componentCtx {
 
-    override fun onCreateClick() {
-        TODO("Not yet implemented")
-    }
+
+
 
     private val _categories = instanceKeeper.getOrCreateSimple(key = "Categories") {
         MutableValue(CategoriesLists(emptyList(), emptyList()))

@@ -2,16 +2,25 @@ package settings
 
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.serialization.Serializable
+import settings.modals.SettingsModalChild
+import settings.pages.SettingsPageComponent
 import settings.pages.accounts.AccountsComponent
 import settings.pages.categories.CategoriesPagesComponent
 import utils.Url
+import utils.interop.JsChildSlot
+import utils.interop.JsValue
 import utils.presentation.DefaultPages
 import kotlin.js.JsExport
 
 @JsExport
 interface SettingsComponent : DefaultPages<SettingsConfig, SettingsChild>, ComponentContext {
 
+
+    val jsModalSlot: JsValue<JsChildSlot<SettingsModalChild>>
+
     fun onOutput(output: SettingsOutput)
+
+    fun dismissSlot()
 
 //    @JsName("state")
 //    val jsState: JsValue<MoreState>
@@ -43,11 +52,14 @@ sealed class SettingsConfig(val index: Int) {
 }
 
 @JsExport
-sealed class SettingsChild {
+sealed class SettingsChild(
+    open val component: SettingsPageComponent
+) {
+
 
     @Suppress("unused")
-    class CategoriesChild(val component: CategoriesPagesComponent) : SettingsChild()
+    class CategoriesChild(override val component: CategoriesPagesComponent) : SettingsChild(component)
 
     @Suppress("unused")
-    class AccountsChild(val component: AccountsComponent) : SettingsChild()
+    class AccountsChild(override val component: AccountsComponent) : SettingsChild(component)
 }
