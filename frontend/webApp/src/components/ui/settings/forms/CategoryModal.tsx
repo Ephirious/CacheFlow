@@ -9,7 +9,8 @@ import {
     CreateCategoryIntent,
     CreateCategoryState,
     ManageCategoryBaseIntent,
-    EditCategoryState
+    EditCategoryState,
+    EditCategoryIntent
 } from "k2ts";
 import {useValue} from "interop";
 
@@ -47,7 +48,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                     onSubmit={(e) => {
                         e.preventDefault();
                         if (!canSubmit) return;
-                        onClose();
+                        component.intent(state instanceof CreateCategoryState.OK ? CreateCategoryIntent.ClickedCreate : EditCategoryIntent.ClickedEdit);
                     }}
                 >
                     <input

@@ -8,7 +8,8 @@ import {
     CreateAccountIntent,
     CreateAccountState,
     EditAccountState,
-    ManageAccountBaseIntent
+    ManageAccountBaseIntent,
+    EditAccountIntent
 } from "k2ts"
 import {useValue} from "interop";
 
@@ -40,7 +41,7 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                     onSubmit={(e) => {
                         e.preventDefault();
                         if (!canSubmit) return;
-                        onClose();
+                        component.intent(state instanceof CreateAccountState.OK ? CreateAccountIntent.ClickedCreate : EditAccountIntent.ClickedEdit);
                     }}
                 >
                     <div className="flex flex-col gap-1.5">
