@@ -179,10 +179,18 @@ const Settings = ({component}: { component: SettingsComponent }) => {
                             open={true}
                         />
                     ))
+                    .on(SettingsModalChild.CreateAccountChild, (child) => (
+                        <AccountModal
+                            component={child.component}
+                            mode="add"
+                            onClose={() => component.dismissSlot()}
+                            open={true}/>
+                    ))
+
                     .run()
             }
 
-            <AccountModal mode="add" onClose={() => setAddAccountOpen(false)} open={addAccountOpen}/>
+            {/*
             {/*<AccountModal*/}
             {/*    account={selectedAccount}*/}
             {/*    mode="edit"*/}

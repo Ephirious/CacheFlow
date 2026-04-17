@@ -33,14 +33,14 @@ export const accounts: AccountItem[] = [
 ];
 
 export const accountColorOptions = [
-    "bg-account-palette-1",
-    "bg-account-palette-2",
-    "bg-account-palette-3",
-    "bg-account-palette-5",
-    "bg-account-palette-6",
-    "bg-account-palette-8",
-    "bg-account-palette-7",
-    "bg-category-groceries",
-    "bg-category-transport",
-    "bg-category-food"
+    "#4A86F7",
+    "#8B5CF6",
+    "#E45796",
+    "#F59E0B",
+    "#66BB6A",
+    "#6366F1",
+    "#EAB308",
+    "#EF4444",
+    "#F39C12",
+    "#52B1A2"
 ];

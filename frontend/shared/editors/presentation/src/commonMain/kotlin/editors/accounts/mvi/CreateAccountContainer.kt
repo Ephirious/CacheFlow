@@ -48,7 +48,11 @@ class CreateAccountContainer(
             customReduce { intent ->
                 when (intent) {
                     is CreateAccountIntent.ChangedBalance -> updateState<CreateAccountState.OK, _> {
-                        copy(form = form.copy(initialBalance = intent.balance))
+                        copy(
+                            form = form.copy(initialBalance = intent.balance).validated(
+                                CreateAccountFormValidationFields.initialBalance
+                            )
+                        )
                     }
 
                     CreateAccountIntent.ClickedCreate -> TODO()
