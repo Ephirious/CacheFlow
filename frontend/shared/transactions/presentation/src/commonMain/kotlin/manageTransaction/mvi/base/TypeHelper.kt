@@ -31,7 +31,7 @@ fun Transaction.toFormState(
     }
 
     return current.copy(
-        value = value.toString(),
+        value = value.abs().toString(),
         transactionType = manageType,
         note = note,
         date = date
