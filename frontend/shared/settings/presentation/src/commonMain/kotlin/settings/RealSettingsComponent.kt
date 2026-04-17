@@ -59,25 +59,51 @@ class RealSettingsComponent(
             when (config) {
                 SettingsModalConfig.CreateAccount -> CreateAccountChild(
                     RealCreateAccountComponent(
-                        childCtx, container = { CreateAccountContainer() }
+                        childCtx, container = {
+                            CreateAccountContainer(
+                                createAccountUseCase = get(),
+                                closeModal = ::dismissSlot
+                            )
+                        }
                     )
                 )
 
                 SettingsModalConfig.CreateCategory -> CreateCategoryChild(
                     RealCreateCategoryComponent(
-                        childCtx, container = { CreateCategoryContainer() }
+                        childCtx, container = {
+                            CreateCategoryContainer(
+                                createCategoryUseCase = get(),
+                                closeModal = ::dismissSlot
+                            )
+                        }
                     )
                 )
 
                 is SettingsModalConfig.EditCategory -> EditCategoryChild(
                     RealEditCategoryComponent(
-                        childCtx, container = { EditCategoryContainer(config.id, getCategoryByIdUseCase = get()) }
+                        childCtx,
+                        container = {
+                            EditCategoryContainer(
+                                config.id,
+                                getCategoryByIdUseCase = get(),
+                                editCategoryUseCase = get(),
+                                closeModal = ::dismissSlot
+                            )
+                        }
                     )
                 )
 
                 is SettingsModalConfig.EditAccount -> EditAccountChild(
                     RealEditAccountComponent(
-                        childCtx, container = { EditAccountContainer(config.id, getAccountByIdUseCase = get()) }
+                        childCtx,
+                        container = {
+                            EditAccountContainer(
+                                config.id,
+                                getAccountByIdUseCase = get(),
+                                editAccountUseCase = get(),
+                                closeModal = ::dismissSlot
+                            )
+                        }
                     )
                 )
             }

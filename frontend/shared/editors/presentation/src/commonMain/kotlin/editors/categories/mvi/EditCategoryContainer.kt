@@ -1,5 +1,6 @@
 package editors.categories.mvi
 
+import editors.usecases.category.EditCategoryUseCase
 import editors.usecases.category.GetCategoryByIdUseCase
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
@@ -7,6 +8,7 @@ import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.dsl.updateState
+import pro.respawn.flowmvi.dsl.withState
 import pro.respawn.flowmvi.plugins.init
 import utils.orUnknown
 import utils.presentation.flowMVI.customReduce
@@ -17,7 +19,9 @@ private typealias Ctx = PipelineContext<EditCategoryState, EditCategoryIntent, N
 
 class EditCategoryContainer(
     val id: String,
-    val getCategoryByIdUseCase: GetCategoryByIdUseCase
+    val getCategoryByIdUseCase: GetCategoryByIdUseCase,
+    val editCategoryUseCase: EditCategoryUseCase,
+    private val closeModal: () -> Unit
 ) : Container<EditCategoryState, EditCategoryIntent, Nothing> {
 
     @OptIn(DelicateStoreApi::class)
@@ -55,7 +59,7 @@ class EditCategoryContainer(
 
             customReduce { intent ->
                 when (intent) {
-                    EditCategoryIntent.ClickedEdit -> TODO()
+                    EditCategoryIntent.ClickedEdit -> editCategory()
                 }
             }
         }
@@ -70,6 +74,17 @@ class EditCategoryContainer(
                     validation = ManageCategoryFormBaseValidationErrors()
                 )
             )
+        }
+    }
+
+    private suspend fun Ctx.editCategory() {
+        withState<EditCategoryState.OK, _> {
+            editCategoryUseCase(
+                id = id,
+                name = this.form.name,
+                emoji = this.form.emoji,
+            )
+            closeModal()
         }
     }
 }

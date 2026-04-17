@@ -1,5 +1,6 @@
 package editors.accounts.mvi
 
+import editors.usecases.account.EditAccountUseCase
 import editors.usecases.account.GetAccountByIdUseCase
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
@@ -7,17 +8,20 @@ import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.dsl.updateState
+import pro.respawn.flowmvi.dsl.withState
 import pro.respawn.flowmvi.plugins.init
 import utils.orUnknown
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
 import utils.types.HexColor
 
-private typealias Ctx = PipelineContext<EditAccountState, EditAccountIntent, Nothing>
+private typealias CtxEdit = PipelineContext<EditAccountState, EditAccountIntent, Nothing>
 
 class EditAccountContainer(
     val id: String,
-    val getAccountByIdUseCase: GetAccountByIdUseCase
+    val getAccountByIdUseCase: GetAccountByIdUseCase,
+    val editAccountUseCase: EditAccountUseCase,
+    private val closeModal: () -> Unit
 ) : Container<EditAccountState, EditAccountIntent, Nothing> {
 
     @OptIn(DelicateStoreApi::class)
@@ -57,12 +61,12 @@ class EditAccountContainer(
 
             customReduce { intent ->
                 when (intent) {
-                    EditAccountIntent.ClickedEdit -> TODO()
+                    EditAccountIntent.ClickedEdit -> editAccount()
                 }
             }
         }
 
-    private suspend fun Ctx.setupInitial() {
+    private suspend fun CtxEdit.setupInitial() {
         val account = getAccountByIdUseCase(id)
         updateState<EditAccountState.OK, _> {
             EditAccountState.OK(
@@ -72,6 +76,17 @@ class EditAccountContainer(
                     validation = ManageAccountFormBaseValidationErrors()
                 )
             )
+        }
+    }
+
+    private suspend fun CtxEdit.editAccount() {
+        withState<EditAccountState.OK, _> {
+            editAccountUseCase(
+                id = id,
+                name = this.form.title,
+                color = this.form.color
+            )
+            closeModal()
         }
     }
 }
