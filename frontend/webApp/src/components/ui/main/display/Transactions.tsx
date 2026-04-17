@@ -2,10 +2,16 @@ import { LiaFilterSolid } from "react-icons/lia";
 import {motion} from "framer-motion";
 import { TransactionCard } from "./index";
 import { prettyDate, Transaction } from "k2ts";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 
-const Transactions = ({ transactions }: {transactions: readonly Transaction[]}) => {
+const Transactions = ({
+    transactions,
+    onEditClick
+}: {
+    transactions: readonly Transaction[];
+    onEditClick: (transactionId: string) => void;
+}) => {
     const sections = useMemo(() => {
         return transactions.reduce<Array<{ dateLabel: string; items: Transaction[] }>>((acc, transaction) => {
             const dateLabel = prettyDate(transaction.date);
@@ -20,6 +26,12 @@ const Transactions = ({ transactions }: {transactions: readonly Transaction[]}) 
             return acc;
         }, []);
     }, [transactions]);
+
+    const [expandedId, setExpandedId] = useState<string | null>(null);
+
+    const onTransactionClick = (transactionId: string) => {
+        setExpandedId((prev) => prev === transactionId ? null : transactionId);
+    };
 
 
     return (
@@ -45,9 +57,18 @@ const Transactions = ({ transactions }: {transactions: readonly Transaction[]}) 
                             </span>
                         </div>
                         <div className="flex flex-col gap-2">
-                            {section.items.map((transaction, transactionIndex) => (
-                                <TransactionCard key={`${section.dateLabel}-${transactionIndex}`} transaction={transaction}/>
-                            ))}
+                            {section.items.map((transaction, transactionIndex) => {
+                                const transactionId = transaction.id;
+                                return (
+                                    <TransactionCard
+                                        key={transactionId ?? `${section.dateLabel}-${transactionIndex}`}
+                                        transaction={transaction}
+                                        isExpanded={transactionId ? expandedId === transactionId : false}
+                                        onClick={transactionId ? () => onTransactionClick(transactionId) : undefined}
+                                        onEditClick={transactionId ? () => onEditClick(transactionId) : undefined}
+                                    />
+                                );
+                            })}
                         </div>
                     </div>
                 ))}
