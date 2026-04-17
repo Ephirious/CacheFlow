@@ -1,16 +1,23 @@
 package editors.categories.mvi
 
+import editors.usecases.category.GetCategoryByIdUseCase
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
+import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
+import pro.respawn.flowmvi.dsl.updateState
+import pro.respawn.flowmvi.plugins.init
 import utils.orUnknown
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
 
 
+private typealias Ctx = PipelineContext<EditCategoryState, EditCategoryIntent, Nothing>
+
 class EditCategoryContainer(
-    val id: String
+    val id: String,
+    val getCategoryByIdUseCase: GetCategoryByIdUseCase
 ) : Container<EditCategoryState, EditCategoryIntent, Nothing> {
 
     @OptIn(DelicateStoreApi::class)
@@ -23,7 +30,6 @@ class EditCategoryContainer(
                     validation = ManageCategoryFormBaseValidationErrors()
                 )
             )
-
         ) {
             fastConfig(
                 name = "CreateCategory", resetOnStop = false,
@@ -42,6 +48,10 @@ class EditCategoryContainer(
                 )
             )
 
+            init {
+                setupInitial()
+            }
+
 
             customReduce { intent ->
                 when (intent) {
@@ -49,4 +59,17 @@ class EditCategoryContainer(
                 }
             }
         }
+
+    private suspend fun Ctx.setupInitial() {
+        val category = getCategoryByIdUseCase(id)
+        updateState<EditCategoryState.OK, _> {
+            EditCategoryState.OK(
+                form = EditFormState(
+                    name = category.name,
+                    emoji = category.emoji,
+                    validation = ManageCategoryFormBaseValidationErrors()
+                )
+            )
+        }
+    }
 }

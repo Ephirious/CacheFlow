@@ -60,7 +60,7 @@ class RealSettingsComponent(
 
                 is SettingsModalConfig.EditCategory -> EditCategoryChild(
                     RealEditCategoryComponent(
-                        childCtx, container = { EditCategoryContainer(config.id) }
+                        childCtx, container = { EditCategoryContainer(config.id, getCategoryByIdUseCase = get()) }
                     )
                 )
             }
