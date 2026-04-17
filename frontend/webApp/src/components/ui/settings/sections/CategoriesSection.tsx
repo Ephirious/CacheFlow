@@ -1,5 +1,5 @@
 import {CategoryItem, CategoryTypeId} from "../types.ts";
-import {categoryCards, categoryTypeTabs} from "../data.tsx";
+import {categoryTypeTabs} from "../data.tsx";
 import {SegmentedTabs} from "../primitives";
 import {CategoryCard} from "../display";
 import { Category } from "k2ts";

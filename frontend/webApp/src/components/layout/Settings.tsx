@@ -1,6 +1,5 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef} from "react";
 import {
-    AccountItem,
     AccountModal,
     AccountsSection,
     CategoryModal,
@@ -9,7 +8,6 @@ import {
     SettingsMainSection,
     SyncSection, CategoryTypeId
 } from "../ui/settings";
-import {accounts} from "../ui/settings/data.tsx";
 import {
     CategoriesPagesComponent,
     SettingsChild,
