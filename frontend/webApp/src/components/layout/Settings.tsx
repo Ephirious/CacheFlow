@@ -3,14 +3,13 @@ import {
     AccountItem,
     AccountModal,
     AccountsSection,
-    CategoryItem,
     CategoryModal,
     CategoriesSection,
     SettingsHeader,
     SettingsMainSection,
     SyncSection, CategoryTypeId
 } from "../ui/settings";
-import {accounts, categoryCards} from "../ui/settings/data.tsx";
+import {accounts} from "../ui/settings/data.tsx";
 import {
     CategoriesPagesComponent,
     SettingsChild,
@@ -56,9 +55,8 @@ const CategoriesPages = ({component}: { component: CategoriesPagesComponent }) =
     return <CategoriesSection
         categories={categories.asJsReadonlyArrayView()}
         categoryType={tsCategoryType}
-        onCategoryClick={(_category) => {
-            // setSelectedCategory(category);
-            // setEditCategoryOpen(true);
+        onCategoryClick={(category) => {
+           component.onItemClick(category.id);
         }}
         onCategoryTypeChange={
             (tsCategory) => {
@@ -168,13 +166,20 @@ const Settings = ({component}: { component: SettingsComponent }) => {
             </SettingsMainSection>
             <SyncSection/>
 
-            {modalChild?.toString()}
             {
                 modalChild && when(modalChild)
                     .on(SettingsModalChild.CreateCategoryChild, (child) => (
                         <CategoryModal
                             component={child.component}
                             mode="add"
+                            onClose={() => component.dismissSlot()}
+                            open={true}
+                        />
+                    ))
+                    .on(SettingsModalChild.EditCategoryChild, (child) => (
+                        <CategoryModal
+                            component={child.component}
+                            mode="edit"
                             onClose={() => component.dismissSlot()}
                             open={true}
                         />
@@ -189,13 +194,6 @@ const Settings = ({component}: { component: SettingsComponent }) => {
                 onClose={() => setEditAccountOpen(false)}
                 open={editAccountOpen}
             />
-
-            {/*<CategoryModal*/}
-            {/*    category={selectedCategory}*/}
-            {/*    mode="edit"*/}
-            {/*    onClose={() => setEditCategoryOpen(false)}*/}
-            {/*    open={editCategoryOpen}*/}
-            {/*/>*/}
         </div>
     );
 };

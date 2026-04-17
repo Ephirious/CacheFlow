@@ -37,6 +37,6 @@ data class CreateFormState(
 
 @JsExport
 sealed class CreateCategoryIntent : ManageCategoryBaseIntent() {
-    data object ClickedSave : CreateCategoryIntent()
+    data object ClickedCreate : CreateCategoryIntent()
     data class ChangedCategoryType(val type: String) : CreateCategoryIntent()
 }

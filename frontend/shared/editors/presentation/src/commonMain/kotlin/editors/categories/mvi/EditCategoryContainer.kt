@@ -1,25 +1,23 @@
 package editors.categories.mvi
 
-import dbEnums.CategoryType
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
-import pro.respawn.flowmvi.dsl.updateState
 import utils.orUnknown
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
 
 
-class CreateCategoryContainer(
-) : Container<CreateCategoryState, CreateCategoryIntent, Nothing> {
+class EditCategoryContainer(
+    val id: String
+) : Container<EditCategoryState, EditCategoryIntent, Nothing> {
 
     @OptIn(DelicateStoreApi::class)
-    override val store: Store<CreateCategoryState, CreateCategoryIntent, Nothing> =
+    override val store: Store<EditCategoryState, EditCategoryIntent, Nothing> =
         store(
-            initial = CreateCategoryState.OK(
-                form = CreateFormState(
-                    categoryType = CategoryType.OUTCOME,
+            initial = EditCategoryState.OK(
+                form = EditFormState(
                     name = "",
                     emoji = "",
                     validation = ManageCategoryFormBaseValidationErrors()
@@ -30,27 +28,24 @@ class CreateCategoryContainer(
             fastConfig(
                 name = "CreateCategory", resetOnStop = false,
                 doOnRecover = {
-                    CreateCategoryState.FatalError(
+                    EditCategoryState.FatalError(
                         it.message.orUnknown,
-                        (this as? CreateCategoryState.OK)?.form
+                        (this as? EditCategoryState.OK)?.form
                     )
                 }
             )
             install(
                 manageCategoryBasePlugin(
                     getState = { this },
-                    setState = { newState -> newState as CreateCategoryState },
-                    makeOK = { form -> CreateCategoryState.OK(form) }
+                    setState = { newState -> newState as EditCategoryState },
+                    makeOK = { form -> EditCategoryState.OK(form) }
                 )
             )
 
 
             customReduce { intent ->
                 when (intent) {
-                    CreateCategoryIntent.ClickedCreate -> TODO()
-                    is CreateCategoryIntent.ChangedCategoryType -> updateState<CreateCategoryState.OK, _> {
-                        copy(form = form.copy(categoryType = if (intent.type == "income") CategoryType.INCOME else CategoryType.OUTCOME))
-                    }
+                    EditCategoryIntent.ClickedEdit -> TODO()
                 }
             }
         }

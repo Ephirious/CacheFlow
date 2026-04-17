@@ -5,16 +5,17 @@ import {categoryTypeTabs} from "../data.tsx";
 import SettingsModalShell from "./SettingsModalShell.tsx";
 import {
     CategoryType,
-    CreateCategoryComponent,
+    CreateCategoryComponent, EditCategoryComponent,
     CreateCategoryIntent,
     CreateCategoryState,
-    ManageCategoryBaseIntent
+    ManageCategoryBaseIntent,
+    EditCategoryState
 } from "k2ts";
 import {useValue} from "interop";
 
 interface CategoryModalProps {
     open: boolean;
-    component: CreateCategoryComponent | CreateCategoryComponent
+    component: CreateCategoryComponent | EditCategoryComponent
     mode: "add" | "edit";
     category?: CategoryItem;
     onClose: () => void;
@@ -32,7 +33,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
     }, [category, open]);
 
     const isAddMode = mode === "add";
-    if (state instanceof CreateCategoryState.OK) {
+    if (state instanceof CreateCategoryState.OK || state instanceof EditCategoryState.OK) {
         const canSubmit = state.getForm().name.trim().length > 0;
 
         return (
@@ -66,7 +67,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
 
                     {isAddMode && component.type === 'create' && (
                         <SegmentedTabs
-                            active={state.getForm().categoryType === CategoryType.INCOME ? "income" : "outcome"}
+                            active={(state as CreateCategoryState.OK).getForm().categoryType === CategoryType.INCOME ? "income" : "outcome"}
                             onChange={(newCategory) => component.intent(new CreateCategoryIntent.ChangedCategoryType(newCategory))}
                             options={categoryTypeTabs}/>
                     )}

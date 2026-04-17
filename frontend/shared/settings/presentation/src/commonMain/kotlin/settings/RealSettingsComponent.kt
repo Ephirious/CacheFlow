@@ -10,14 +10,16 @@ import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
 import editors.categories.RealCreateCategoryComponent
+import editors.categories.RealEditCategoryComponent
 import editors.categories.mvi.CreateCategoryContainer
+import editors.categories.mvi.EditCategoryContainer
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import settings.SettingsChild.AccountsChild
 import settings.SettingsChild.CategoriesChild
 import settings.modals.SettingsModalChild
-import settings.modals.SettingsModalChild.CreateAccountChild
 import settings.modals.SettingsModalChild.CreateCategoryChild
+import settings.modals.SettingsModalChild.EditCategoryChild
 import settings.modals.SettingsModalConfig
 import settings.pages.accounts.RealAccountsComponent
 import settings.pages.categories.RealCategoriesPagesComponent
@@ -49,10 +51,16 @@ class RealSettingsComponent(
             handleBackButton = false,
         ) { config, childCtx ->
             when (config) {
-                SettingsModalConfig.CreateAccount -> CreateAccountChild("sad")
+                SettingsModalConfig.CreateAccount -> TODO()
                 SettingsModalConfig.CreateCategory -> CreateCategoryChild(
                     RealCreateCategoryComponent(
                         childCtx, container = { CreateCategoryContainer() }
+                    )
+                )
+
+                is SettingsModalConfig.EditCategory -> EditCategoryChild(
+                    RealEditCategoryComponent(
+                        childCtx, container = { EditCategoryContainer(config.id) }
                     )
                 )
             }
@@ -116,7 +124,7 @@ class RealSettingsComponent(
                         modalNavigation.activate(SettingsModalConfig.CreateCategory)
                     },
                     onItemClick = { id ->
-
+                        modalNavigation.activate(SettingsModalConfig.EditCategory(id))
                     }
                 )
             )
