@@ -4,8 +4,12 @@ import editors.repositories.AccountsRepository
 import editors.repositories.AccountsRepositoryImpl
 import editors.repositories.CategoriesRepository
 import editors.repositories.CategoriesRepositoryImpl
+import editors.usecases.account.CreateAccountUseCase
+import editors.usecases.account.EditAccountUseCase
 import editors.usecases.account.GetAccountByIdUseCase
 import editors.usecases.account.GetAccountsFlowUseCase
+import editors.usecases.category.CreateCategoryUseCase
+import editors.usecases.category.EditCategoryUseCase
 import editors.usecases.category.GetCategoriesFlowUseCase
 import editors.usecases.category.GetCategoryByIdUseCase
 import org.koin.dsl.module
@@ -24,4 +28,10 @@ val editorsDataModule = module {
 
     factory<GetAccountByIdUseCase> { GetAccountByIdUseCase(get()) }
     factory<GetCategoryByIdUseCase> { GetCategoryByIdUseCase(get()) }
+
+    factory<CreateAccountUseCase> { CreateAccountUseCase(get()) }
+    factory<EditAccountUseCase> { EditAccountUseCase(get()) }
+
+    factory<CreateCategoryUseCase> { CreateCategoryUseCase(get()) }
+    factory<EditCategoryUseCase> { EditCategoryUseCase(get()) }
 }
