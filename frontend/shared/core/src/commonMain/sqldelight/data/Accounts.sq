@@ -1,11 +1,13 @@
-import utils.types.BigDecimal;
+import kotlin.Boolean;
 import kotlin.time.Instant;
+import utils.types.BigDecimal;
 
 CREATE TABLE IF NOT EXISTS Accounts (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     funds TEXT AS BigDecimal NOT NULL,
     color TEXT NOT NULL,
+    is_deleted INTEGER AS Boolean NOT NULL DEFAULT 0,
     created_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     updated_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
