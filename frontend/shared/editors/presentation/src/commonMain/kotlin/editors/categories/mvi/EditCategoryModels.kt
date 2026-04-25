@@ -6,13 +6,13 @@ import kotlin.js.JsExport
 
 @JsExport
 @DataCopyableNode
-sealed class EditCategoryState : ManageCategoryBaseState<EditFormState> {
+sealed class EditCategoryState : ManageCategoryBaseState<EditCategoryFormState> {
 
     @DataCopyableNode
     @Suppress("unused")
     data class OK(
-        override val form: EditFormState
-    ) : EditCategoryState(), ManageCategoryBaseState.OK<EditFormState> {
+        override val form: EditCategoryFormState
+    ) : EditCategoryState(), ManageCategoryBaseState.OK<EditCategoryFormState> {
         fun getForm() = form
     }
 
@@ -20,8 +20,8 @@ sealed class EditCategoryState : ManageCategoryBaseState<EditFormState> {
     @Suppress("unused")
     data class FatalError(
         override val message: String,
-        override val lastForm: EditFormState?
-    ) : EditCategoryState(), ManageCategoryBaseState.FatalError<EditFormState> {
+        override val lastForm: EditCategoryFormState?
+    ) : EditCategoryState(), ManageCategoryBaseState.FatalError<EditCategoryFormState> {
         fun getMessage() = message
         fun getLastForm() = lastForm
     }
@@ -29,7 +29,7 @@ sealed class EditCategoryState : ManageCategoryBaseState<EditFormState> {
 
 @JsExport
 @DataCopyableNode
-data class EditFormState(
+data class EditCategoryFormState(
     override val title: String,
     override val emoji: String,
     override val validation: ManageCategoryFormBaseValidationErrors,

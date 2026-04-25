@@ -29,13 +29,7 @@ class EditCategoryContainer(
     @OptIn(DelicateStoreApi::class)
     override val store: Store<EditCategoryState, EditCategoryIntent, Nothing> =
         store(
-            initial = EditCategoryState.OK(
-                form = EditFormState(
-                    title = "",
-                    emoji = "",
-                    validation = ManageCategoryFormBaseValidationErrors()
-                )
-            )
+            initial = getInitial()
         ) {
             fastConfig(
                 name = "CreateCategory", resetOnStop = false,
@@ -71,7 +65,7 @@ class EditCategoryContainer(
         val category = getCategoryByIdUseCase(id)
         updateState<EditCategoryState.OK, _> {
             EditCategoryState.OK(
-                form = EditFormState(
+                form = EditCategoryFormState(
                     title = category.name,
                     emoji = category.emoji,
                     validation = ManageCategoryFormBaseValidationErrors()
@@ -82,12 +76,14 @@ class EditCategoryContainer(
 
     private suspend fun Ctx.editCategory() {
         withState<EditCategoryState.OK, _> {
-            editCategoryUseCase(
-                id = id,
-                name = this.form.title,
-                emoji = this.form.emoji,
-            )
-            closeModal()
+            if (allValidated()) {
+                editCategoryUseCase(
+                    id = id,
+                    name = this.form.title,
+                    emoji = this.form.emoji,
+                )
+                closeModal()
+            }
         }
     }
 

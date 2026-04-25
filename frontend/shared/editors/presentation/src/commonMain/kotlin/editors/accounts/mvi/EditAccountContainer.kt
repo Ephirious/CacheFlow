@@ -14,7 +14,6 @@ import pro.respawn.flowmvi.plugins.init
 import utils.orUnknown
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
-import utils.types.HexColor
 
 private typealias CtxEdit = PipelineContext<EditAccountState, EditAccountIntent, Nothing>
 
@@ -29,19 +28,10 @@ class EditAccountContainer(
     @OptIn(DelicateStoreApi::class)
     override val store: Store<EditAccountState, EditAccountIntent, Nothing> =
         store(
-            initial = EditAccountState.OK(
-                form = EditAccountFormState(
-                    title = "",
-                    color = HexColor("#FF0000"),
-                    validation = ManageAccountFormBaseValidationErrors()
-                )
-            ).let {
-                it.copy(form = it.form.validated() as EditAccountFormState)
-            }
-
+            initial = getInitial()
         ) {
             fastConfig(
-                name = "CreateCategory", resetOnStop = false,
+                name = "EditCategory", resetOnStop = false,
                 doOnRecover = {
                     EditAccountState.FatalError(
                         it.message.orUnknown,
@@ -84,12 +74,14 @@ class EditAccountContainer(
 
     private suspend fun CtxEdit.editAccount() {
         withState<EditAccountState.OK, _> {
-            editAccountUseCase(
-                id = id,
-                name = this.form.title,
-                color = this.form.color
-            )
-            closeModal()
+            if (allValidated()) {
+                editAccountUseCase(
+                    id = id,
+                    name = this.form.title,
+                    color = this.form.color
+                )
+                closeModal()
+            }
         }
     }
 

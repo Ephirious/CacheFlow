@@ -5,8 +5,6 @@ import editors.usecases.category.GetCategoriesFlowUseCase
 import manageTransaction.mvi.ManageTransactionType.*
 import manageTransaction.mvi.base.manageTransactionBasePlugin
 import manageTransaction.mvi.base.toFormState
-import manageTransaction.mvi.base.validated
-import manageTransaction.mvi.base.validationHasErrors
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
 import pro.respawn.flowmvi.api.PipelineContext
@@ -30,25 +28,6 @@ private typealias Ctx = PipelineContext<ManageTransactionState, ManageTransactio
 private enum class Jobs {
     ObserveAccounts, ObserveCategories
 }
-
-fun ManageTransactionContainer.getInitial(
-    form: ManageTransactionState.OK.FormState? = null
-) =
-    ManageTransactionState.OK(
-        form = form ?: ManageTransactionState.OK.FormState(),
-        isCreateMode = isCreateMode,
-    ).allValidate()
-
-fun ManageTransactionState.OK.allValidate(
-) = copy(form = form.let {
-    it.copy(validation = it.validate(), transactionType = it.transactionType.validated())
-})
-
-fun ManageTransactionState.OK.allValidated(
-) = allValidate().isValid()
-
-fun ManageTransactionState.OK.isValid(
-) = !form.validation.hasErrors && !form.transactionType.validationHasErrors()
 
 
 class ManageTransactionContainer(
