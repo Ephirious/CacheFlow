@@ -35,7 +35,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
 
     const isAddMode = mode === "add";
     if (state instanceof CreateCategoryState.OK || state instanceof EditCategoryState.OK) {
-        const canSubmit = state.getForm().name.trim().length > 0;
+        const canSubmit = state.getForm().title.trim().length > 0;
 
         return (
             <SettingsModalShell
@@ -53,10 +53,10 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                 >
                     <input
                         className={inputClass}
-                        onChange={(e) => component.intent(new ManageCategoryBaseIntent.ChangedName(e.target.value))}
+                        onChange={(e) => component.intent(new ManageCategoryBaseIntent.ChangedTitle(e.target.value))}
                         placeholder="Название категории"
                         type="text"
-                        value={state.getForm().name}
+                        value={state.getForm().title}
                     />
                     <input
                         className={inputClass}

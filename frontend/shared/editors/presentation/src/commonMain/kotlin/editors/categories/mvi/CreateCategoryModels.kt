@@ -9,6 +9,7 @@ import kotlin.js.JsExport
 sealed class CreateCategoryState : ManageCategoryBaseState<CreateFormState> {
 
     @DataCopyableNode
+    @Suppress("unused")
     data class OK(
         override val form: CreateFormState
     ) : CreateCategoryState(), ManageCategoryBaseState.OK<CreateFormState> {
@@ -16,6 +17,7 @@ sealed class CreateCategoryState : ManageCategoryBaseState<CreateFormState> {
     }
 
     @DataCopyableNode
+    @Suppress("unused")
     data class FatalError(
         override val message: String,
         override val lastForm: CreateFormState?
@@ -29,7 +31,7 @@ sealed class CreateCategoryState : ManageCategoryBaseState<CreateFormState> {
 @DataCopyableNode
 data class CreateFormState(
     val categoryType: CategoryType,
-    override val name: String,
+    override val title: String,
     override val emoji: String,
     override val validation: ManageCategoryFormBaseValidationErrors,
 ) : ManageCategoryFormBaseState<ManageCategoryFormBaseValidationErrors>

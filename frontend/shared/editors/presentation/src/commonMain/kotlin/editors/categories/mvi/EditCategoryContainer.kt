@@ -31,7 +31,7 @@ class EditCategoryContainer(
         store(
             initial = EditCategoryState.OK(
                 form = EditFormState(
-                    name = "",
+                    title = "",
                     emoji = "",
                     validation = ManageCategoryFormBaseValidationErrors()
                 )
@@ -72,7 +72,7 @@ class EditCategoryContainer(
         updateState<EditCategoryState.OK, _> {
             EditCategoryState.OK(
                 form = EditFormState(
-                    name = category.name,
+                    title = category.name,
                     emoji = category.emoji,
                     validation = ManageCategoryFormBaseValidationErrors()
                 )
@@ -84,7 +84,7 @@ class EditCategoryContainer(
         withState<EditCategoryState.OK, _> {
             editCategoryUseCase(
                 id = id,
-                name = this.form.name,
+                name = this.form.title,
                 emoji = this.form.emoji,
             )
             closeModal()

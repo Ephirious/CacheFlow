@@ -27,7 +27,7 @@ class CreateCategoryContainer(
             initial = CreateCategoryState.OK(
                 form = CreateFormState(
                     categoryType = CategoryType.OUTCOME,
-                    name = "",
+                    title = "",
                     emoji = "",
                     validation = ManageCategoryFormBaseValidationErrors()
                 )
@@ -65,7 +65,7 @@ class CreateCategoryContainer(
     private suspend fun CtxCreate.createCategory() {
         withState<CreateCategoryState.OK, _> {
             createCategoryUseCase(
-                name = this.form.name,
+                name = this.form.title,
                 emoji = this.form.emoji,
                 type = this.form.categoryType
             )

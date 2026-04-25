@@ -37,8 +37,8 @@ fun <S : MVIState, I : ManageCategoryBaseIntent, A : MVIAction, F : ManageCatego
                             .validated(ManageCategoryFormBaseValidationFields.emoji)
                     }
 
-                    is ManageCategoryBaseIntent.ChangedName -> {
-                        currentForm.copyBase(name = baseIntent.name)
+                    is ManageCategoryBaseIntent.ChangedTitle -> {
+                        currentForm.copyBase(title = baseIntent.title)
                     }
 
                     ManageCategoryBaseIntent.ClickedTryAgain -> currentForm
