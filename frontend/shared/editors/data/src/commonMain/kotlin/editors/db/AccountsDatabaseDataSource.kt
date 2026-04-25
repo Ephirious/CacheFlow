@@ -54,4 +54,10 @@ class AccountsDatabaseDataSource(
     ) {
         accountsQueries.update(id = id, name = name, color = color.normalizedHex)
     }
+
+    suspend fun softDeleteAccount(
+        id: String,
+    ) {
+        accountsQueries.softDelete(id)
+    }
 }

@@ -1,5 +1,6 @@
 package editors.categories.mvi
 
+import editors.usecases.category.DeleteCategoryUseCase
 import editors.usecases.category.EditCategoryUseCase
 import editors.usecases.category.GetCategoryByIdUseCase
 import pro.respawn.flowmvi.api.Container
@@ -21,6 +22,7 @@ class EditCategoryContainer(
     val id: String,
     val getCategoryByIdUseCase: GetCategoryByIdUseCase,
     val editCategoryUseCase: EditCategoryUseCase,
+    val deleteCategoryUseCase: DeleteCategoryUseCase,
     private val closeModal: () -> Unit
 ) : Container<EditCategoryState, EditCategoryIntent, Nothing> {
 
@@ -60,6 +62,7 @@ class EditCategoryContainer(
             customReduce { intent ->
                 when (intent) {
                     EditCategoryIntent.ClickedEdit -> editCategory()
+                    EditCategoryIntent.ClickedDelete -> deleteCategory()
                 }
             }
         }
@@ -84,6 +87,13 @@ class EditCategoryContainer(
                 name = this.form.name,
                 emoji = this.form.emoji,
             )
+            closeModal()
+        }
+    }
+
+    private suspend fun Ctx.deleteCategory() {
+        withState<EditCategoryState.OK, _> {
+            deleteCategoryUseCase(id = id)
             closeModal()
         }
     }

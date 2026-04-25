@@ -15,6 +15,10 @@ class AccountsRepositoryImpl(
     override fun getAccountsFlow(onlyActive: Boolean): Flow<List<Account>> =
         dbDataSource.getAccountsFlow(onlyActive).flowOn(AsyncDispatcher)
 
+    override suspend fun softDelete(id: String) {
+        dbDataSource.softDeleteAccount(id)
+    }
+
     override suspend fun getAccountById(id: String): Account =
         dbDataSource.getAccountById(id)
 

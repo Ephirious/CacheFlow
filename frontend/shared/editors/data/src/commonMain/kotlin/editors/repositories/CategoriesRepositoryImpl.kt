@@ -13,6 +13,10 @@ class CategoriesRepositoryImpl(
     override fun getCategoriesFlow(onlyActive: Boolean): Flow<List<Category>> =
         databaseDataSource.getCategoriesFlow(onlyActive).flowOn(AsyncDispatcher)
 
+    override suspend fun softDelete(id: String) {
+        databaseDataSource.softDeleteCategory(id)
+    }
+
     override suspend fun getCategoryById(id: String): Category =
         databaseDataSource.getCategoryById(id)
 

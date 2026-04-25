@@ -3,8 +3,9 @@ package editors.usecases.account
 import editors.repositories.AccountsRepository
 
 
-class GetAccountsFlowUseCase(
+class DeleteAccountUseCase(
     private val repository: AccountsRepository,
 ) {
-    operator fun invoke(onlyActive: Boolean = true) = repository.getAccountsFlow(onlyActive)
+    suspend operator fun invoke(id: String) =
+        repository.softDelete(id = id)
 }

@@ -87,6 +87,7 @@ class RealSettingsComponent(
                                 config.id,
                                 getCategoryByIdUseCase = get(),
                                 editCategoryUseCase = get(),
+                                deleteCategoryUseCase = get(),
                                 closeModal = ::dismissSlot
                             )
                         }
@@ -101,6 +102,7 @@ class RealSettingsComponent(
                                 config.id,
                                 getAccountByIdUseCase = get(),
                                 editAccountUseCase = get(),
+                                deleteAccountUseCase = get(),
                                 closeModal = ::dismissSlot
                             )
                         }

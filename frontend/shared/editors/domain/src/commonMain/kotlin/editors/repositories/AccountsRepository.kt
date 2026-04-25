@@ -6,6 +6,7 @@ import utils.types.HexColor
 
 interface AccountsRepository {
     fun getAccountsFlow(onlyActive: Boolean = true): Flow<List<Account>>
+    suspend fun softDelete(id: String)
     suspend fun getAccountById(id: String): Account
 
     suspend fun insertAccount(

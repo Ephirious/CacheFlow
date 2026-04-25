@@ -37,4 +37,5 @@ data class EditFormState(
 @JsExport
 sealed class EditCategoryIntent : ManageCategoryBaseIntent() {
     data object ClickedEdit : EditCategoryIntent()
+    data object ClickedDelete : EditCategoryIntent()
 }

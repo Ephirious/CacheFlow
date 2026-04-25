@@ -5,10 +5,12 @@ import editors.repositories.AccountsRepositoryImpl
 import editors.repositories.CategoriesRepository
 import editors.repositories.CategoriesRepositoryImpl
 import editors.usecases.account.CreateAccountUseCase
+import editors.usecases.account.DeleteAccountUseCase
 import editors.usecases.account.EditAccountUseCase
 import editors.usecases.account.GetAccountByIdUseCase
 import editors.usecases.account.GetAccountsFlowUseCase
 import editors.usecases.category.CreateCategoryUseCase
+import editors.usecases.category.DeleteCategoryUseCase
 import editors.usecases.category.EditCategoryUseCase
 import editors.usecases.category.GetCategoriesFlowUseCase
 import editors.usecases.category.GetCategoryByIdUseCase
@@ -31,7 +33,9 @@ val editorsDataModule = module {
 
     factory<CreateAccountUseCase> { CreateAccountUseCase(get()) }
     factory<EditAccountUseCase> { EditAccountUseCase(get()) }
+    factory<DeleteAccountUseCase> { DeleteAccountUseCase(get()) }
 
     factory<CreateCategoryUseCase> { CreateCategoryUseCase(get()) }
     factory<EditCategoryUseCase> { EditCategoryUseCase(get()) }
+    factory<DeleteCategoryUseCase> { DeleteCategoryUseCase(get()) }
 }

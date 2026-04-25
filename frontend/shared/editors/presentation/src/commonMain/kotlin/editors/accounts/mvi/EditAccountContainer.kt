@@ -1,5 +1,6 @@
 package editors.accounts.mvi
 
+import editors.usecases.account.DeleteAccountUseCase
 import editors.usecases.account.EditAccountUseCase
 import editors.usecases.account.GetAccountByIdUseCase
 import pro.respawn.flowmvi.api.Container
@@ -21,6 +22,7 @@ class EditAccountContainer(
     val id: String,
     val getAccountByIdUseCase: GetAccountByIdUseCase,
     val editAccountUseCase: EditAccountUseCase,
+    val deleteAccountUseCase: DeleteAccountUseCase,
     private val closeModal: () -> Unit
 ) : Container<EditAccountState, EditAccountIntent, Nothing> {
 
@@ -62,6 +64,7 @@ class EditAccountContainer(
             customReduce { intent ->
                 when (intent) {
                     EditAccountIntent.ClickedEdit -> editAccount()
+                    EditAccountIntent.ClickedDelete -> deleteAccount()
                 }
             }
         }
@@ -86,6 +89,13 @@ class EditAccountContainer(
                 name = this.form.title,
                 color = this.form.color
             )
+            closeModal()
+        }
+    }
+
+    private suspend fun CtxEdit.deleteAccount() {
+        withState<EditAccountState.OK, _> {
+            deleteAccountUseCase(id = id)
             closeModal()
         }
     }

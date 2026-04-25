@@ -48,4 +48,10 @@ class CategoriesDatabaseDataSource(
         categoriesQueries.update(id = id, name = name, emoji = emoji)
     }
 
+
+    suspend fun softDeleteCategory(
+        id: String,
+    ) {
+        categoriesQueries.softDelete(id)
+    }
 }
