@@ -77,6 +77,29 @@ class TransactionsDatabaseDataSource(
         }
     }
 
+    suspend fun deleteTransaction(id: String) {
+        transactionsQueries.transaction {
+            val relatedOps = transactionsQueries.selectRelatedOperations(id).executeAsList()
+
+            if (relatedOps.isEmpty()) return@transaction
+
+            // Откатываем балансы и удаляем связанные операции
+            relatedOps.forEach { op ->
+                accountsQueries.updateAccountBalance(
+                    delta = -op.amount,
+                    id = op.account_uuid
+                )
+
+                transactionsQueries.delete(op.id)
+            }
+
+            // Если был трансфер – удаляем его
+            relatedOps.firstOrNull()?.transfer_id?.let { transferId ->
+                transfersQueries.delete(transferId)
+            }
+        }
+    }
+
     private suspend fun applyNewTransaction(
         primaryId: String,
         transaction: Transaction,

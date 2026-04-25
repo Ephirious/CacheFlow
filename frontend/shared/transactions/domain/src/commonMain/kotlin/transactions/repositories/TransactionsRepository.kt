@@ -7,6 +7,7 @@ interface TransactionsRepository {
     fun getTransactionsFlow(accountId: String?): Flow<List<Transaction>>
 
     suspend fun upsertTransaction(transaction: Transaction)
+    suspend fun deleteTransaction(id: String)
 
     suspend fun selectTransactionById(id: String): Transaction
 }
