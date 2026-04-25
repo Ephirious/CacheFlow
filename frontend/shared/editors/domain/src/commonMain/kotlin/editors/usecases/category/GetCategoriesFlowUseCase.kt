@@ -15,7 +15,7 @@ data class CategoriesLists(
 class GetCategoriesFlowUseCase(
     private val repository: CategoriesRepository,
 ) {
-    operator fun invoke() = repository.getCategoriesFlow().map { all ->
+    operator fun invoke(onlyActive: Boolean) = repository.getCategoriesFlow(onlyActive).map { all ->
         CategoriesLists(
             income = all.filter { it.type == CategoryType.INCOME },
             outcome = all.filter { it.type == CategoryType.OUTCOME }

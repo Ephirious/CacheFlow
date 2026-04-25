@@ -17,8 +17,8 @@ import kotlin.uuid.Uuid
 class CategoriesDatabaseDataSource(
     private val categoriesQueries: CategoriesQueries
 ) {
-    fun getCategoriesFlow(): Flow<List<Category>> {
-        return categoriesQueries.selectAll()
+    fun getCategoriesFlow(onlyActive: Boolean): Flow<List<Category>> {
+        return (if (onlyActive) categoriesQueries.selectActive() else categoriesQueries.selectAll())
             .asFlow()
             .mapToList(AsyncDispatcher)
             .map { entity ->

@@ -12,8 +12,8 @@ class AccountsRepositoryImpl(
     private val dbDataSource: AccountsDatabaseDataSource,
     private val syncManager: SyncManager
 ) : AccountsRepository {
-    override fun getAccountsFlow(): Flow<List<Account>> =
-        dbDataSource.getAccountsFlow().flowOn(AsyncDispatcher)
+    override fun getAccountsFlow(onlyActive: Boolean): Flow<List<Account>> =
+        dbDataSource.getAccountsFlow(onlyActive).flowOn(AsyncDispatcher)
 
     override suspend fun getAccountById(id: String): Account =
         dbDataSource.getAccountById(id)

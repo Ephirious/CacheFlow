@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import utils.types.HexColor
 
 interface AccountsRepository {
-    fun getAccountsFlow(): Flow<List<Account>>
+    fun getAccountsFlow(onlyActive: Boolean = true): Flow<List<Account>>
     suspend fun getAccountById(id: String): Account
 
     suspend fun insertAccount(

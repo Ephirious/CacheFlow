@@ -5,7 +5,7 @@ import editors.models.Category
 import kotlinx.coroutines.flow.Flow
 
 interface CategoriesRepository {
-    fun getCategoriesFlow(): Flow<List<Category>>
+    fun getCategoriesFlow(onlyActive: Boolean = true): Flow<List<Category>>
 
     suspend fun getCategoryById(id: String): Category
 

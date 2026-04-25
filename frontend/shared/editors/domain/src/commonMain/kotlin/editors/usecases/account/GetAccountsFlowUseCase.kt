@@ -6,5 +6,5 @@ import editors.repositories.AccountsRepository
 class GetAccountsFlowUseCase(
     private val repository: AccountsRepository,
 ) {
-    operator fun invoke() = repository.getAccountsFlow()
+    operator fun invoke(onlyActive: Boolean) = repository.getAccountsFlow(onlyActive)
 }
