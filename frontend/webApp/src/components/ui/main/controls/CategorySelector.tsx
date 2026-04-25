@@ -26,7 +26,8 @@ const CategorySelector = ({
                             : "bg-surface-base border-border-strong"
                     }`}
                 >
-                    <span className="text-[15px] font-medium text-text-label">
+                    <span className="flex whitespace-nowrap text-center font-medium text-text-label">
+                        {category.emoji+" "}
                         {category.name}
                     </span>
                 </button>
