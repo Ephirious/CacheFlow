@@ -17,6 +17,7 @@ import pro.respawn.flowmvi.dsl.withState
 import pro.respawn.flowmvi.plugins.JobManager
 import pro.respawn.flowmvi.plugins.init
 import pro.respawn.flowmvi.plugins.whileSubscribed
+import transactions.usecases.DeleteTransactionUseCase
 import transactions.usecases.GetTransactionUseCase
 import transactions.usecases.UpsertTransactionUseCase
 import utils.orUnknown
@@ -56,7 +57,8 @@ class ManageTransactionContainer(
     private val getCategoriesFlowUseCase: GetCategoriesFlowUseCase,
     private val upsertTransactionUseCase: UpsertTransactionUseCase,
     private val getTransactionUseCase: GetTransactionUseCase,
-    private val closeRequest: () -> Unit
+    private val deleteTransactionUseCase: DeleteTransactionUseCase,
+    private val closeModal: () -> Unit
 ) : Container<ManageTransactionState, ManageTransactionIntent, Nothing> {
     val isCreateMode = transactionId == null
 
@@ -99,14 +101,17 @@ class ManageTransactionContainer(
             customReduce { intent ->
                 when (intent) {
                     ManageTransactionIntent.ClickedDelete -> if (!isCreateMode) {
-                        TODO()
+                        withState<ManageTransactionState.OK, _> {
+                            deleteTransactionUseCase(transactionId!!)
+                            closeModal()
+                        }
                     }
 
                     ManageTransactionIntent.ClickedSave -> {
                         withState<ManageTransactionState.OK, _> {
                             if (allValidated()) {
                                 upsertTransactionUseCase(this.form.toDomain(transactionId))
-                                closeRequest()
+                                closeModal()
                             }
                         }
                     }

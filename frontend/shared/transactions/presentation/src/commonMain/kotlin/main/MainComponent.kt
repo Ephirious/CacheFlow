@@ -101,7 +101,8 @@ class RealMainComponent(
                         getCategoriesFlowUseCase = get(),
                         upsertTransactionUseCase = get(),
                         getTransactionUseCase = get(),
-                        closeRequest = { intent(MainIntent.CloseManage) }
+                        deleteTransactionUseCase = get(),
+                        closeModal = { intent(MainIntent.CloseManage) }
                     )
                 }
             )
