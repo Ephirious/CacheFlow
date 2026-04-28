@@ -1,10 +1,30 @@
--- import kotlin.time.Instant;
+import sync.cloud.dtos.SyncActionType;
+import sync.cloud.dtos.SyncTableType;
 
--- CREATE TABLE IF NOT EXISTS SyncDB (
---     id TEXT NOT NULL PRIMARY KEY,
---     processing_id TEXT NOT NULL,
---     action TEXT AS Action NOT NULL,
---     table_type TEXT AS TableType NOT NULL,
---     created_at TEXT AS Instant NOT NULL,
---     updated_at TEXT AS Instant NOT NULL
--- );
+
+CREATE TABLE SyncOperationEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    processing_id TEXT NOT NULL,
+    action TEXT AS SyncActionType NOT NULL,
+    table_type TEXT AS SyncTableType NOT NULL,
+    field_to_update TEXT,
+    value_to_update TEXT,
+    created_at TEXT NOT NULL
+);
+
+CREATE INDEX idx_sync_proc_id_date ON SyncOperationEntity(processing_id, created_at);
+CREATE INDEX idx_sync_created_at ON SyncOperationEntity(created_at);
+CREATE INDEX idx_processing_id ON SyncOperationEntity(processing_id);
+
+getUnsyncedOperations:
+SELECT * FROM SyncOperationEntity ORDER BY created_at ASC;
+
+insertOperation:
+INSERT INTO SyncOperationEntity(id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+deleteSyncOperation:
+DELETE FROM SyncOperationEntity WHERE id = ?;
+
+clearAllSyncOperations:
+DELETE FROM SyncOperationEntity;
