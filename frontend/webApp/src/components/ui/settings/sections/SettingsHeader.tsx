@@ -2,9 +2,12 @@ import {FiMoon, FiSettings} from "react-icons/fi";
 import {SegmentedTabs} from "../primitives";
 import {SettingsTab} from "../types.ts";
 import {settingsTabs} from "../data.tsx";
+import { AppTheme } from "k2ts";
 
 interface SettingsHeaderProps {
+    curTheme: AppTheme;
     tab: SettingsTab;
+    onThemeClick: () => void;
     onTabChange: (tab: SettingsTab) => void;
 }
 
@@ -19,6 +22,8 @@ const SettingsHeader = ({tab, onTabChange}: SettingsHeaderProps) => {
                     <h1 className="text-2xl font-bold">Настройки</h1>
                 </div>
                 <button className="rounded-2xl bg-surface-muted p-2" type="button">
+                    {/*TODO: здесь можно по curTheme анимировать кнопку*/}
+                    {/*TODO: вызывать onThemeClick*/}
                     <FiMoon className="h-6 w-6"/>
                 </button>
             </div>

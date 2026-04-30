@@ -16,9 +16,13 @@ import {
     CategoryType,
     CategoriesPagesOutput,
     AccountsComponent,
-    SettingsModalChild
+    SettingsModalChild,
+    SettingsAction,
+    setJsTheme,
+    SettingsIntent
 } from "k2ts";
 import {useValue, when} from "interop";
+import {useActions} from "../../interop/useActions.ts";
 
 const isStandalone = () =>
     window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & {
@@ -77,6 +81,15 @@ const Accounts = ({component}: { component: AccountsComponent }) => {
 
 const Settings = ({component}: { component: SettingsComponent }) => {
 
+    const state = useValue(component.state)
+
+    useActions(component, (action) => {
+        when(action)
+            .on(SettingsAction.ThemeChanged, ({theme}) => {
+                setJsTheme(theme)
+            })
+            .run()
+    });
 
     const pages = useValue(component.childPages)
     const activeChild = pages.active;
@@ -135,13 +148,16 @@ const Settings = ({component}: { component: SettingsComponent }) => {
 
     return (
         <div className="flex pb-6 flex-col bg-surface-subtle min-h-screen">
-            <SettingsHeader tab={tab} onTabChange={(newTab) => {
-                if (newTab === "categories") {
-                    component.onOutput(SettingsOutput.NavigateToCategories)
-                } else {
-                    component.onOutput(SettingsOutput.NavigateToAccounts)
-                }
-            }}/>
+            <SettingsHeader curTheme={state.currentTheme}
+                            onThemeClick={() => component.intent(SettingsIntent.ChangeTheme)}
+                            tab={tab}
+                            onTabChange={(newTab) => {
+                                if (newTab === "categories") {
+                                    component.onOutput(SettingsOutput.NavigateToCategories)
+                                } else {
+                                    component.onOutput(SettingsOutput.NavigateToAccounts)
+                                }
+                            }}/>
             <SettingsMainSection
                 onAddClick={() => (activeChild.component.onCreateClick())}
                 tab={tab}

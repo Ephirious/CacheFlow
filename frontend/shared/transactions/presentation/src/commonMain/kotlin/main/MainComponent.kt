@@ -49,7 +49,7 @@ interface MainComponent : ComponentContext {
     @Suppress("unused")
     fun intent(intent: MainIntent)
 
-    fun subscribeActions(onAction: (MainAction) -> Unit)
+    fun subscribeActions(onAction: (MainAction) -> Unit): () -> Unit
 
     fun restartAllComponents()
 
@@ -116,12 +116,13 @@ class RealMainComponent(
         jsStateSubscribe(scope = componentCoroutineScope, lifecycleOwner = this)
     }
 
-    override fun subscribeActions(onAction: (MainAction) -> Unit) {
-        subscribe(scope = componentCoroutineScope) {
+    override fun subscribeActions(onAction: (MainAction) -> Unit): () -> Unit {
+        val job = subscribe(scope = componentCoroutineScope) {
             actions.collect { action ->
                 onAction(action)
             }
         }
+        return { job.cancel() }
     }
 
     private fun throwErrorFromChild(message: () -> String) {

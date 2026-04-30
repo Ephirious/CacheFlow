@@ -219,11 +219,12 @@ class RealSettingsComponent(
     }
 
 
-    override fun subscribeActions(onAction: (SettingsAction) -> Unit) {
-        subscribe(scope = componentCoroutineScope) {
+    override fun subscribeActions(onAction: (SettingsAction) -> Unit): () -> Unit {
+        val job = subscribe(scope = componentCoroutineScope) {
             actions.collect { action ->
                 onAction(action)
             }
         }
+        return { job.cancel() }
     }
 }

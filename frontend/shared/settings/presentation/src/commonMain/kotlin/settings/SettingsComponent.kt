@@ -32,7 +32,7 @@ interface SettingsComponent : DefaultPages<SettingsConfig, SettingsChild>, Compo
     @Suppress("unused")
     fun intent(intent: SettingsIntent)
 
-    fun subscribeActions(onAction: (SettingsAction) -> Unit)
+    fun subscribeActions(onAction: (SettingsAction) -> Unit): () -> Unit
 }
 
 @JsExport
