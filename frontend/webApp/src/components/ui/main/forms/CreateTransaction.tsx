@@ -199,6 +199,31 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                 </div>
                 <button
                     onClick={() => {
+                        if (state.isCreateMode) {
+                            return;
+                        }
+                        const isConfirmed = window.confirm("Удалить транзакцию?");
+                        if (!isConfirmed) {
+                            console.info("[ManageTransaction] Delete cancelled by user");
+                            return;
+                        }
+                        console.info("[ManageTransaction] Delete requested", {
+                            value: state.form.value,
+                            date: isoString(state.form.date),
+                            type: state.form.transactionType.type
+                        });
+                        component.intent(ManageTransactionIntent.ClickedDelete);
+                    }}
+                    className={`
+                    rounded-2xl border border-state-danger text-base font-semibold text-state-danger py-4
+                    
+                    ${state.isCreateMode ? "hidden" : ""}
+                    `}
+                >
+                    Удалить
+                </button>
+                <button
+                    onClick={() => {
                         if (hasValidationError) {
                             revealValidationOnSaveAttempt();
                             return;

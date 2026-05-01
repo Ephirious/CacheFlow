@@ -79,7 +79,7 @@ class TransactionsDatabaseDataSource(
 
     suspend fun deleteTransaction(id: String) {
         transactionsQueries.transaction {
-            val relatedOps = transactionsQueries.selectRelatedOperations(id).executeAsList()
+            val relatedOps = transactionsQueries.selectRelatedOperations(id).awaitAsList()
 
             if (relatedOps.isEmpty()) return@transaction
 

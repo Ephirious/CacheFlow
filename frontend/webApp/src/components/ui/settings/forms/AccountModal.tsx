@@ -94,6 +94,19 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                     >
                         {isAddMode ? "Добавить" : "Сохранить"}
                     </button>
+                    {!isAddMode && (
+                        <button
+                            className="h-11 rounded-xl border border-state-danger text-base font-semibold text-state-danger"
+                            onClick={() => {
+                                if (window.confirm("Удалить счёт?")) {
+                                    component.intent(EditAccountIntent.ClickedDelete);
+                                }
+                            }}
+                            type="button"
+                        >
+                            Удалить
+                        </button>
+                    )}
                 </form>
             </SettingsModalShell>
         );

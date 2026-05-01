@@ -80,6 +80,19 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                     >
                         {isAddMode ? "Добавить" : "Сохранить"}
                     </button>
+                    {!isAddMode && (
+                        <button
+                            className="h-11 rounded-xl border border-state-danger text-base font-semibold text-state-danger"
+                            onClick={() => {
+                                if (window.confirm("Удалить категорию?")) {
+                                    component.intent(EditCategoryIntent.ClickedDelete);
+                                }
+                            }}
+                            type="button"
+                        >
+                            Удалить
+                        </button>
+                    )}
                 </form>
             </SettingsModalShell>
         );
