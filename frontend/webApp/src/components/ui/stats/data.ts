@@ -1,18 +1,27 @@
 import {
     CategoryPoint,
+    StatsAccountOption,
     StatsAccountType,
     StatsChartPoint,
     StatsMetricCard,
     StatsMetricType,
-    StatsPeriod
+    StatsPeriod,
+    StatsPresetPeriod
 } from "./types.ts";
+import {accounts as settingsAccounts} from "../settings/data.tsx";
 
 export const currentBalance = "1 183 400 ₽";
 
-export const accountOptions: ReadonlyArray<{ label: string; value: StatsAccountType }> = [
+export const accountOptions: ReadonlyArray<StatsAccountOption> = [
     {label: "Все счета", value: "all"},
-    {label: "Счёт1", value: "account-1"},
-    {label: "Счёт2", value: "account-2"}
+    ...settingsAccounts
+        .filter((account) => !/^Счёт\d+$/i.test(account.title))
+        .map((account) => ({
+        value: account.id as StatsAccountType,
+        label: account.title,
+        balance: account.balance,
+        colorClassName: account.color
+    }))
 ];
 
 export const metricTabs: ReadonlyArray<{ label: string; value: StatsMetricType }> = [
@@ -24,7 +33,8 @@ export const metricTabs: ReadonlyArray<{ label: string; value: StatsMetricType }
 export const periodTabs: ReadonlyArray<{ label: string; value: StatsPeriod }> = [
     {label: "30 дней", value: "30d"},
     {label: "3 мес.", value: "3m"},
-    {label: "6 мес.", value: "6m"}
+    {label: "6 мес.", value: "6m"},
+    {label: "Свой", value: "custom"}
 ];
 
 export const summaryCards: ReadonlyArray<StatsMetricCard> = [
@@ -33,7 +43,7 @@ export const summaryCards: ReadonlyArray<StatsMetricCard> = [
     {title: "Чистый баланс", value: "+328 400", positive: true},
 ];
 
-export const chartDataByMetric: Record<StatsMetricType, Record<StatsPeriod, ReadonlyArray<StatsChartPoint>>> = {
+export const chartDataByMetric: Record<StatsMetricType, Record<StatsPresetPeriod, ReadonlyArray<StatsChartPoint>>> = {
     income: {
         "30d": [
             {label: "1 фев.", dynamics: 12_000, monthly: 12_000},
@@ -115,3 +125,45 @@ export const categoryData: ReadonlyArray<CategoryPoint> = [
     {id: 4, label: "Развлечения", amount: "50 000 ₽", share: 8.2, color: "#8E5AE8"},
     {id: 5, label: "Транспорт", amount: "1 600 ₽", share: 0.3, color: "#F3A214"}
 ];
+
+const MS_IN_DAY = 24 * 60 * 60 * 1000;
+
+const getPresetByRangeLength = (dayCount: number): StatsPresetPeriod => {
+    if (dayCount <= 45) return "30d";
+    if (dayCount <= 120) return "3m";
+    return "6m";
+};
+
+const formatDateLabel = (isoDate: string) =>
+    new Date(isoDate).toLocaleDateString("ru-RU", {day: "numeric", month: "short"});
+
+export const buildChartDataByRange = (
+    metric: StatsMetricType,
+    from: string,
+    to: string
+): ReadonlyArray<StatsChartPoint> => {
+    if (!from || !to) return [];
+
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+
+    if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime()) || fromDate > toDate) {
+        return [];
+    }
+
+    const totalDays = Math.max(Math.round((toDate.getTime() - fromDate.getTime()) / MS_IN_DAY), 1);
+    const sampleSize = Math.min(Math.max(totalDays + 1, 2), 7);
+    const source = chartDataByMetric[metric][getPresetByRangeLength(totalDays)];
+
+    return Array.from({length: sampleSize}, (_, index) => {
+        const progress = sampleSize === 1 ? 0 : index / (sampleSize - 1);
+        const sourceIndex = Math.round(progress * (source.length - 1));
+        const pointDate = new Date(fromDate.getTime() + Math.round(totalDays * progress) * MS_IN_DAY);
+        const sourcePoint = source[sourceIndex];
+
+        return {
+            ...sourcePoint,
+            label: formatDateLabel(pointDate.toISOString())
+        };
+    });
+};

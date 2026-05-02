@@ -1,9 +1,14 @@
 import {categoryData} from "../data.ts";
 
-const TopCategories = () => {
+interface TopCategoriesProps {
+    periodLabel: string;
+}
+
+const TopCategories = ({periodLabel}: TopCategoriesProps) => {
     return (
         <section className="rounded-3xl bg-surface-base p-3 shadow-sm sm:p-5">
             <h2 className="mb-3 text-xl font-bold text-text-primary sm:mb-4 sm:text-3xl">Топ-5 категорий расходов</h2>
+            <p className="mb-3 text-xs text-text-secondary sm:mb-4">Период: {periodLabel}</p>
 
             <div className="space-y-2.5 sm:space-y-3">
                 {categoryData.map((category) => (

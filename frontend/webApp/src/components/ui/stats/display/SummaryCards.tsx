@@ -3,7 +3,10 @@ import {summaryCards} from "../data.ts";
 
 const SummaryCards = () => {
     return (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-3 w-full h-full rounded-3xl bg-surface-base p-4 shadow-sm">
+            <div className="flex justify-center">
+                <h2 className="flex text-xl font-bold text-center">Баланс</h2>
+            </div>
             {summaryCards.map((card, index) => {
                 const isIncome = index === 0;
                 const isExpense = index === 1;
@@ -17,7 +20,7 @@ const SummaryCards = () => {
 
                 return (
                     <div
-                        className={`rounded-2xl bg-white p-3 ${index === 2 ? "col-span-full" : ""}`}
+                        className="rounded-2xl bg-white p-3"
                         key={card.title}
                     >
                         <div
@@ -28,7 +31,7 @@ const SummaryCards = () => {
                             {icon}
                         </div>
                         <p className="text-xs text-text-secondary">{card.title}</p>
-                        <p className={`mt-1 text-3xl font-bold sm:text-4xl ${card.positive ? "text-state-success" : "text-state-danger"}`}>
+                        <p className={`mt-1 whitespace-nowrap text-2xl font-bold sm:text-3xl ${card.positive ? "text-state-success" : "text-state-danger"}`}>
                             {card.value}
                         </p>
                     </div>

@@ -7,29 +7,35 @@ import {
     XAxis,
     YAxis
 } from "recharts";
-import {chartDataByMetric, metricTabs, periodTabs} from "../data.ts";
+import {buildChartDataByRange, chartDataByMetric, metricTabs} from "../data.ts";
 import {SegmentedControl} from "../primitives";
-import {StatsMetricType, StatsPeriod} from "../types.ts";
+import {StatsDateRange, StatsMetricType, StatsPeriod} from "../types.ts";
 
 interface CombinedStatsChartProps {
     period: StatsPeriod;
     metric: StatsMetricType;
+    dateRange: StatsDateRange;
     onMetricChange: (metric: StatsMetricType) => void;
-    onPeriodChange: (period: StatsPeriod) => void;
 }
 
-const CombinedStatsChart = ({period, metric, onMetricChange, onPeriodChange}: CombinedStatsChartProps) => {
-    const data = chartDataByMetric[metric][period];
+const CombinedStatsChart = ({
+    period,
+    metric,
+    dateRange,
+    onMetricChange,
+}: CombinedStatsChartProps) => {
+    const data = period === "custom"
+        ? buildChartDataByRange(metric, dateRange.from, dateRange.to)
+        : chartDataByMetric[metric][period];
 
     return (
-        <div className="flex flex-col rounded-3xl bg-surface-base p-4 shadow-sm gap-4">
+        <div className="flex w-full flex-col h-full rounded-3xl bg-surface-base p-4 shadow-sm gap-4">
             <div className="flex justify-center">
                 <h2 className="flex text-xl font-bold text-center">Динамика</h2>
             </div>
 
             <div className="flex flex-wrap gap-2 justify-center">
-                <SegmentedControl value={metric} options={metricTabs} onChange={onMetricChange} compact/>
-                <SegmentedControl value={period} options={periodTabs} onChange={onPeriodChange} compact/>
+                <SegmentedControl value={metric} options={metricTabs} onChange={onMetricChange}/>
             </div>
 
             <div className="mb-2 flex items-center gap-3 text-xs text-text-secondary">
@@ -39,7 +45,7 @@ const CombinedStatsChart = ({period, metric, onMetricChange, onPeriodChange}: Co
                 </span>
             </div>
 
-            <div className="h-56 w-full sm:h-72">
+            <div className="h-56 w-full">
                 <ResponsiveContainer>
                     <LineChart data={[...data]} margin={{top: 12, right: 8, left: -16, bottom: 0}}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false}/>
