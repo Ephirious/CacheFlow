@@ -21,6 +21,7 @@ data class AccountRecordDTO(
 data class CategoryRecordDTO(
     val id: String,
     val name: String,
+    val emoji: String
 ) : RecordDTO
 
 @Serializable
@@ -72,13 +73,13 @@ data class SyncOperationDTO(
 @Serializable
 data class SyncRequest(
     @SerialName("last_sync_date") val lastSyncDate: String,
-    @SerialName("sync_ops") val operations: List<SyncOperationDTO>, // Поправил на sync_ops как в Python
+    @SerialName("sync_ops") val operations: List<SyncOperationDTO>,
 )
 
 @Serializable
 data class UpdateState(
     @SerialName("table_type") val tableType: SyncTableType,
-    val record: JsonElement, // Сначала берем как сырой JSON
+    val record: JsonElement,
     @SerialName("updated_at") val updatedAt: String,
 ) {
     fun getTypedRecord(json: Json): RecordDTO {

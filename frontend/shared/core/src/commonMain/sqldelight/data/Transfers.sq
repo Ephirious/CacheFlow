@@ -10,6 +10,43 @@ CREATE TABLE IF NOT EXISTS Transfers (
     FOREIGN KEY (account_to_id) REFERENCES Accounts(id)
 );
 
+
+CREATE TRIGGER IF NOT EXISTS trg_transfers_sync_insert
+AFTER INSERT ON Transfers
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, created_at)
+    VALUES (lower(hex(randomblob(16))), new.id, 'create', 'transfer', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+END;
+
+
+CREATE TRIGGER IF NOT EXISTS trg_transfers_sync_update_from
+AFTER UPDATE OF account_from_id ON Transfers
+WHEN old.account_from_id IS NOT new.account_from_id
+     AND NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
+    VALUES (lower(hex(randomblob(16))), new.id, 'update', 'transfer', 'account_from_id', new.account_from_id, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_transfers_sync_update_to
+AFTER UPDATE OF account_to_id ON Transfers
+WHEN old.account_to_id IS NOT new.account_to_id
+     AND NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
+    VALUES (lower(hex(randomblob(16))), new.id, 'update', 'transfer', 'account_to_id', new.account_to_id, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_transfers_sync_delete
+BEFORE DELETE ON Transfers
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, created_at)
+    SELECT lower(hex(randomblob(16))), old.id, 'delete', 'transfer', strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+    WHERE NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = old.id AND action = 'create');
+
+    DELETE FROM SyncOperations WHERE processing_id = old.id AND action != 'delete';
+END;
+
 selectAll:
 SELECT * FROM Transfers;
 

@@ -2,7 +2,7 @@ import sync.cloud.dtos.SyncActionType;
 import sync.cloud.dtos.SyncTableType;
 
 
-CREATE TABLE SyncOperationEntity (
+CREATE TABLE SyncOperations (
     id TEXT NOT NULL PRIMARY KEY,
     processing_id TEXT NOT NULL,
     action TEXT AS SyncActionType NOT NULL,
@@ -12,19 +12,58 @@ CREATE TABLE SyncOperationEntity (
     created_at TEXT NOT NULL
 );
 
-CREATE INDEX idx_sync_proc_id_date ON SyncOperationEntity(processing_id, created_at);
-CREATE INDEX idx_sync_created_at ON SyncOperationEntity(created_at);
-CREATE INDEX idx_processing_id ON SyncOperationEntity(processing_id);
+CREATE INDEX idx_sync_proc_id_date ON SyncOperations(processing_id, created_at);
+CREATE INDEX idx_sync_created_at ON SyncOperations(created_at);
+CREATE INDEX idx_processing_id ON SyncOperations(processing_id);
 
 getUnsyncedOperations:
-SELECT * FROM SyncOperationEntity ORDER BY created_at ASC;
+SELECT * FROM SyncOperations ORDER BY created_at ASC;
 
 insertOperation:
-INSERT INTO SyncOperationEntity(id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
+INSERT INTO SyncOperations(id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
 VALUES (?, ?, ?, ?, ?, ?, ?);
 
-deleteSyncOperation:
-DELETE FROM SyncOperationEntity WHERE id = ?;
+deleteSyncOperations:
+DELETE FROM SyncOperations WHERE id = ?;
 
-clearAllSyncOperations:
-DELETE FROM SyncOperationEntity;
+clearAllSyncOperationss:
+DELETE FROM SyncOperations;
+
+getSyncQueue:
+SELECT
+    op.id,
+    op.processing_id,
+    op.action,
+    op.table_type,
+    op.field_to_update,
+    op.value_to_update,
+    op.created_at,
+    -- accounts
+    acc.name AS acc_name,
+    acc.color AS acc_color,
+    acc.funds AS acc_funds,
+    -- cat
+    cat.name AS cat_name,
+    cat.emoji AS cat_emoji,
+    -- oper
+    oper.account_uuid AS oper_account_uuid,
+    oper.transfer_id AS oper_transfer_id,
+    oper.category_uuid AS oper_category_uuid, -- rename on backend
+    oper.amount AS oper_amount,
+    oper.date AS oper_date,
+    oper.notes AS oper_notes,
+    --tran
+    tran.account_from_id AS tran_account_from_id,
+    tran.account_to_id AS tran_account_to_id
+
+FROM SyncOperations op
+LEFT JOIN Accounts acc ON op.processing_id = acc.id AND op.table_type = 'accounts' AND op.action = 'create'
+LEFT JOIN Categories cat ON op.processing_id = cat.id AND op.table_type = 'categories' AND op.action = 'create'
+LEFT JOIN Operations oper ON op.processing_id = oper.id AND op.table_type = 'operations' AND op.action = 'create'
+LEFT JOIN Transfers tran ON op.processing_id = tran.id AND op.table_type = 'transfers' AND op.action = 'create'
+ORDER BY op.created_at;
+
+getCreateOperationByProcessingId:
+SELECT * FROM SyncOperations
+WHERE processing_id = ? AND action = 'create'
+LIMIT 1;

@@ -16,6 +16,72 @@ CREATE TABLE IF NOT EXISTS Operations (
     FOREIGN KEY (transfer_id) REFERENCES Transfers(id)
 );
 
+CREATE TRIGGER IF NOT EXISTS trg_operations_sync_insert
+AFTER INSERT ON Operations
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, created_at)
+    VALUES (lower(hex(randomblob(16))), new.id, 'create', 'operations', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_operations_sync_update_transfer
+AFTER UPDATE OF transfer_id ON Operations
+WHEN old.transfer_id IS NOT new.transfer_id AND NOT EXISTS  (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
+    VALUES (lower(hex(randomblob(16))), new.id, 'update', 'operations', 'transfer_id', new.transfer_id, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_operations_sync_update_amount
+AFTER UPDATE OF amount ON Operations
+WHEN old.amount IS NOT new.amount AND NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
+    VALUES (lower(hex(randomblob(16))), new.id, 'update', 'operations', 'amount', CAST(new.amount AS TEXT), strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_operations_sync_update_category
+AFTER UPDATE OF category_uuid ON Operations
+WHEN old.category_uuid IS NOT new.category_uuid AND NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
+    VALUES (lower(hex(randomblob(16))), new.id, 'update', 'operations', 'category_uuid', new.category_uuid, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_operations_sync_update_date
+AFTER UPDATE OF date ON Operations
+WHEN old.date IS NOT new.date AND NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
+    VALUES (lower(hex(randomblob(16))), new.id, 'update', 'operations', 'date', CAST(new.date AS TEXT), strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_operations_sync_update_notes
+AFTER UPDATE OF notes ON Operations
+WHEN old.notes IS NOT new.notes AND NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
+    VALUES (lower(hex(randomblob(16))), new.id, 'update', 'operations', 'notes', new.notes, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_operations_sync_update_account
+AFTER UPDATE OF account_uuid ON Operations
+WHEN old.account_uuid IS NOT new.account_uuid AND NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
+    VALUES (lower(hex(randomblob(16))), new.id, 'update', 'operations', 'account_uuid', new.account_uuid, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+END;
+
+
+CREATE TRIGGER IF NOT EXISTS trg_operations_sync_delete
+BEFORE DELETE ON Operations
+BEGIN
+    INSERT INTO SyncOperations (id, processing_id, action, table_type, created_at)
+    SELECT lower(hex(randomblob(16))), old.id, 'delete', 'operations', strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+    WHERE NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = old.id AND action = 'create');
+
+    DELETE FROM SyncOperations WHERE processing_id = old.id AND action != 'delete';
+END;
+
 selectAll:
 SELECT * FROM Operations ORDER BY date DESC, created_at DESC;
 
