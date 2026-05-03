@@ -12,3 +12,4 @@ class AccountRepository(GenericRepository[Account, AccountRecord, AccountUpdate]
 
     async def delete(self, entity_id: UUID):
         stmt = update(Account).where(Account.id == entity_id).values(is_deleted = True)
+        await self._session.execute(stmt)

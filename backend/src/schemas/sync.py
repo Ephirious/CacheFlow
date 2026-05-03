@@ -38,7 +38,7 @@ class SyncOperation(SyncOperationBase):
 
             allowed = {
                 TableType.CATEGORIES: {'name'},
-                TableType.OPERATIONS: {'account_uuid', 'transfer_id', 'category_id', 'amount', 'date', 'notes'},
+                TableType.OPERATIONS: {'account_uuid', 'transfer_id', 'category_uuid', 'amount', 'date', 'notes'},
                 TableType.ACCOUNTS: {'name', 'color', 'funds'},
                 TableType.TRANSFER: {'account_from_id', 'account_to_id'}
             }
