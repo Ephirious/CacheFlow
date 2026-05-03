@@ -37,7 +37,7 @@ class SyncOperation(SyncOperationBase):
                 raise ValueError('"field_to_update" must not be empty')
 
             allowed = {
-                TableType.CATEGORIES: {'name'},
+                TableType.CATEGORIES: {'name', 'emoji'},
                 TableType.OPERATIONS: {'account_uuid', 'transfer_id', 'category_uuid', 'amount', 'date', 'notes'},
                 TableType.ACCOUNTS: {'name', 'color', 'funds'},
                 TableType.TRANSFER: {'account_from_id', 'account_to_id'}

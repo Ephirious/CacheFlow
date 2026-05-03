@@ -11,4 +11,5 @@ class Category(Base):
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
     name: Mapped[str] = mapped_column(String(100))
+    emoji: Mapped[str] = mapped_column(String(20))
     is_deleted: Mapped[bool] = mapped_column(Boolean, default = False)
