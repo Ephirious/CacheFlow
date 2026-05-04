@@ -9,9 +9,9 @@ const ExpenseDistribution = ({categories}: ExpenseDistributionProps) => {
     const hasCategories = categories.length > 0;
 
     return (
-        <section className="flex flex-col h-full rounded-3xl bg-surface-base p-3 shadow-sm gap-3">
+        <section className="flex flex-col h-full rounded-3xl bg-surface-sheet p-3 shadow-sm gap-3">
             <div className="flex justify-center">
-                <h2 className="text-xl font-bold text-text-primary sm:text-3xl">Распределение</h2>
+                <h2 className="text-xl font-bold text-text-primary sm:text-3xl">Расходы</h2>
             </div>
             {hasCategories ? (
                 <>

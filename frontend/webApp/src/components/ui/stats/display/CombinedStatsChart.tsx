@@ -23,9 +23,9 @@ const CombinedStatsChart = ({
     onMetricChange,
 }: CombinedStatsChartProps) => {
     return (
-        <div className="flex w-full flex-col h-full rounded-3xl bg-surface-base p-4 shadow-sm gap-4">
+        <div className="flex w-full flex-col h-full rounded-3xl bg-surface-sheet p-4 shadow-sm gap-4">
             <div className="flex justify-center">
-                <h2 className="flex text-xl font-bold text-center">Динамика</h2>
+                <h2 className="flex text-xl font-bold text-center text-text-primary">Динамика</h2>
             </div>
 
             <div className="flex flex-wrap gap-2 justify-center">

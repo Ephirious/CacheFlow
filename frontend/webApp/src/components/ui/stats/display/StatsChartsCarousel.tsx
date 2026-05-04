@@ -46,7 +46,7 @@ const StatsChartsCarousel = ({
 }: StatsChartsCarouselProps) => {
     return (
         <div className="flex flex-col rounded-3xl gap-4">
-            <section className="rounded-3xl bg-surface-muted p-4 shadow-sm">
+            <section className="rounded-3xl bg-surface-sheet p-4 shadow-sm">
                 <h2 className="text-base font-bold text-text-primary">Фильтры</h2>
                 <div className="mt-3 flex flex-col gap-2">
                     <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">Период</p>
