@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS Operations (
     amount TEXT AS BigDecimal NOT NULL,
     date TEXT AS Instant NOT NULL,
     notes TEXT NOT NULL,
-    created_at TEXT AS Instant NOT NULL,
-    updated_at TEXT AS Instant NOT NULL,
+    created_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    updated_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     FOREIGN KEY (account_uuid) REFERENCES Accounts(id),
     FOREIGN KEY (category_uuid) REFERENCES Categories(id),
     FOREIGN KEY (transfer_id) REFERENCES Transfers(id)
@@ -30,14 +30,18 @@ SELECT
     acc.id AS acc_id,
     acc.name AS acc_name,
     acc.funds AS acc_funds,
+    acc.color AS acc_color,
     -- category (might be null!!)
     cat.id AS cat_id,
     cat.name AS cat_name,
+    cat.emoji AS cat_emoji,
+    cat.type AS cat_type,
     -- transfer_data (might be null!!)
     t.id AS transfer_id,
     acc_to.id AS target_acc_id,
     acc_to.name AS target_acc_name,
-    acc_to.funds AS target_acc_funds
+    acc_to.funds AS target_acc_funds,
+    acc_to.color AS target_acc_color
 FROM Operations op
 JOIN Accounts acc ON op.account_uuid = acc.id
 LEFT JOIN Categories cat ON op.category_uuid = cat.id
@@ -48,13 +52,88 @@ LEFT JOIN Accounts acc_to ON (
         ELSE t.account_from_id
     END = acc_to.id
 )
+WHERE
+    (
+        -- Общая лента (accountId не передан)
+        -- Показываем все доходы/расходы, а из переводов берем только сторону ПОЛУЧАТЕЛЯ (чтобы всё было с +)
+        :accountId IS NULL
+        AND (op.transfer_id IS NULL OR op.account_uuid = t.account_to_id)
+    )
+    OR
+    (
+        -- Фильтр по конкретному счету
+        -- Показываем строго те операции, которые привязаны к этому счету
+        op.account_uuid = :accountId
+    )
 ORDER BY op.date DESC, op.created_at DESC;
 
 selectById:
 SELECT * FROM Operations WHERE id = ?;
 
 upsert:
-INSERT OR REPLACE INTO Operations VALUES ?;
+INSERT INTO Operations(id, account_uuid, category_uuid, transfer_id, amount, date, notes)
+VALUES (?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(id) DO UPDATE SET
+    id = excluded.id,
+    account_uuid = excluded.account_uuid,
+    category_uuid = excluded.category_uuid,
+    transfer_id = excluded.transfer_id,
+    amount = excluded.amount,
+    date = excluded.date,
+    notes = excluded.notes,
+    updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+
+selectRelatedOperations:
+SELECT * FROM Operations
+WHERE id = :id
+OR (transfer_id IS NOT NULL AND transfer_id = (SELECT transfer_id FROM Operations WHERE id = :id));
+
+deleteByTransferId:
+DELETE FROM Operations WHERE transfer_id = ?;
+
+selectPrimaryWithAccountAndCategoryById:
+WITH PrimaryOp AS (
+    SELECT * FROM Operations
+    WHERE
+        (transfer_id IS NOT NULL AND transfer_id = (SELECT transfer_id FROM Operations WHERE id = :id))
+        OR id = :id
+    ORDER BY
+        CASE WHEN amount LIKE '-%' THEN 0 ELSE 1 END ASC,
+        CASE WHEN id = :id THEN 0 ELSE 1 END ASC
+    LIMIT 1
+)
+SELECT
+    op.id,
+    op.amount,
+    op.date,
+    op.notes,
+    op.created_at,
+    -- account
+    acc.id AS acc_id,
+    acc.name AS acc_name,
+    acc.funds AS acc_funds,
+    acc.color AS acc_color,
+    -- category
+    cat.id AS cat_id,
+    cat.name AS cat_name,
+    cat.emoji AS cat_emoji,
+    cat.type AS cat_type,
+    -- transfer_data
+    t.id AS transfer_id,
+    acc_to.id AS target_acc_id,
+    acc_to.name AS target_acc_name,
+    acc_to.funds AS target_acc_funds,
+    acc_to.color AS target_acc_color
+FROM PrimaryOp op
+JOIN Accounts acc ON op.account_uuid = acc.id
+LEFT JOIN Categories cat ON op.category_uuid = cat.id
+LEFT JOIN Transfers t ON op.transfer_id = t.id
+LEFT JOIN Accounts acc_to ON (
+    CASE
+        WHEN t.account_from_id = op.account_uuid THEN t.account_to_id
+        ELSE t.account_from_id
+    END = acc_to.id
+);
 
 delete:
 DELETE FROM Operations WHERE id = ?;

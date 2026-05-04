@@ -1,10 +1,26 @@
 package settings
 
 import com.arkivanov.decompose.ComponentContext
+import kotlinx.serialization.Serializable
+import settings.modals.SettingsModalChild
+import settings.pages.SettingsPageComponent
+import settings.pages.accounts.AccountsComponent
+import settings.pages.categories.CategoriesPagesComponent
+import utils.Url
+import utils.interop.JsChildSlot
+import utils.interop.JsValue
+import utils.presentation.DefaultPages
 import kotlin.js.JsExport
 
 @JsExport
-interface SettingsComponent : ComponentContext {
+interface SettingsComponent : DefaultPages<SettingsConfig, SettingsChild>, ComponentContext {
+
+
+    val jsModalSlot: JsValue<JsChildSlot<SettingsModalChild>>
+
+    fun onOutput(output: SettingsOutput)
+
+    fun dismissSlot()
 
 //    @JsName("state")
 //    val jsState: JsValue<MoreState>
@@ -13,14 +29,37 @@ interface SettingsComponent : ComponentContext {
 //    fun intent(intent: MoreIntent)
 }
 
-class RealSettingsComponent(
-    componentCtx: ComponentContext,
-//    container: () -> MoreContainer,
-) : SettingsComponent, ComponentContext by componentCtx {
-//    Store<MoreState, MoreIntent, Nothing> by componentCtx.retainedStore(factory = container)
+@JsExport
+sealed class SettingsOutput {
+    data object NavigateToCategories : SettingsOutput()
+    data object NavigateToAccounts : SettingsOutput()
+}
 
-//    @OptIn(InternalFlowMVIAPI::class)
-//    override val jsState: JsValue<MoreState> by lazy {
-//        jsStateSubscribe(scope = componentCoroutineScope, lifecycleOwner = this)
-//    }
+@Serializable
+sealed class SettingsConfig(val index: Int) {
+
+    companion object {
+        val list: (Categories) -> List<SettingsConfig> = { categories ->
+            listOf(categories, Accounts).sortedBy { it.index }
+        }
+    }
+
+    @Serializable
+    data class Categories(val deepLinkUrl: Url?) : SettingsConfig(0)
+
+    @Serializable
+    data object Accounts : SettingsConfig(1)
+}
+
+@JsExport
+sealed class SettingsChild(
+    open val component: SettingsPageComponent
+) {
+
+
+    @Suppress("unused")
+    class CategoriesChild(override val component: CategoriesPagesComponent) : SettingsChild(component)
+
+    @Suppress("unused")
+    class AccountsChild(override val component: AccountsComponent) : SettingsChild(component)
 }
