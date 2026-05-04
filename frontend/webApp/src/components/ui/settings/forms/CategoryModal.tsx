@@ -22,7 +22,7 @@ interface CategoryModalProps {
     onClose: () => void;
 }
 
-const inputClass = "flex py-3 px-4 rounded-xl border border-border-default bg-surface-muted text-base outline-none placeholder:text-text-muted";
+const inputClass = "flex py-3 px-4 rounded-xl border border-border-default bg-surface-muted text-base outline-none placeholder:text-text-muted text-text-primary";
 
 const CategoryModal = ({open, component, mode, category, onClose}: CategoryModalProps) => {
 

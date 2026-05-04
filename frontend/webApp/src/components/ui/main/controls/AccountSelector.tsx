@@ -16,9 +16,9 @@ const AccountSelector = ({accounts, selectedId, onSelect}: AccountSelectorProps)
         <div className="relative">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between px-4 py-3.5 bg-surface-base rounded-2xl border border-border-strong"
+                className="w-full flex items-center justify-between px-4 py-3.5 bg-surface-muted rounded-2xl border border-border-strong"
             >
-                <span className={selectedAccount ? "text-text-primary" : "text-text-secondary"}>
+                <span className={selectedAccount ? "text-text-primary" : "text-text-primary"}>
                     {selectedAccount ? selectedAccount.title : "Выберите счёт"}
                 </span>
                 <IoChevronDown

@@ -178,10 +178,10 @@ const MainOK = ({component}: { component: MainComponent }) => {
                 repositionInputs={false}
                 fixed={true}
                 zIndex={60}
-                backgroundColor="var(--color-surface-sheet)"
+                backgroundColor="var(--color-surface-base)"
                 className="sm:hidden"
                 themeMode="interpolate"
-                themeTargetColor="var(--color-surface-sheet)"
+                themeTargetColor="var(--color-surface-base)"
                 useCurrentThemeAsBase={true}
                 themeInterpolationStartThreshold={sheetThemeThreshold}
                 contentPaddingBottom="calc(env(safe-area-inset-bottom))"

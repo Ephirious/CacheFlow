@@ -109,10 +109,11 @@ const Settings = ({component}: { component: SettingsComponent }) => {
         let tintBarEl: HTMLDivElement | null = null;
 
         const applyWhiteTheme = () => {
-            if (themeMeta) themeMeta.content = "#ffffff";
+            const bgColor = getComputedStyle(document.documentElement).getPropertyValue("--color-surface-base").trim() || "#ffffff";
+            if (themeMeta) themeMeta.content = bgColor;
             if (appleStatusMeta) appleStatusMeta.content = "default";
-            document.documentElement.style.backgroundColor = "#ffffff";
-            document.body.style.backgroundColor = "#ffffff";
+            document.documentElement.style.backgroundColor = "";
+            document.body.style.backgroundColor = "";
         };
 
         applyWhiteTheme();
@@ -120,7 +121,8 @@ const Settings = ({component}: { component: SettingsComponent }) => {
         if (needsManualKick) {
             let frame = 0;
             const kickThemeRefresh = () => {
-                const nextTintBar = createTintBar("#ffffff");
+                const bgColor = getComputedStyle(document.documentElement).getPropertyValue("--color-surface-base").trim() || "#ffffff";
+                const nextTintBar = createTintBar(bgColor);
                 if (!tintBarEl) {
                     document.body.appendChild(nextTintBar);
                 } else {
@@ -147,7 +149,7 @@ const Settings = ({component}: { component: SettingsComponent }) => {
     }, []);
 
     return (
-        <div className="flex pb-6 flex-col bg-surface-subtle min-h-screen">
+        <div className="flex pb-6 flex-col bg-surface-base min-h-screen">
             <SettingsHeader curTheme={state.currentTheme}
                             onThemeClick={() => component.intent(SettingsIntent.ChangeTheme)}
                             tab={tab}

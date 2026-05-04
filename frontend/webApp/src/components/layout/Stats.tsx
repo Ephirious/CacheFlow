@@ -35,7 +35,7 @@ const StatsScreen = ({accountOptions}: StatsScreenProps) => {
         }
     }, [accountOptions, account]);
     return (
-        <div className="flex min-h-screen flex-col bg-surface-subtle md:pb-8">
+        <div className="flex min-h-screen flex-col bg-surface-base md:pb-8">
             <StatsHero/>
 
             <div className="flex p-6 w-full max-w-5xl flex-col gap-3">
