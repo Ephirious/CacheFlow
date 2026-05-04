@@ -4,12 +4,13 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-class AccountRecord(BaseModel):
+class AccountCreateRecord(BaseModel):
     id: UUID
     name: str
     color: str
-    funds: Decimal
 
+class AccountOutRecord(AccountCreateRecord):
+    funds: Decimal
 
 class AccountUpdate(BaseModel):
     name: Optional[str] = None

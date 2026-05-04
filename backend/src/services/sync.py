@@ -6,12 +6,12 @@ from pydantic import BaseModel
 from backend.src.models.sync import Action, TableType
 from backend.src.repositories.base import GenericRepository
 from backend.src.repositories.uow import UnitOfWork
-from backend.src.schemas.account import AccountRecord, AccountUpdate
+from backend.src.schemas.account import AccountCreateRecord, AccountUpdate, AccountOutRecord
 from backend.src.schemas.category import CategoryRecord, CategoryUpdate
 from backend.src.schemas.operation import OperationRecord, OperationUpdate
 from backend.src.schemas.result import ErrorCode, Result
-from backend.src.schemas.sync import RECORD, StateDelete, StateUpdate, SyncOperation, SyncOperationBase, SyncResponse
-from backend.src.models import SyncOperation as ModelSyncOperation, Account, Transfer, Operation, Category
+from backend.src.schemas.sync import RECORD_CREATE, RECORD_OUT, StateDelete, StateUpdate, SyncOperation, SyncResponse
+from backend.src.models import SyncOperation as ModelSyncOperation
 from backend.src.schemas.transfer import TransferRecord, TransferUpdate
 
 
@@ -20,18 +20,18 @@ class SyncService:
 
     def __init__(self, uow: UnitOfWork):
         self.uow = uow
-        self._schemas_map: dict[TableType, tuple[GenericRepository, BaseModel, BaseModel]] = {
-            TableType.ACCOUNTS: (self.uow.account_repository, AccountRecord, AccountUpdate),
-            TableType.OPERATIONS: (self.uow.operation_repository, OperationRecord, OperationUpdate),
-            TableType.CATEGORIES: (self.uow.category_repository, CategoryRecord, CategoryUpdate),
-            TableType.TRANSFER: (self.uow.transfer_repository, TransferRecord, TransferUpdate)
+        self._schemas_map: dict[TableType, tuple[GenericRepository, BaseModel, BaseModel, BaseModel]] = {
+            TableType.ACCOUNTS: (self.uow.account_repository, AccountCreateRecord, AccountUpdate, AccountOutRecord),
+            TableType.OPERATIONS: (self.uow.operation_repository, OperationRecord, OperationUpdate, OperationRecord),
+            TableType.CATEGORIES: (self.uow.category_repository, CategoryRecord, CategoryUpdate, CategoryRecord),
+            TableType.TRANSFER: (self.uow.transfer_repository, TransferRecord, TransferUpdate, TransferRecord)
         }
 
 
-    async def _apply_updates(self, id: UUID, updates: dict[str, str], table_type: TableType) -> Optional[RECORD]:
+    async def _apply_updates(self, id: UUID, updates: dict[str, str], table_type: TableType) -> Optional[RECORD_OUT]:
         if not updates:
             return None
-        repo, schema_record, schema_upd = self._schemas_map[table_type]
+        repo, _, schema_upd, schema_record = self._schemas_map[table_type]
         db_record = await repo.get_by_id(id)
         if not db_record:
             return None
@@ -40,8 +40,8 @@ class SyncService:
         return schema_record.model_validate(updated, from_attributes=True)
         
 
-    async def _apply_create(self, row: RECORD, table_type: TableType) -> RECORD:
-        repo, schema_record, _ = self._schemas_map[table_type]
+    async def _apply_create(self, row: RECORD_CREATE, table_type: TableType) -> RECORD_OUT:
+        repo, schema_record, _, _ = self._schemas_map[table_type]
         created = await repo.insert(row)
         return schema_record.model_validate(created, from_attributes=True)
     
@@ -70,6 +70,8 @@ class SyncService:
             update_state=[]
         )
 
+        affected_accounts = set()
+
         try:
             for p_id, ops in grouped_ops.items():
                 table_type = ops[0].table_type
@@ -90,10 +92,16 @@ class SyncService:
                         if not db_exists:
                             cur_record = await self._apply_create(op.record_to_create, table_type)
                             should_apply = True
+                            if op.table_type == TableType.OPERATIONS:
+                                affected_accounts.add(cur_record.account_uuid)
                         else:
                             cur_record = db_exists
 
                     elif op.action == Action.UPDATE:
+                        if op.table_type == TableType.OPERATIONS and op.field_to_update == 'account_uuid':
+                            oper_rec = await self.uow.operation_repository.get_by_id(p_id)
+                            if oper_rec:
+                                affected_accounts.add(oper_rec.account_uuid)
                         is_stale = any(
                             h.field_to_update == op.field_to_update and h.created_at >= op.created_at 
                             for h in h_ops
@@ -103,7 +111,11 @@ class SyncService:
                             should_apply = True
 
                     elif op.action == Action.DELETE:
+                        if op.table_type == TableType.OPERATIONS:
+                            rec = await self.uow.operation_repository.get_by_id(p_id)
+                            affected_accounts.add(rec.account_uuid)
                         await self._apply_delete(p_id, table_type)
+                        
                         resp.delete_operations.append(StateDelete(table_type=table_type, id=p_id))
                         should_apply = True
                         cur_record = None
@@ -119,6 +131,8 @@ class SyncService:
                 if cur_record or should_apply:
                     resp.accepted_ids.append(p_id)
                     if cur_record:
+                        if op.table_type == TableType.OPERATIONS:
+                            affected_accounts.add(cur_record.account_uuid)
                         resp.update_state.append(StateUpdate(
                             table_type=table_type, 
                             record=cur_record, 
@@ -147,6 +161,19 @@ class SyncService:
                         ))
                 added_ids.add(s_op.processing_id)
             resp.last_sync_date = datetime.now(timezone.utc)
+            await self.uow._session.flush()
+
+            affected_accounts = {a for a in affected_accounts if a not in added_ids}
+
+            if affected_accounts:
+                affected_acc_records = await self.uow.account_repository.get_by_in(list(affected_accounts))
+                for acc in affected_acc_records:
+                    resp.update_state.append(StateUpdate(
+                        table_type = TableType.ACCOUNTS,
+                        record = AccountOutRecord.model_validate(acc),
+                        updated_at = acc.updated_at
+                    ))
+                    
             await self.uow.commit()
             return Result.ok(resp)
 
