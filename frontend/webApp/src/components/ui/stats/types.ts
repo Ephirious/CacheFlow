@@ -17,8 +17,7 @@ export interface StatsDateRange {
 
 export interface StatsChartPoint {
     label: string;
-    dynamics: number;
-    monthly: number;
+    value: number;
 }
 
 export interface StatsMetricCard {
@@ -28,9 +27,9 @@ export interface StatsMetricCard {
 }
 
 export interface CategoryPoint {
-    id: number;
+    id: string;
     label: string;
     amount: string;
     share: number;
-    color: string;
+    color?: string;
 }

@@ -7,27 +7,21 @@ import {
     XAxis,
     YAxis
 } from "recharts";
-import {buildChartDataByRange, chartDataByMetric, metricTabs} from "../data.ts";
+import {metricTabs} from "../data.ts";
 import {SegmentedControl} from "../primitives";
-import {StatsDateRange, StatsMetricType, StatsPeriod} from "../types.ts";
+import {StatsChartPoint, StatsMetricType} from "../types.ts";
 
 interface CombinedStatsChartProps {
-    period: StatsPeriod;
     metric: StatsMetricType;
-    dateRange: StatsDateRange;
+    points: ReadonlyArray<StatsChartPoint>;
     onMetricChange: (metric: StatsMetricType) => void;
 }
 
 const CombinedStatsChart = ({
-    period,
     metric,
-    dateRange,
+    points,
     onMetricChange,
 }: CombinedStatsChartProps) => {
-    const data = period === "custom"
-        ? buildChartDataByRange(metric, dateRange.from, dateRange.to)
-        : chartDataByMetric[metric][period];
-
     return (
         <div className="flex w-full flex-col h-full rounded-3xl bg-surface-base p-4 shadow-sm gap-4">
             <div className="flex justify-center">
@@ -47,7 +41,7 @@ const CombinedStatsChart = ({
 
             <div className="h-56 w-full">
                 <ResponsiveContainer>
-                    <LineChart data={[...data]} margin={{top: 12, right: 8, left: -16, bottom: 0}}>
+                    <LineChart data={[...points]} margin={{top: 12, right: 8, left: -16, bottom: 0}}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false}/>
                         <XAxis axisLine={false} dataKey="label" tickLine={false}
                                tick={{fontSize: 12, fill: "#64748B"}}/>
@@ -59,14 +53,11 @@ const CombinedStatsChart = ({
                                 border: "1px solid #E5E7EB",
                                 boxShadow: "0 10px 24px rgba(15, 23, 42, 0.06)"
                             }}
-                            formatter={(value: number, name: string) => [
-                                `${value.toLocaleString("ru-RU")} ₽`,
-                                name === "dynamics" ? "Динамика" : name
-                            ]}
+                            formatter={(value: number) => [`${value.toLocaleString("ru-RU")} ₽`, "Динамика"]}
                             labelStyle={{color: "#0F172A", fontWeight: 600}}
                         />
                         <Line
-                            dataKey="dynamics"
+                            dataKey="value"
                             stroke="#4F39F6"
                             strokeWidth={3}
                             dot={{r: 4, fill: "#4F39F6", stroke: "#ffffff", strokeWidth: 2}}

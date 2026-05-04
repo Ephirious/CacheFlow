@@ -11,9 +11,6 @@ import Stats from "./Stats.tsx";
 const RootScreen = ({component}: { component: RootComponent }) => {
     const pages = useValue(component.childPages)
     const activeChild = pages.active;
-    const mainChild = pages.items
-        .asJsReadonlyArrayView()
-        .find((child) => child instanceof RootChild.MainChild);
     const isMainActive = activeChild instanceof RootChild.MainChild;
     const disablePageOverscroll = activeChild instanceof RootChild.StatsChild || activeChild instanceof RootChild.SettingsChild;
 
@@ -52,8 +49,8 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                         .on(RootChild.MainChild, (child) => (
                             <Main component={child.component}/>
                         ))
-                        .on(RootChild.StatsChild, (_child) => (
-                            <Stats mainComponent={mainChild?.component}/>
+                        .on(RootChild.StatsChild, (child) => (
+                            <Stats component={child.component}/>
                         ))
                         .on(RootChild.SettingsChild, (child) => <Settings component={child.component}/>)
                         .run()}

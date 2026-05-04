@@ -4,7 +4,16 @@ import AccountSelector from "../sections/AccountSelector.tsx";
 import CombinedStatsChart from "./CombinedStatsChart.tsx";
 import ExpenseDistribution from "./ExpenseDistribution.tsx";
 import SummaryCards from "./SummaryCards.tsx";
-import {StatsAccountOption, StatsAccountType, StatsDateRange, StatsMetricType, StatsPeriod} from "../types.ts";
+import {
+    CategoryPoint,
+    StatsAccountOption,
+    StatsAccountType,
+    StatsChartPoint,
+    StatsDateRange,
+    StatsMetricCard,
+    StatsMetricType,
+    StatsPeriod
+} from "../types.ts";
 
 interface StatsChartsCarouselProps {
     account: StatsAccountType;
@@ -16,6 +25,9 @@ interface StatsChartsCarouselProps {
     onMetricChange: (metric: StatsMetricType) => void;
     onPeriodChange: (period: StatsPeriod) => void;
     onDateRangeChange: (nextRange: StatsDateRange) => void;
+    summaryCards: ReadonlyArray<StatsMetricCard>;
+    dynamics: ReadonlyArray<StatsChartPoint>;
+    expenseDistribution: ReadonlyArray<CategoryPoint>;
 }
 
 const StatsChartsCarousel = ({
@@ -27,7 +39,10 @@ const StatsChartsCarousel = ({
     onAccountChange,
     onMetricChange,
     onPeriodChange,
-    onDateRangeChange
+    onDateRangeChange,
+    summaryCards,
+    dynamics,
+    expenseDistribution
 }: StatsChartsCarouselProps) => {
     return (
         <div className="flex flex-col rounded-3xl gap-4">
@@ -69,14 +84,13 @@ const StatsChartsCarousel = ({
                 </div>
             </section>
 
-            <SummaryCards/>
+            <SummaryCards cards={summaryCards}/>
             <CombinedStatsChart
-                dateRange={dateRange}
                 metric={metric}
                 onMetricChange={onMetricChange}
-                period={period}
+                points={dynamics}
             />
-            <ExpenseDistribution/>
+            <ExpenseDistribution categories={expenseDistribution}/>
         </div>
     );
 };
