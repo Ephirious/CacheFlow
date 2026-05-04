@@ -7,32 +7,43 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 
 @Serializable
-sealed interface RecordDTO
+sealed interface RecordCreateDTO
 
 @Serializable
-data class AccountRecordDTO(
+sealed interface RecordOutDTO
+
+@Serializable
+data class AccountRecordCreateDTO(
+    val id: String,
+    val name: String,
+    val color: String,
+) : RecordCreateDTO
+
+
+@Serializable
+data class AccountOutDTO(
     val id: String,
     val name: String,
     val color: String,
     val funds: String
-) : RecordDTO
+) : RecordOutDTO
 
 @Serializable
-data class CategoryRecordDTO(
+data class CategoryRecordCreateDTO(
     val id: String,
     val name: String,
     val emoji: String
-) : RecordDTO
+) : RecordCreateDTO, RecordOutDTO
 
 @Serializable
-data class TransferRecordDTO(
+data class TransferRecordCreateDTO(
     val id: String,
     val accountFromId: String,
     val accountToId: String
-) : RecordDTO
+) : RecordCreateDTO, RecordOutDTO
 
 @Serializable
-data class OperationRecordDTO(
+data class OperationRecordCreateDTO(
     val id: String,
     val accountUuid: String,
     val transferId: String?,
@@ -40,7 +51,7 @@ data class OperationRecordDTO(
     val amount: String,
     val date: String,
     val notes: String
-) : RecordDTO
+) : RecordCreateDTO, RecordOutDTO
 
 
 @Serializable
@@ -67,7 +78,7 @@ data class SyncOperationDTO(
     @SerialName("table_type") val tableType: SyncTableType,
     @SerialName("field_to_update") val fieldToUpdate: String?,
     @SerialName("value_to_update") val valueToUpdate: String?,
-    @SerialName("record_to_create") val recordToCreate: RecordDTO? = null,
+    @SerialName("record_to_create") val recordToCreate: RecordCreateDTO? = null,
 )
 
 @Serializable
@@ -82,12 +93,12 @@ data class UpdateState(
     val record: JsonElement,
     @SerialName("updated_at") val updatedAt: String,
 ) {
-    fun getTypedRecord(json: Json): RecordDTO {
+    fun getTypedRecord(json: Json): RecordOutDTO {
         return when (tableType) {
-            SyncTableType.ACCOUNTS -> json.decodeFromJsonElement<AccountRecordDTO>(record)
-            SyncTableType.CATEGORIES -> json.decodeFromJsonElement<CategoryRecordDTO>(record)
-            SyncTableType.TRANSFER -> json.decodeFromJsonElement<TransferRecordDTO>(record)
-            SyncTableType.OPERATIONS -> json.decodeFromJsonElement<OperationRecordDTO>(record)
+            SyncTableType.ACCOUNTS -> json.decodeFromJsonElement<AccountOutDTO>(record)
+            SyncTableType.CATEGORIES -> json.decodeFromJsonElement<CategoryRecordCreateDTO>(record)
+            SyncTableType.TRANSFER -> json.decodeFromJsonElement<TransferRecordCreateDTO>(record)
+            SyncTableType.OPERATIONS -> json.decodeFromJsonElement<OperationRecordCreateDTO>(record)
         }
     }
 }

@@ -6,5 +6,5 @@ import sync.repositories.SyncManagerImpl
 val syncDataModule = module {
     single<SyncRemoteDataSource> { SyncRemoteDataSource(get()) }
 
-    single<SyncManager> { SyncManagerImpl(remoteDataSource = get()) }
+    single<SyncManager> { SyncManagerImpl(remoteDataSource = SyncRemoteDataSource(get())) }
 }
