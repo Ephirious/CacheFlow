@@ -14,7 +14,7 @@ fun mapSyncQueueRow(row: GetSyncQueue): SyncOperationDTO {
             SyncTableType.CATEGORIES -> CategoryRecordCreateDTO(
                 id = row.processing_id,
                 name = row.cat_name ?: "",
-                row.cat_emoji ?: ""
+                emoji = row.cat_emoji ?: ""
 
             )
             SyncTableType.OPERATIONS -> OperationRecordCreateDTO(

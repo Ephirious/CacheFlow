@@ -21,4 +21,10 @@ class CategoriesRepositoryImpl(
 
     override suspend fun updateCategory(id: String, name: String, emoji: String) =
         databaseDataSource.updateCategory(id = id, name = name, emoji = emoji)
+
+    override suspend fun softDeleteCategory(id: String) = databaseDataSource.softDeleteCategory(id)
+
+    override suspend fun upsertCategory(id: String, name: String, emoji: String, type: CategoryType) {
+        databaseDataSource.upsertCategory(id = id, name = name, emoji = emoji, type = type)
+    }
 }

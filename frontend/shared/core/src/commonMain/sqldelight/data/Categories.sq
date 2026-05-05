@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS Categories (
 
 CREATE TRIGGER IF NOT EXISTS trg_categories_sync_insert
 AFTER INSERT ON Categories
+WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
 BEGIN
     INSERT INTO SyncOperations (id, processing_id, action, table_type, created_at)
     VALUES (lower(hex(randomblob(16))), new.id, 'create', 'categories', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
@@ -21,7 +22,8 @@ END;
 
 CREATE TRIGGER IF NOT EXISTS trg_categories_sync_soft_delete
 AFTER UPDATE OF is_deleted ON Categories
-WHEN old.is_deleted = 0 AND new.is_deleted = 1
+WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
+AND old.is_deleted = 0 AND new.is_deleted = 1
 BEGIN
     DELETE FROM SyncOperations WHERE processing_id = new.id AND action = 'create';
 
@@ -35,7 +37,8 @@ END;
 
 CREATE TRIGGER IF NOT EXISTS trg_categories_sync_update_name
 AFTER UPDATE OF name ON Categories
-WHEN new.is_deleted = 0
+WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
+AND new.is_deleted = 0
      AND old.name IS NOT new.name
      AND NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
 BEGIN
@@ -45,7 +48,8 @@ END;
 
 CREATE TRIGGER IF NOT EXISTS trg_categories_sync_update_emoji
 AFTER UPDATE OF emoji ON Categories
-WHEN new.is_deleted = 0
+WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
+AND new.is_deleted = 0
      AND old.emoji IS NOT new.emoji
      AND NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
 BEGIN

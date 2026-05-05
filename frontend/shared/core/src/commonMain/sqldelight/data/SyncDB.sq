@@ -26,6 +26,12 @@ VALUES (?, ?, ?, ?, ?, ?, ?);
 deleteSyncOperations:
 DELETE FROM SyncOperations WHERE id = ?;
 
+deleteByProcessingId:
+DELETE FROM SyncOperations WHERE processing_id = ?;
+
+deleteByProcessingIds:
+DELETE FROM SyncOperations WHERE processing_id IN ?;
+
 clearAllSyncOperationss:
 DELETE FROM SyncOperations;
 
@@ -67,3 +73,6 @@ getCreateOperationByProcessingId:
 SELECT * FROM SyncOperations
 WHERE processing_id = ? AND action = 'create'
 LIMIT 1;
+
+countAll:
+SELECT COUNT(*) FROM SyncOperations;

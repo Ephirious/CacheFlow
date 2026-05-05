@@ -24,5 +24,11 @@ class AccountsRepositoryImpl(
     override suspend fun updateAccount(id: String, name: String, color: HexColor) =
         dbDataSource.updateAccount(id = id, name = name, color = color)
 
+    override suspend fun softDeleteAccount(id: String) {
+        dbDataSource.softDeleteAccount(id)
+    }
 
+    override suspend fun upsertAccount(id: String, name: String, color: HexColor, stringAmount: String) {
+        dbDataSource.upsertAccount(id = id, name = name, color = color, stringAmount = stringAmount)
+    }
 }

@@ -54,4 +54,23 @@ class AccountsDatabaseDataSource(
     ) {
         accountsQueries.update(id = id, name = name, color = color.normalizedHex)
     }
+
+    @OptIn(ExperimentalUuidApi::class)
+    suspend fun softDeleteAccount(id: String) = accountsQueries.softDelete(id)
+
+    @OptIn(ExperimentalUuidApi::class)
+    suspend fun upsertAccount(
+        id: String,
+        name: String,
+        color: HexColor,
+        stringAmount: String,
+    ) {
+        val funds = try {
+            BigDecimal(stringAmount)
+        } catch (e: Throwable) {
+            BigDecimal.ZERO
+        }
+
+        accountsQueries.upsert(id = id, name = name, funds = funds, color = color.normalizedHex)
+    }
 }

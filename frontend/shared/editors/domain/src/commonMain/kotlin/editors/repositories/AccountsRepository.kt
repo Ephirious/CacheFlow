@@ -19,4 +19,8 @@ interface AccountsRepository {
         name: String,
         color: HexColor,
     )
+
+    suspend fun softDeleteAccount(id: String)
+
+    suspend fun upsertAccount(id: String, name: String, color: HexColor, stringAmount: String)
 }

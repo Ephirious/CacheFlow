@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS Accounts (
 --trgs
 CREATE TRIGGER IF NOT EXISTS trg_accounts_sync_insert
 AFTER INSERT ON Accounts
+WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
 BEGIN
     INSERT INTO SyncOperations (id, processing_id, action, table_type, created_at)
     VALUES (lower(hex(randomblob(16))), new.id, 'create', 'accounts', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
@@ -22,7 +23,8 @@ END;
 
 CREATE TRIGGER IF NOT EXISTS trg_accounts_sync_update_name
 AFTER UPDATE OF name ON Accounts
-WHEN old.name IS NOT new.name AND NOT EXISTS (
+WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
+AND old.name IS NOT new.name AND NOT EXISTS (
     SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create'
 )
 BEGIN
@@ -31,8 +33,8 @@ BEGIN
 END;
 
 CREATE TRIGGER IF NOT EXISTS trg_accounts_sync_update_color
-AFTER UPDATE OF color ON Accounts
-WHEN old.color IS NOT new.color AND NOT EXISTS (
+AFTER UPDATE OF color ON Accounts WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
+AND old.color IS NOT new.color AND NOT EXISTS (
     SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create'
 )
 BEGIN
@@ -40,18 +42,9 @@ BEGIN
     VALUES (lower(hex(randomblob(16))), new.id, 'update', 'accounts', 'color', new.color, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
 END;
 
-CREATE TRIGGER IF NOT EXISTS trg_accounts_sync_update_funds
-AFTER UPDATE OF funds ON Accounts
-WHEN old.funds IS NOT new.funds AND NOT EXISTS (
-    SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create'
-)
-BEGIN
-    INSERT INTO SyncOperations (id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
-    VALUES (lower(hex(randomblob(16))), new.id, 'update', 'accounts', 'funds', CAST(new.funds AS TEXT), strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
-END;
-
 CREATE TRIGGER IF NOT EXISTS trg_accounts_sync_delete
 BEFORE DELETE ON Accounts
+WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
 BEGIN
     INSERT INTO SyncOperations (id, processing_id, action, table_type, created_at)
         SELECT lower(hex(randomblob(16))), old.id, 'delete', 'accounts', strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
@@ -66,7 +59,8 @@ END;
 
 CREATE TRIGGER IF NOT EXISTS trg_accounts_sync_soft_delete
 AFTER UPDATE OF is_deleted ON Accounts
-WHEN old.is_deleted = 0 AND new.is_deleted = 1
+WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
+AND old.is_deleted = 0 AND new.is_deleted = 1
 BEGIN
 
     DELETE FROM SyncOperations WHERE processing_id = new.id AND action = 'create';
