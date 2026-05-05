@@ -111,3 +111,8 @@ DELETE FROM Accounts WHERE id = ?;
 
 softDelete:
 UPDATE Accounts SET is_deleted = 1 WHERE id = ?;
+
+selectActive:
+SELECT * FROM Accounts
+WHERE is_deleted = 0
+ORDER BY name ASC;

@@ -33,9 +33,9 @@ const AccountDropdown = ({
             </label>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between px-4 py-3.5 bg-surface-base rounded-2xl border border-border-strong shadow-sm hover:border-border-default transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3.5 bg-surface-muted rounded-2xl border border-border-strong shadow-sm hover:border-border-default transition-colors"
             >
-                <span className={selectedAccount ? "text-text-primary font-medium overflow-hidden h-6" : "text-text-secondary"}>
+                <span className={selectedAccount ? "text-text-primary font-medium overflow-hidden h-6" : "text-text-primary"}>
                     {selectedAccount ? selectedAccount.title : "Счёт"}
                 </span>
                 <IoChevronDown
@@ -101,7 +101,7 @@ const TransferCard = ({
                       }: TransferCardProps) => {
     return (
         <div className="rounded-2xl">
-            <div className="flex items-end gap-3">
+            <div className="flex items-end gap-3 text-text-primary">
                 <AccountDropdown
                     accounts={accounts}
                     selectedId={fromId}
@@ -110,7 +110,7 @@ const TransferCard = ({
                     label="Откуда"
                 />
 
-                <div className="pb-5 text-text-muted">
+                <div className="pb-5 text-text-primary">
                     <FiArrowRight className="w-6 h-6" />
                 </div>
 

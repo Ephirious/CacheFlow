@@ -88,3 +88,8 @@ DELETE FROM Categories WHERE id = ?;
 
 softDelete:
 UPDATE Categories SET is_deleted = 1 WHERE id = ?;
+
+selectActive:
+SELECT * FROM Categories
+WHERE is_deleted = 0
+ORDER BY name ASC;

@@ -37,4 +37,5 @@ data class EditAccountFormState(
 @JsExport
 sealed class EditAccountIntent : ManageAccountBaseIntent() {
     data object ClickedEdit : EditAccountIntent()
+    data object ClickedDelete : EditAccountIntent()
 }

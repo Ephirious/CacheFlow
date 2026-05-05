@@ -10,8 +10,12 @@ import utils.presentation.AsyncDispatcher
 class CategoriesRepositoryImpl(
     private val databaseDataSource: CategoriesDatabaseDataSource,
 ) : CategoriesRepository {
-    override fun getCategoriesFlow(): Flow<List<Category>> =
-        databaseDataSource.getCategoriesFlow().flowOn(AsyncDispatcher)
+    override fun getCategoriesFlow(onlyActive: Boolean): Flow<List<Category>> =
+        databaseDataSource.getCategoriesFlow(onlyActive).flowOn(AsyncDispatcher)
+
+    override suspend fun softDelete(id: String) {
+        databaseDataSource.softDeleteCategory(id)
+    }
 
     override suspend fun getCategoryById(id: String): Category =
         databaseDataSource.getCategoryById(id)

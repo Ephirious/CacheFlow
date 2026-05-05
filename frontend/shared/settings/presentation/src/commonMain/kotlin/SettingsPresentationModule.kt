@@ -1,7 +1,8 @@
 import org.koin.dsl.module
+import settings.mvi.SettingsContainer
 
 val settingsPresentationModule = module {
-//    factory<() -> MoreContainer> {
-//        { MoreContainer(get(), get(), get()) }
-//    }
+    factory<SettingsContainer> {
+        SettingsContainer(get(), get())
+    }
 }

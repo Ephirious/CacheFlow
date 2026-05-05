@@ -12,7 +12,7 @@ const SyncSection = () => {
                     <span className="rounded-xl bg-brand-primary-emphasis/10 p-2 text-brand-primary">
                         <FiLogIn className="h-5 w-5"/>
                     </span>
-                    Вход/Выход
+                    <p className="text-text-primary">Вход/Выход</p>
                 </button>
                 <button
                     className="flex w-full items-center gap-2 rounded-lg border border-border-subtle bg-surface-base px-3 py-3 text-base"
@@ -21,7 +21,7 @@ const SyncSection = () => {
                     <span className="rounded-full bg-brand-primary-emphasis/10 p-2 text-brand-primary">
                         <FiDownload className="h-5 w-5"/>
                     </span>
-                    Экспорт в CSV
+                    <p className="text-text-primary">Экспорт в CSV</p>
                 </button>
             </div>
         </div>

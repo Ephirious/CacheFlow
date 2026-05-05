@@ -11,7 +11,6 @@ import pro.respawn.flowmvi.dsl.withState
 import utils.orUnknown
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
-import utils.types.HexColor
 
 private typealias CtxCreate = PipelineContext<CreateAccountState, CreateAccountIntent, Nothing>
 
@@ -23,15 +22,7 @@ class CreateAccountContainer(
     @OptIn(DelicateStoreApi::class)
     override val store: Store<CreateAccountState, CreateAccountIntent, Nothing> =
         store(
-            initial = CreateAccountState.OK(
-                form = CreateAccountFormState(
-                    initialBalance = "",
-                    title = "",
-                    color = HexColor("#FF0000"),
-                    validation = CreateAccountFormValidationErrors()
-                ).validated()
-            )
-
+            initial = getInitial()
         ) {
             fastConfig(
                 name = "CreateCategory", resetOnStop = false,
@@ -68,12 +59,14 @@ class CreateAccountContainer(
 
     private suspend fun CtxCreate.createAccount() {
         withState<CreateAccountState.OK, _> {
-            createAccountUseCase(
-                name = this.form.title,
-                stringAmount = this.form.initialBalance,
-                color = this.form.color
-            )
-            closeModal()
+            if (allValidated()) {
+                createAccountUseCase(
+                    name = this.form.title,
+                    stringAmount = this.form.initialBalance,
+                    color = this.form.color
+                )
+                closeModal()
+            }
         }
 
     }

@@ -1,62 +1,181 @@
 @import "tailwindcss";
 
 @theme {
-    --color-brand-primary: #4F39F6;
-    --color-brand-primary-emphasis: #615FFF;
-    --color-brand-on-primary: #FFFFFF;
+    --color-brand-primary: var(--brand-primary);
+    --color-brand-primary-emphasis: var(--brand-primary-emphasis);
+    --color-brand-on-primary: var(--brand-on-primary);
 
-    --color-surface-base: #FFFFFF;
-    --color-surface-base-soft: rgba(255, 255, 255, 0.8);
-    --color-surface-muted: #F3F4F6;
-    --color-surface-subtle: #F9FAFB;
-    --color-surface-sheet: #EBEBF0;
-    --color-surface-hover: #F9FAFB;
-    --color-surface-nav-active: rgba(97, 95, 255, 0.1);
-    --color-surface-card-overlay: rgba(255, 255, 255, 0.1);
-    --color-surface-card-overlay-hover: rgba(255, 255, 255, 0.15);
+    --color-surface-base: var(--surface-base);
+    --color-surface-base-soft: var(--surface-base-soft);
+    --color-surface-muted: var(--surface-muted);
+    --color-surface-subtle: var(--surface-subtle);
+    --color-surface-sheet: var(--surface-sheet);
+    --color-surface-hover: var(--surface-hover);
+    --color-surface-nav-active: var(--surface-nav-active);
+    --color-surface-card-overlay: var(--surface-card-overlay);
+    --color-surface-card-overlay-hover: var(--surface-card-overlay-hover);
 
-    --color-text-primary: #0F172A;
-    --color-text-secondary: #6A7282;
-    --color-text-label: #374151;
-    --color-text-muted: #9CA3AF;
-    --color-text-nav: #64748B;
-    --color-text-nav-hover: #334155;
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-label: var(--text-label);
+    --color-text-muted: var(--text-muted);
+    --color-text-nav: var(--text-nav);
+    --color-text-nav-hover: var(--text-nav-hover);
 
-    --color-border-contrast: rgba(0, 0, 0, 0.05);
-    --color-border-subtle: #F2F3F5;
-    --color-border-default: #D1D5DC;
-    --color-border-strong: #E5E7EB;
-    --color-border-handle: #E2E8F0;
+    --color-border-contrast: var(--border-contrast);
+    --color-border-subtle: var(--border-subtle);
+    --color-border-default: var(--border-default);
+    --color-border-strong: var(--border-strong);
+    --color-border-handle: var(--border-handle);
 
-    --color-state-success: #00A63E;
-    --color-state-success-soft: rgba(0, 201, 80, 0.1);
-    --color-state-danger: #E7000B;
-    --color-state-danger-soft: rgba(251, 44, 54, 0.1);
-    --color-state-brand-soft: rgba(97, 95, 255, 0.1);
-    --color-state-disabled-bg: #D1D5DC;
-    --color-state-disabled-text: #6A7282;
+    --color-state-success: var(--state-success);
+    --color-state-success-soft: var(--state-success-soft);
+    --color-state-danger: var(--state-danger);
+    --color-state-danger-soft: var(--state-danger-soft);
+    --color-state-brand-soft: var(--state-brand-soft);
+    --color-state-disabled-bg: var(--state-disabled-bg);
+    --color-state-disabled-text: var(--state-disabled-text);
 
-    --color-category-groceries: #F43F5E;
-    --color-category-groceries-soft: #FFE4E6;
-    --color-category-transport: #F59E0B;
-    --color-category-transport-soft: #FEF3C7;
-    --color-category-fun: #8B5CF6;
-    --color-category-fun-soft: #EDE9FE;
-    --color-category-clothes: #10B981;
-    --color-category-clothes-soft: #D1FAE5;
-    --color-category-food: #14B8A6;
-    --color-category-food-soft: #CCFBF1;
-    --color-category-tech: #EC4899;
-    --color-category-tech-soft: #FCE7F3;
+    --color-category-groceries: var(--category-groceries);
+    --color-category-groceries-soft: var(--category-groceries-soft);
+    --color-category-transport: var(--category-transport);
+    --color-category-transport-soft: var(--category-transport-soft);
+    --color-category-fun: var(--category-fun);
+    --color-category-fun-soft: var(--category-fun-soft);
+    --color-category-clothes: var(--category-clothes);
+    --color-category-clothes-soft: var(--category-clothes-soft);
+    --color-category-food: var(--category-food);
+    --color-category-food-soft: var(--category-food-soft);
+    --color-category-tech: var(--category-tech);
+    --color-category-tech-soft: var(--category-tech-soft);
 
-    --color-account-palette-1: #3B82F6;
-    --color-account-palette-2: #8B5CF6;
-    --color-account-palette-3: #EC4899;
-    --color-account-palette-4: #10B981;
-    --color-account-palette-5: #F59E0B;
-    --color-account-palette-6: #22C55E;
-    --color-account-palette-7: #EAB308;
-    --color-account-palette-8: #6366F1;
+    --color-account-palette-1: var(--account-palette-1);
+    --color-account-palette-2: var(--account-palette-2);
+    --color-account-palette-3: var(--account-palette-3);
+    --color-account-palette-4: var(--account-palette-4);
+    --color-account-palette-5: var(--account-palette-5);
+    --color-account-palette-6: var(--account-palette-6);
+    --color-account-palette-7: var(--account-palette-7);
+    --color-account-palette-8: var(--account-palette-8);
+}
+
+:root {
+    --brand-primary: #4F39F6;
+    --brand-primary-emphasis: #615FFF;
+    --brand-on-primary: #FFFFFF;
+
+    --surface-base: #FFFFFF;
+    --surface-base-soft: rgba(255, 255, 255, 0.8);
+    --surface-muted: #F3F4F6;
+    --surface-subtle: #F9FAFB;
+    --surface-sheet: #ffffff;
+    --surface-hover: #F9FAFB;
+    --surface-nav-active: rgba(97, 95, 255, 0.1);
+    --surface-card-overlay: rgba(255, 255, 255, 0.1);
+    --surface-card-overlay-hover: rgba(255, 255, 255, 0.15);
+
+    --text-primary: #0F172A;
+    --text-secondary: #6A7282;
+    --text-label: #374151;
+    --text-muted: #9CA3AF;
+    --text-nav: #64748B;
+    --text-nav-hover: #334155;
+
+    --border-contrast: rgba(0, 0, 0, 0.05);
+    --border-subtle: #F2F3F5;
+    --border-default: #D1D5DC;
+    --border-strong: #E5E7EB;
+    --border-handle: #E2E8F0;
+
+    --state-success: #00A63E;
+    --state-success-soft: rgba(0, 201, 80, 0.1);
+    --state-danger: #E7000B;
+    --state-danger-soft: rgba(251, 44, 54, 0.1);
+    --state-brand-soft: rgba(97, 95, 255, 0.1);
+    --state-disabled-bg: #D1D5DC;
+    --state-disabled-text: #6A7282;
+
+    --category-groceries: #F43F5E;
+    --category-groceries-soft: #FFE4E6;
+    --category-transport: #F59E0B;
+    --category-transport-soft: #FEF3C7;
+    --category-fun: #8B5CF6;
+    --category-fun-soft: #EDE9FE;
+    --category-clothes: #10B981;
+    --category-clothes-soft: #D1FAE5;
+    --category-food: #14B8A6;
+    --category-food-soft: #CCFBF1;
+    --category-tech: #EC4899;
+    --category-tech-soft: #FCE7F3;
+
+    --account-palette-1: #3B82F6;
+    --account-palette-2: #8B5CF6;
+    --account-palette-3: #EC4899;
+    --account-palette-4: #10B981;
+    --account-palette-5: #F59E0B;
+    --account-palette-6: #22C55E;
+    --account-palette-7: #EAB308;
+    --account-palette-8: #6366F1;
+}
+
+html[data-theme='dark'],
+.dark {
+    --brand-primary: #432DD7;
+    --brand-primary-emphasis: #7A78FF;
+    --brand-on-primary: #FFFFFF;
+
+    --surface-base: #111827;
+    --surface-base-soft: rgba(17, 24, 39, 1);
+    --surface-muted: #1F2937;
+    --surface-subtle: #374151;
+    --surface-sheet: #1F2937;
+    --surface-hover: #374151;
+    --surface-nav-active: rgba(97, 95, 255, 0.15);
+    --surface-card-overlay: rgba(255, 255, 255, 0.05);
+    --surface-card-overlay-hover: rgba(255, 255, 255, 0.1);
+
+    --text-primary: #F9FAFB;
+    --text-secondary: #9CA3AF;
+    --text-label: #D1D5DB;
+    --text-muted: #6B7280;
+    --text-nav: #9CA3AF;
+    --text-nav-hover: #F3F4F6;
+
+    --border-contrast: rgba(255, 255, 255, 0.05);
+    --border-subtle: #374151;
+    --border-default: #4B5563;
+    --border-strong: #6B7280;
+    --border-handle: #4B5563;
+
+    --state-success: #00CC4B;
+    --state-success-soft: rgba(0, 204, 75, 0.15);
+    --state-danger: #FF3342;
+    --state-danger-soft: rgba(255, 51, 66, 0.15);
+    --state-brand-soft: rgba(97, 95, 255, 0.2);
+    --state-disabled-bg: #374151;
+    --state-disabled-text: #F9FAFB;
+
+    --category-groceries: #F43F5E;
+    --category-groceries-soft: rgba(244, 63, 94, 0.2);
+    --category-transport: #F59E0B;
+    --category-transport-soft: rgba(245, 158, 11, 0.2);
+    --category-fun: #8B5CF6;
+    --category-fun-soft: rgba(139, 92, 246, 0.2);
+    --category-clothes: #10B981;
+    --category-clothes-soft: rgba(16, 185, 129, 0.2);
+    --category-food: #14B8A6;
+    --category-food-soft: rgba(20, 184, 166, 0.2);
+    --category-tech: #EC4899;
+    --category-tech-soft: rgba(236, 72, 153, 0.2);
+
+    --account-palette-1: #3B82F6;
+    --account-palette-2: #8B5CF6;
+    --account-palette-3: #EC4899;
+    --account-palette-4: #10B981;
+    --account-palette-5: #F59E0B;
+    --account-palette-6: #22C55E;
+    --account-palette-7: #EAB308;
+    --account-palette-8: #6366F1;
 }
 
 html, body {
@@ -69,12 +188,10 @@ html {
     background-color: var(--color-surface-base) !important;
 }
 
-
 #root {
     height: 100vh;
     font-family: Inter, sans-serif;
 }
-
 
 /*TODO: Apply only for mobile*/
 @layer utilities {

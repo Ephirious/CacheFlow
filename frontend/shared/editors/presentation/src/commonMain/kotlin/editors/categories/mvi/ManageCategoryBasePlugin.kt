@@ -37,8 +37,10 @@ fun <S : MVIState, I : ManageCategoryBaseIntent, A : MVIAction, F : ManageCatego
                             .validated(ManageCategoryFormBaseValidationFields.emoji)
                     }
 
-                    is ManageCategoryBaseIntent.ChangedName -> {
-                        currentForm.copyBase(name = baseIntent.name)
+                    is ManageCategoryBaseIntent.ChangedTitle -> {
+                        @Suppress("UNCHECKED_CAST")
+                        (currentForm.copyBase(title = baseIntent.title) as F)
+                            .validated(ManageCategoryFormBaseValidationFields.title)
                     }
 
                     ManageCategoryBaseIntent.ClickedTryAgain -> currentForm

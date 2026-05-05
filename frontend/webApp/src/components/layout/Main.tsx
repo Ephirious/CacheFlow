@@ -29,13 +29,24 @@ const Main = ({component}: { component: MainComponent }) => {
 
 // TODO: Артём, отрефактори, пж – вынес, чтобы хук state был сверху
 const ManageTransactionContent = ({
-                                      component,
-                                      onClose
-                                  }: {
+                                       component,
+                                       onClose
+                                   }: {
     component: ManageTransactionComponent,
     onClose: () => void
 }) => {
     const state = useValue(component.state);
+
+    useEffect(() => {
+        if (state instanceof ManageTransactionState.FatalError) {
+            console.error("[ManageTransaction] FatalError", {
+                message: state.message,
+                lastValidForm: state.lastValidForm
+            });
+            return;
+        }
+        console.debug("[ManageTransaction] State changed", state);
+    }, [state]);
 
     return when(state)
         .on(ManageTransactionState.OK, (okState) => (
@@ -45,7 +56,13 @@ const ManageTransactionContent = ({
                 close={onClose}
             />
         ))
-        .otherwise(() => <div>error</div>);
+        .on(ManageTransactionState.FatalError, (errorState) => (
+            <div className="px-6 py-4 text-state-danger">Ошибка: {errorState.message}</div>
+        ))
+        .otherwise(() => {
+            console.error("[ManageTransaction] Unknown state", state);
+            return <div className="px-6 py-4 text-state-danger">error</div>;
+        });
 };
 
 const MainOK = ({component}: { component: MainComponent }) => {
@@ -161,10 +178,10 @@ const MainOK = ({component}: { component: MainComponent }) => {
                 repositionInputs={false}
                 fixed={true}
                 zIndex={60}
-                backgroundColor="var(--color-surface-sheet)"
+                backgroundColor="var(--color-surface-base)"
                 className="sm:hidden"
                 themeMode="interpolate"
-                themeTargetColor="var(--color-surface-sheet)"
+                themeTargetColor="var(--color-surface-base)"
                 useCurrentThemeAsBase={true}
                 themeInterpolationStartThreshold={sheetThemeThreshold}
                 contentPaddingBottom="calc(env(safe-area-inset-bottom))"

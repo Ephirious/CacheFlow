@@ -37,15 +37,15 @@ const Transactions = ({
     return (
         <div className="flex flex-col w-full p-6 pt-0 gap-4">
             <div className="flex w-full items-center justify-between">
-                <span className="text-xl font-bold">Транзакции</span>
+                <span className="text-xl font-bold text-text-primary">Транзакции</span>
                 <motion.div
-                    whileHover={{backgroundColor: "bg-red"}}
                     className="
-                    flex px-4 py-2 items-center rounded-2xl border-border-default border gap-2 cursor-pointer bg-surface-base-soft
+                    bg-surface-muted
+                    flex px-4 py-2 items-center rounded-2xl border-border-default border gap-2 cursor-pointer
                     "
                 >
-                    <LiaFilterSolid className="w-4 h-4 text-base font-medium"/>
-                    Фильтры
+                    <LiaFilterSolid className="w-4 h-4 text-base text-text-primary font-medium"/>
+                    <p className="text-text-primary">Фильтры</p>
                 </motion.div>
             </div>
             <div className="flex flex-col gap-3 pb-4">

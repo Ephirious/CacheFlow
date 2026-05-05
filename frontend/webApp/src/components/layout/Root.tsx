@@ -12,6 +12,7 @@ const RootScreen = ({component}: { component: RootComponent }) => {
     const pages = useValue(component.childPages)
     const activeChild = pages.active;
     const isMainActive = activeChild instanceof RootChild.MainChild;
+    const disablePageOverscroll = activeChild instanceof RootChild.StatsChild || activeChild instanceof RootChild.SettingsChild;
 
     useLayoutEffect(() => {
         const themeMeta = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
@@ -42,12 +43,15 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                     exit={{opacity: 0, y: 0}}
                     transition={{duration: 0.2}}
                     className="relative z-0 flex-1 min-h-0 h-screen w-full overflow-y-auto no-scrollbar"
+                    style={{overscrollBehaviorY: disablePageOverscroll ? "none" : "auto"}}
                 >
                     {when(activeChild)
                         .on(RootChild.MainChild, (child) => (
                             <Main component={child.component}/>
                         ))
-                        .on(RootChild.StatsChild, (_child) => <Stats/>)
+                        .on(RootChild.StatsChild, (child) => (
+                            <Stats component={child.component}/>
+                        ))
                         .on(RootChild.SettingsChild, (child) => <Settings component={child.component}/>)
                         .run()}
                 </motion.div>

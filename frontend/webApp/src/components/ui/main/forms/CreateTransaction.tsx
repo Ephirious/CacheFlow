@@ -74,12 +74,12 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
     return (
         <div className="flex w-full flex-col px-6 py-2 gap-4">
             <span
-                className="flex text-2xl font-bold justify-center">
+                className="flex text-2xl font-bold justify-center text-text-primary">
                 {localz.get().by(state.isCreateMode ? ManageTransactionKey.CreateTransaction : ManageTransactionKey.EditTransaction)}
             </span>
             <div className="flex flex-col w-full gap-3">
                 <div className="flex w-full flex-col gap-2">
-                    <span className="text-sm font-medium">Сумма</span>
+                    <span className="text-sm font-medium text-text-primary">Сумма</span>
                     <input
                         value={`${state.form.value}`}
                         onChange={(e) => {
@@ -90,14 +90,13 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         onBlur={() => setTouched((prev) => ({...prev, value: true}))}
                         type="text"
                         placeholder="0"
-                        className="w-full px-4 py-3 bg-surface-base border border-border-default rounded-xl"
+                        className="w-full px-4 py-3 border border-border-default rounded-xl bg-surface-muted text-text-primary text-base outline-none placeholder:text-text-muted"
                     />
-                    {
-                        valueError && localz.get().byValidation(valueError)
-                    }
+                    <p className="text-text-primary text-sm">{valueError && localz.get().byValidation(valueError)}</p>
+
                 </div>
                 <div className="flex w-full flex-col gap-2">
-                    <span className="text-sm font-medium">Тип</span>
+                    <span className="text-sm font-medium text-text-primary">Тип</span>
                     <SegmentedControl value={state.form.transactionType.type}
                                       onChange={(type) => {
                                           setTouched((prev) => ({
@@ -111,7 +110,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                                       }}/>
                 </div>
                 <div className={`flex w-full flex-col gap-2 ${state.form.transactionType.type == 'Transfer' ? "hidden" : ""}`}>
-                    <span className="text-sm font-medium">Категория</span>
+                    <span className="text-sm font-medium text-text-primary">Категория</span>
                     <CategorySelector
                         categories={currentCategories.asJsReadonlyArrayView()}
                         selectedId={
@@ -131,7 +130,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         onAdd={() => console.log("Add category")}
                     />
                     {
-                        categoryError && localz.get().byValidation(categoryError)
+                        <p className="text-text-primary text-sm">{categoryError && localz.get().byValidation(categoryError)}</p>
                     }
                 </div>
                 <div className={`flex w-full flex-col gap-2 ${state.form.transactionType.type == 'Transfer' ? "" : "hidden"}`}>
@@ -159,7 +158,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                     {transferFromError && localz.get().byValidation(transferFromError)}
                 </div>
                 <div className={`flex w-full flex-col gap-2 ${state.form.transactionType.type == 'Transfer' ? "hidden" : ""}`}>
-                    <span className="text-sm font-medium">Счёт</span>
+                    <span className="text-sm font-medium text-text-primary">Счёт</span>
                     <AccountSelector
                         accounts={state.form.accounts.asJsReadonlyArrayView()}
                         selectedId={
@@ -176,10 +175,10 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                             component.intent(new ManageTransactionBaseIntent.ChangedAccount(id))
                         }}
                     />
-                    {accountError && localz.get().byValidation(accountError)}
+                    <p className="text-text-primary text-sm">{accountError && localz.get().byValidation(accountError)}</p>
                 </div>
                 <div className="flex w-full flex-col gap-2">
-                    <span className="text-sm font-medium">Дата</span>
+                    <span className="text-sm font-medium text-text-primary">Дата</span>
                     <DatePicker
                         value={new Date(isoString(state.form.date))}
                         onChange={(newDate) => {
@@ -188,7 +187,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                     />
                 </div>
                 <div className="flex w-full flex-col gap-2">
-                    <span className="text-sm font-medium">Заметка (необязательно)</span>
+                    <span className="text-sm font-medium text-text-primary">Заметка (необязательно)</span>
                     <TextArea
                         value={state.form.note}
                         onChange={(e) => {
@@ -210,6 +209,31 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                     ${hasValidationError ? "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed" : "bg-brand-primary text-brand-on-primary"}
                     `}>
                     Сохранить
+                </button>
+                <button
+                    onClick={() => {
+                        if (state.isCreateMode) {
+                            return;
+                        }
+                        const isConfirmed = window.confirm("Удалить транзакцию?");
+                        if (!isConfirmed) {
+                            console.info("[ManageTransaction] Delete cancelled by user");
+                            return;
+                        }
+                        console.info("[ManageTransaction] Delete requested", {
+                            value: state.form.value,
+                            date: isoString(state.form.date),
+                            type: state.form.transactionType.type
+                        });
+                        component.intent(ManageTransactionIntent.ClickedDelete);
+                    }}
+                    className={`
+                    rounded-2xl border border-state-danger text-base font-semibold text-state-danger py-4
+                    
+                    ${state.isCreateMode ? "hidden" : ""}
+                    `}
+                >
+                    Удалить
                 </button>
             </div>
         </div>

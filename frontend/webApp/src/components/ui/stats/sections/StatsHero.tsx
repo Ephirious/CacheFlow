@@ -1,7 +1,10 @@
 import {PiClockClockwise} from "react-icons/pi";
-import {currentBalance} from "../data.ts";
 
-const StatsHero = () => {
+interface StatsHeroProps {
+    currentBalance: string;
+}
+
+const StatsHero = ({currentBalance}: StatsHeroProps) => {
     return (
         <section className=" bg-brand-primary px-6 pb-4 pt-[calc(env(safe-area-inset-top)+24px)] text-brand-on-primary sm:px-6 sm:pb-6 sm:pt-[calc(env(safe-area-inset-top)+16px)]">
             <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 sm:gap-4">

@@ -23,7 +23,7 @@ const SegmentedControl = ({value, onChange}: SegmentedControlProps) => {
                     {value === option.id && (
                         <motion.div
                             layoutId="activeTab"
-                            className="absolute inset-0 bg-surface-base rounded-xl shadow-sm"
+                            className="absolute inset-0 bg-surface-subtle rounded-xl shadow-sm"
                             transition={{type: "spring", duration: 0.5}}
                         />
                     )}
