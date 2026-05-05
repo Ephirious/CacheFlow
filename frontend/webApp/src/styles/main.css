@@ -125,7 +125,7 @@ html[data-theme='dark'],
     --brand-on-primary: #FFFFFF;
 
     --surface-base: #111827;
-    --surface-base-soft: rgba(17, 24, 39, 0.8);
+    --surface-base-soft: rgba(17, 24, 39, 1);
     --surface-muted: #1F2937;
     --surface-subtle: #374151;
     --surface-sheet: #1F2937;
