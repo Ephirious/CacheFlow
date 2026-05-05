@@ -60,7 +60,7 @@ const MainCard = ({data}: { data: MainCardData }) => {
     };
 
     return (
-        <div className="p-0 sm:p-6 w-full">
+        <div className="w-full p-0">
             <div className="
                 flex flex-col bg-brand-primary gap-6
                 w-full p-6

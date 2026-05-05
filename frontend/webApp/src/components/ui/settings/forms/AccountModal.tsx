@@ -21,7 +21,7 @@ interface AccountModalProps {
     onClose: () => void;
 }
 
-const inputClass = "h-11 rounded-xl border border-border-default bg-surface-muted px-3 text-base outline-none placeholder:text-text-muted";
+const inputClass = "h-11 rounded-xl border border-border-default bg-surface-muted px-3 text-base outline-none placeholder:text-text-muted text-text-primary";
 
 const AccountModal = ({component, open, mode, account, onClose}: AccountModalProps) => {
     useEffect(() => {
@@ -78,7 +78,7 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                                     <button
                                         key={item}
                                         style={{backgroundColor: item}}
-                                        className={`h-14 w-full rounded-xl ${isActive ? "ring-2 ring-text-primary ring-offset-2 ring-offset-[#E5E5E7]" : ""}`}
+                                        className={`h-14 w-full rounded-xl ${isActive ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet" : ""}`}
                                         onClick={() => component.intent(new ManageAccountBaseIntent.ChangedColor(item))}
                                         type="button"
                                     />

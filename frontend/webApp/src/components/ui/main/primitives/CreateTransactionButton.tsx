@@ -2,13 +2,14 @@ import { IoAdd } from "react-icons/io5";
 
 interface CreateTransactionButtonProps {
     onClick?: () => void;
+    className?: string;
 }
 
-const CreateTransactionButton = ({onClick}: CreateTransactionButtonProps) => {
+const CreateTransactionButton = ({onClick, className = ""}: CreateTransactionButtonProps) => {
     return (
         <button
             onClick={onClick}
-            className="fixed z-60 p-3 w-14 h-14 bottom-32 right-5 bg-brand-primary rounded-2xl active:scale-95 transition-transform"
+            className={`fixed z-60 h-14 w-14 rounded-2xl bg-brand-primary p-3 shadow-lg transition-transform active:scale-95 ${className}`.trim()}
         >
             <IoAdd className="w-full h-full stroke-brand-on-primary"/>
         </button>

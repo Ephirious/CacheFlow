@@ -7,10 +7,9 @@ interface SummaryCardsProps {
 
 const SummaryCards = ({cards}: SummaryCardsProps) => {
     return (
-        <div className="flex flex-col gap-3 w-full h-full rounded-3xl bg-surface-sheet p-4 shadow-sm">
-            <div className="flex justify-center">
-                <h2 className="flex text-xl font-bold text-center text-text-primary">Баланс</h2>
-            </div>
+        <div className="flex w-full flex-col gap-3 rounded-3xl bg-surface-sheet p-4 shadow-sm lg:p-5">
+            <h2 className="text-lg font-bold text-text-primary">Сводка</h2>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             {cards.map((card, index) => {
                 const isIncome = index === 0;
                 const isExpense = index === 1;
@@ -24,7 +23,7 @@ const SummaryCards = ({cards}: SummaryCardsProps) => {
 
                 return (
                     <div
-                        className="rounded-2xl p-3"
+                        className="rounded-2xl border border-border-subtle p-3"
                         key={card.title}
                     >
                         <div
@@ -41,6 +40,7 @@ const SummaryCards = ({cards}: SummaryCardsProps) => {
                     </div>
                 );
             })}
+            </div>
         </div>
     );
 };

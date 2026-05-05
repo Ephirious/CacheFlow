@@ -68,7 +68,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                                 return (
                                     <button
                                         key={emoji}
-                                        className={`flex items-center justify-center h-14 w-full rounded-xl bg-surface-muted text-2xl ${isActive ? "ring-2 ring-text-primary ring-offset-2 ring-offset-[#E5E5E7]" : ""}`}
+                                        className={`flex items-center justify-center h-14 w-full rounded-xl bg-surface-muted text-2xl ${isActive ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet" : ""}`}
                                         onClick={() => component.intent(new ManageCategoryBaseIntent.ChangedEmoji(emoji))}
                                         type="button"
                                     >
@@ -77,7 +77,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                                 );
                             })}
                             <input
-                                className={`flex text-center items-center justify-center h-14 w-full rounded-xl bg-surface-muted text-2xl outline-none placeholder:text-text-muted ${!basicEmojis.includes(state.getForm().emoji) && state.getForm().emoji !== "" ? "ring-2 ring-text-primary ring-offset-2 ring-offset-[#E5E5E7]" : ""}`}
+                                className={`flex text-center items-center justify-center h-14 w-full rounded-xl bg-surface-muted text-2xl outline-none placeholder:text-text-muted ${!basicEmojis.includes(state.getForm().emoji) && state.getForm().emoji !== "" ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet" : ""}`}
                                 onChange={(e) => component.intent(new ManageCategoryBaseIntent.ChangedEmoji(e.target.value))}
                                 placeholder="✍️"
                                 type="text"

@@ -2,7 +2,7 @@ import {FiDownload, FiLogIn} from "react-icons/fi";
 
 const SyncSection = () => {
     return (
-        <div className="mx-6 flex flex-col gap-4 rounded-xl border border-border-default p-6">
+        <div className="mx-6 flex flex-col gap-4 rounded-xl border border-border-default p-6 lg:mx-auto lg:w-full lg:max-w-6xl">
             <h2 className="text-lg font-semibold text-text-primary">Синхронизация</h2>
             <div className="flex flex-col gap-3">
                 <button

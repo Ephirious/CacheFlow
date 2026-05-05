@@ -35,7 +35,7 @@ const Transactions = ({
 
 
     return (
-        <div className="flex flex-col w-full p-6 pt-0 gap-4">
+        <div className="flex w-full flex-col gap-4 p-6 pt-0 lg:pt-6">
             <div className="flex w-full items-center justify-between">
                 <span className="text-xl font-bold text-text-primary">Транзакции</span>
                 <motion.div
@@ -51,7 +51,7 @@ const Transactions = ({
             <div className="flex flex-col gap-3 pb-4">
                 {sections.map((section, sectionIndex) => (
                     <div key={`${section.dateLabel}-${sectionIndex}`} className="flex flex-col gap-2">
-                        <div className="sticky top-[-10px] z-20 -mx-1 rounded-md bg-surface-base px-1 py-1">
+                        <div className="sticky top-[-10px] z-20 -mx-1 rounded-md px-1 py-1 lg:top-0">
                             <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
                                 {section.dateLabel}
                             </span>

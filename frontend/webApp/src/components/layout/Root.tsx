@@ -12,13 +12,15 @@ const RootScreen = ({component}: { component: RootComponent }) => {
     const pages = useValue(component.childPages)
     const activeChild = pages.active;
     const isMainActive = activeChild instanceof RootChild.MainChild;
-    const disablePageOverscroll = activeChild instanceof RootChild.StatsChild || activeChild instanceof RootChild.SettingsChild;
 
     useLayoutEffect(() => {
         const themeMeta = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
         const appleStatusMeta = document.head.querySelector<HTMLMetaElement>('meta[name="apple-mobile-web-app-status-bar-style"]');
 
-        const color = isMainActive ? "#4F39F6" : "#ffffff";
+        const rootStyles = getComputedStyle(document.documentElement);
+        const color = isMainActive
+            ? (rootStyles.getPropertyValue("--color-brand-primary").trim() || "#4F39F6")
+            : (rootStyles.getPropertyValue("--color-surface-base").trim() || "#ffffff");
         if (themeMeta) themeMeta.content = color;
 
         document.documentElement.style.backgroundColor = color;
@@ -30,11 +32,7 @@ const RootScreen = ({component}: { component: RootComponent }) => {
     }, [isMainActive]);
 
     return (
-        <div
-            className={
-                "flex flex-col h-dvh w-screen sm:flex sm:flex-row fixed"
-            }
-        >
+        <div className="fixed flex h-dvh w-screen flex-col sm:flex-row">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeChild.constructor.name}
@@ -42,8 +40,8 @@ const RootScreen = ({component}: { component: RootComponent }) => {
                     animate={{opacity: 1, y: 0}}
                     exit={{opacity: 0, y: 0}}
                     transition={{duration: 0.2}}
-                    className="relative z-0 flex-1 min-h-0 h-screen w-full overflow-y-auto no-scrollbar"
-                    style={{overscrollBehaviorY: disablePageOverscroll ? "none" : "auto"}}
+                    className="relative z-0 h-screen w-full min-h-0 flex-1 overflow-x-hidden overflow-y-auto no-scrollbar"
+                    style={{overscrollBehaviorY: "none"}}
                 >
                     {when(activeChild)
                         .on(RootChild.MainChild, (child) => (

@@ -149,7 +149,7 @@ const Settings = ({component}: { component: SettingsComponent }) => {
     }, []);
 
     return (
-        <div className="flex pb-6 flex-col bg-surface-base min-h-screen">
+        <div className="flex min-h-screen flex-col bg-surface-base pb-6 lg:pb-10">
             <SettingsHeader curTheme={state.currentTheme}
                             onThemeClick={() => component.intent(SettingsIntent.ChangeTheme)}
                             tab={tab}
