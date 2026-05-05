@@ -51,6 +51,7 @@ SELECT
     -- cat
     cat.name AS cat_name,
     cat.emoji AS cat_emoji,
+    cat.type AS cat_type,
     -- oper
     oper.account_uuid AS oper_account_uuid,
     oper.transfer_id AS oper_transfer_id,

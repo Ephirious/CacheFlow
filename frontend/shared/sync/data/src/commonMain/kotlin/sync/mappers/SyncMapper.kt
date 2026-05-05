@@ -1,6 +1,7 @@
 package sync.mappers
 
 import data.GetSyncQueue
+import dbEnums.CategoryType
 import sync.cloud.dtos.*
 
 fun mapSyncQueueRow(row: GetSyncQueue): SyncOperationDTO {
@@ -14,7 +15,8 @@ fun mapSyncQueueRow(row: GetSyncQueue): SyncOperationDTO {
             SyncTableType.CATEGORIES -> CategoryRecordCreateDTO(
                 id = row.processing_id,
                 name = row.cat_name ?: "",
-                emoji = row.cat_emoji ?: ""
+                emoji = row.cat_emoji ?: "",
+                type = row.cat_type ?: CategoryType.INCOME
 
             )
             SyncTableType.OPERATIONS -> OperationRecordCreateDTO(
