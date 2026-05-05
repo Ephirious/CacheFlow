@@ -8,5 +8,14 @@ import sync.repositories.SyncQueueRepositoryImpl
 val syncDataModule = module {
     single<SyncRemoteDataSource> { SyncRemoteDataSource(get()) }
     single<SyncQueueRepository> { SyncQueueRepositoryImpl(get(), get()) }
-    single<SyncManager> { SyncManagerImpl(remoteDataSource = get()) }
+    single<SyncManager> {
+        SyncManagerImpl(
+            remoteDataSource = get(),
+            // TODO
+            queueRepo = get(),
+            accountsRepo = get(),
+            categoriesRepo = get(),
+            json = get()
+        )
+    }
 }

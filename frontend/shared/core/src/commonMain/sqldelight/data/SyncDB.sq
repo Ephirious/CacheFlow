@@ -1,5 +1,5 @@
-import sync.cloud.dtos.SyncActionType;
-import sync.cloud.dtos.SyncTableType;
+import dbEnums.SyncActionType;
+import dbEnums.SyncTableType;
 
 
 CREATE TABLE SyncOperations (

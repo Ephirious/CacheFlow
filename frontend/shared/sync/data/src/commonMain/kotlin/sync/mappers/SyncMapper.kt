@@ -2,6 +2,8 @@ package sync.mappers
 
 import data.GetSyncQueue
 import dbEnums.CategoryType
+import dbEnums.SyncActionType
+import dbEnums.SyncTableType
 import sync.cloud.dtos.*
 
 fun mapSyncQueueRow(row: GetSyncQueue): SyncOperationDTO {

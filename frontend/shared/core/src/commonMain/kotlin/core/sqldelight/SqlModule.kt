@@ -10,6 +10,7 @@ import data.CategoriesQueries
 import data.CommonQueries
 import data.Operations
 import data.OperationsQueries
+import data.SyncOperations
 import data.Transfers
 import data.TransfersQueries
 import data.WeatherEntity
@@ -62,6 +63,10 @@ internal val sqlModule = module {
             TransfersAdapter = Transfers.Adapter(
                 created_atAdapter = instantAdapter,
                 updated_atAdapter = instantAdapter
+            ),
+            SyncOperationsAdapter = SyncOperations.Adapter(
+                actionAdapter = EnumColumnAdapter(),
+                table_typeAdapter = EnumColumnAdapter()
             )
         )
     }

@@ -1,9 +1,8 @@
 package sync.repositories
 
+import dbEnums.SyncTableType
 import editors.repositories.AccountsRepository
 import editors.repositories.CategoriesRepository
-import io.ktor.client.*
-import io.ktor.client.request.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +15,6 @@ import sync.cloud.SyncRemoteDataSource
 import sync.cloud.dtos.AccountOutDTO
 import sync.cloud.dtos.CategoryRecordCreateDTO
 import sync.cloud.dtos.SyncRequest
-import sync.cloud.dtos.SyncTableType
 import sync.mappers.mapSyncQueueRow
 import utils.Logg
 import utils.data.withWebLock

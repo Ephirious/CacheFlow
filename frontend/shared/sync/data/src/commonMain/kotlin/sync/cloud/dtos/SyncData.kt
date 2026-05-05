@@ -1,6 +1,8 @@
 package sync.cloud.dtos
 
 import dbEnums.CategoryType
+import dbEnums.SyncActionType
+import dbEnums.SyncTableType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -56,20 +58,7 @@ data class OperationRecordCreateDTO(
 ) : RecordCreateDTO, RecordOutDTO
 
 
-@Serializable
-enum class SyncActionType {
-    @SerialName("create") CREATE,
-    @SerialName("update") UPDATE,
-    @SerialName("delete") DELETE,
-}
 
-@Serializable
-enum class SyncTableType {
-    @SerialName("accounts") ACCOUNTS,
-    @SerialName("categories") CATEGORIES,
-    @SerialName("transfer") TRANSFER,
-    @SerialName("operations") OPERATIONS
-}
 
 @Serializable
 data class SyncOperationDTO(
