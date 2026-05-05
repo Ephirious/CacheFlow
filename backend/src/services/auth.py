@@ -1,5 +1,8 @@
 from uuid import UUID
+
+from sqlalchemy.exc import IntegrityError
 from backend.src.models.users import EmailCode, EmailCodeAction, User
+from backend.src.repositories.base import AlreadyExists
 from backend.src.repositories.uow import UnitOfWork
 from backend.src.schemas.auth import TokenModel, UserLogin
 from backend.src.schemas.email_code import EmailCodeCreateInner
@@ -15,32 +18,32 @@ class AuthService:
 
     async def register(self, body: UserCreate) -> Result[tuple[User, str]]:
         async with self.uow as uow:
-            user = await uow.user_repository.get_by_email(email=body.email)
-            if user:
-                if user.verified:
-                    return Result.err(
-                        message = "Email already registered",
-                        error_code = ErrorCode.EMAIL_EXISTS
-                    )
-
-                code_exists = await uow.email_code_repository.get_by_user_id(
-                    user.id,
-                    action = EmailCodeAction.register
-                )
-                if code_exists and not code_exists.is_expired:
-                    return Result.ok((user, "ALREADY_SENT"))
-
-                await uow.email_code_repository.delete_by_user_id(user.id, action = EmailCodeAction.register)
-
-            else:
-                hashed_password = security.Password.encrypt(body.password)
-                data = UserCreateInner(
-                    email=body.email,
-                    name=body.name,
-                    password_hash=hashed_password,
-                )
-
+            hashed_password = security.Password.encrypt(body.password)
+            data = UserCreateInner(
+                email=body.email,
+                name=body.name,
+                password_hash=hashed_password,
+            )
+            try:
                 user = await uow.user_repository.insert(data)
+            except IntegrityError:
+               
+                user = await uow.user_repository.get_by_email(email=body.email)
+                if user:
+                    if user.verified:
+                        return Result.err(
+                            message = "Email already registered",
+                            error_code = ErrorCode.EMAIL_EXISTS
+                        )
+
+                    code_exists = await uow.email_code_repository.get_by_user_id(
+                        user.id,
+                        action = EmailCodeAction.register
+                    )
+                    if code_exists and not code_exists.is_expired:
+                        return Result.ok((user, "ALREADY_SENT"))
+
+                    await uow.email_code_repository.delete_by_user_id(user.id, action = EmailCodeAction.register)
 
             code_plain = security.Password.generate_otp()
 

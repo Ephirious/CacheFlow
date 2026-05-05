@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.src.api import auth_router
+from backend.src.api import auth_router, sync_router
 import uvloop
 import uvicorn
 
@@ -17,6 +17,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(sync_router)
 
 if __name__ == "__main__":
     uvicorn.run(app)

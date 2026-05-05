@@ -10,7 +10,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - cacheflow_postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${DATABASE_NAME}"]
       interval: 5s
@@ -48,6 +48,9 @@ services:
         condition: service_healthy
       migrations:
         condition: service_completed_successfully
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     ports:
       - "8000:8000"
     volumes:
@@ -69,13 +72,13 @@ services:
     ports:
       - "5050:80"
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
+      - cacheflow_pgadmin_data:/var/lib/pgadmin
     networks:
       - app
 
 volumes:
-  postgres_data:
-  pgadmin_data:
+  cacheflow_postgres_data:
+  cacheflow_pgadmin_data:
 
 networks:
   app:
