@@ -84,12 +84,12 @@ data class UpdateState(
     val record: JsonElement,
     @SerialName("updated_at") val updatedAt: String,
 ) {
-    fun getTypedRecord(json: Json): RecordOutDTO {
+    fun getTypedRecord(): RecordOutDTO {
         return when (tableType) {
-            SyncTableType.ACCOUNTS -> json.decodeFromJsonElement<AccountOutDTO>(record)
-            SyncTableType.CATEGORIES -> json.decodeFromJsonElement<CategoryRecordCreateDTO>(record)
-            SyncTableType.TRANSFER -> json.decodeFromJsonElement<TransferRecordCreateDTO>(record)
-            SyncTableType.OPERATIONS -> json.decodeFromJsonElement<OperationRecordCreateDTO>(record)
+            SyncTableType.ACCOUNTS -> Json.decodeFromJsonElement<AccountOutDTO>(record)
+            SyncTableType.CATEGORIES -> Json.decodeFromJsonElement<CategoryRecordCreateDTO>(record)
+            SyncTableType.TRANSFER -> Json.decodeFromJsonElement<TransferRecordCreateDTO>(record)
+            SyncTableType.OPERATIONS -> Json.decodeFromJsonElement<OperationRecordCreateDTO>(record)
         }
     }
 }
