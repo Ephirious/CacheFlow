@@ -23,10 +23,8 @@ const CombinedStatsChart = ({
     onMetricChange,
 }: CombinedStatsChartProps) => {
     return (
-        <div className="flex w-full flex-col h-full rounded-3xl bg-surface-sheet p-4 shadow-sm gap-4">
-            <div className="flex justify-center">
-                <h2 className="flex text-xl font-bold text-center text-text-primary">Динамика</h2>
-            </div>
+        <div className="flex h-full w-full flex-col gap-4 rounded-3xl bg-surface-sheet p-4 shadow-sm lg:p-5">
+            <h2 className="text-xl font-bold text-text-primary">Динамика</h2>
 
             <div className="flex flex-wrap gap-2 justify-center">
                 <SegmentedControl value={metric} options={metricTabs} onChange={onMetricChange}/>
@@ -39,28 +37,35 @@ const CombinedStatsChart = ({
                 </span>
             </div>
 
-            <div className="h-56 w-full">
+            <div className="h-56 w-full lg:h-72">
                 <ResponsiveContainer>
                     <LineChart data={[...points]} margin={{top: 12, right: 8, left: -16, bottom: 0}}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false}/>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-strong)" vertical={false}/>
                         <XAxis axisLine={false} dataKey="label" tickLine={false}
-                               tick={{fontSize: 12, fill: "#64748B"}}/>
-                        <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: "#64748B"}} width={70}/>
+                               tick={{fontSize: 12, fill: "var(--color-text-secondary)"}}/>
+                        <YAxis
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{fontSize: 12, fill: "var(--color-text-secondary)"}}
+                            width={70}
+                        />
                         <Tooltip
-                            cursor={{fill: "rgba(79,57,246,0.08)"}}
+                            cursor={{fill: "var(--color-state-brand-soft)"}}
                             contentStyle={{
                                 borderRadius: "12px",
-                                border: "1px solid #E5E7EB",
-                                boxShadow: "0 10px 24px rgba(15, 23, 42, 0.06)"
+                                border: "1px solid var(--color-border-strong)",
+                                backgroundColor: "var(--color-surface-base)",
+                                boxShadow: "0 10px 24px rgba(15, 23, 42, 0.16)"
                             }}
+                            itemStyle={{color: "var(--color-text-primary)"}}
                             formatter={(value: number) => [`${value.toLocaleString("ru-RU")} ₽`, "Динамика"]}
-                            labelStyle={{color: "#0F172A", fontWeight: 600}}
+                            labelStyle={{color: "var(--color-text-primary)", fontWeight: 600}}
                         />
                         <Line
                             dataKey="value"
-                            stroke="#4F39F6"
+                            stroke="var(--color-brand-primary)"
                             strokeWidth={3}
-                            dot={{r: 4, fill: "#4F39F6", stroke: "#ffffff", strokeWidth: 2}}
+                            dot={{r: 4, fill: "var(--color-brand-primary)", stroke: "var(--color-surface-base)", strokeWidth: 2}}
                             activeDot={{r: 5}}
                             type="monotone"
                         />

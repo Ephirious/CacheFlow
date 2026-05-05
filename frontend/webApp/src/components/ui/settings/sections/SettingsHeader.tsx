@@ -19,7 +19,7 @@ const SettingsHeader = ({curTheme, tab, onTabChange, onThemeClick}: SettingsHead
     };
 
     return (
-        <div className="flex flex-col gap-6 border-b border-border-subtle bg-surface-base p-6 pt-[calc(env(safe-area-inset-top)+24px)] transition-colors duration-300">
+        <div className="flex flex-col gap-6 border-b border-border-subtle bg-surface-base p-6 pt-[calc(env(safe-area-inset-top)+24px)] transition-colors duration-300 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-6xl lg:rounded-3xl lg:border lg:pt-6">
             <div className="flex items-center justify-between gap-6">
                 <div className="flex items-center gap-3">
                     <div className="rounded-2xl bg-brand-primary-emphasis/10 p-2 text-brand-primary">

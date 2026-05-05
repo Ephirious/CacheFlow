@@ -45,9 +45,10 @@ const NavBar = ({component, activeChild}: RootTabBarProps) => {
             bottom-0 left-0 right-0
             bg-surface-base border-t border-border-contrast
             pb-[env(safe-area-inset-bottom)]
-            md:relative md:flex md:h-full md:w-96 md:flex-col md:border-r md:border-t-0 md:p-6 md:bg-transparent
+            md:order-first md:relative md:flex md:h-full md:w-72 md:flex-col md:border-r md:border-t-0 md:p-6 md:bg-surface-base
+            xl:w-80
         ">
-            <h1 className="hidden md:flex items-center gap-3 font-bold text-2xl mb-8">
+            <h1 className="hidden md:flex items-center gap-3 font-bold text-2xl mb-8 text-text-primary">
                 <LuWallet className="w-12 h-12 p-2.5 bg-surface-nav-active rounded-2xl text-brand-primary"/>
                 CacheFlow
             </h1>

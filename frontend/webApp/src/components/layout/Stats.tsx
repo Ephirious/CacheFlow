@@ -142,10 +142,10 @@ const StatsConnected = ({component}: { component: StatsComponent }) => {
     }, [state.accounts, state.selectedAccountId]);
 
     return (
-        <div className="flex min-h-screen flex-col bg-surface-base md:pb-8">
+        <div className="flex min-h-screen flex-col bg-surface-base pb-8">
             <StatsHero currentBalance={currentBalance}/>
 
-            <div className="flex p-6 w-full max-w-5xl flex-col gap-3">
+            <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 pt-4 sm:px-2 lg:pt-6">
                 <StatsChartsCarousel
                     account={state.selectedAccountId ?? "all"}
                     accountOptions={accountOptions}

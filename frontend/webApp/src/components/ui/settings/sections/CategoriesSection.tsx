@@ -15,7 +15,7 @@ const CategoriesSection = ({categories, categoryType, onCategoryTypeChange, onCa
     return (
         <div className="flex flex-col gap-4">
             <SegmentedTabs active={categoryType} onChange={onCategoryTypeChange} options={categoryTypeTabs}/>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
 
                 {categories.map((item) => (
                     <CategoryCard item={

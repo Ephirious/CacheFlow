@@ -9,10 +9,8 @@ const ExpenseDistribution = ({categories}: ExpenseDistributionProps) => {
     const hasCategories = categories.length > 0;
 
     return (
-        <section className="flex flex-col h-full rounded-3xl bg-surface-sheet p-3 shadow-sm gap-3">
-            <div className="flex justify-center">
-                <h2 className="text-xl font-bold text-text-primary sm:text-3xl">Расходы</h2>
-            </div>
+        <section className="flex h-full flex-col gap-3 rounded-3xl bg-surface-sheet p-4 shadow-sm lg:p-5">
+            <h2 className="text-xl font-bold text-text-primary">Расходы</h2>
             {hasCategories ? (
                 <>
                     <div className="h-48 w-full">
@@ -24,11 +22,11 @@ const ExpenseDistribution = ({categories}: ExpenseDistributionProps) => {
                                     nameKey="label"
                                     innerRadius={55}
                                     outerRadius={88}
-                                    stroke="#FFFFFF"
+                                    stroke="var(--color-surface-sheet)"
                                     strokeWidth={4}
                                 >
                                     {categories.map((entry) => (
-                                        <Cell key={entry.id} fill={entry.color ?? "#CBD5E1"}/>
+                                        <Cell key={entry.id} fill={entry.color ?? "var(--color-border-default)"}/>
                                     ))}
                                 </Pie>
                             </PieChart>
@@ -39,7 +37,7 @@ const ExpenseDistribution = ({categories}: ExpenseDistributionProps) => {
                         {categories.map((category) => (
                             <div className="flex items-center justify-between gap-2 text-xs text-text-label sm:text-sm" key={category.id}>
                                 <span className="flex items-center gap-2">
-                                    <span className="h-2.5 w-2.5 rounded-full" style={{backgroundColor: category.color ?? "#CBD5E1"}}/>
+                                    <span className="h-2.5 w-2.5 rounded-full" style={{backgroundColor: category.color ?? "var(--color-border-default)"}}/>
                                     {category.label}
                                 </span>
                                 <span className="font-semibold text-text-secondary">{category.share}%</span>
