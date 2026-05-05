@@ -35,7 +35,7 @@ class TransactionsRepositoryImpl(
 
     override suspend fun upsertTransaction(transaction: Transaction) {
         dbDataSource.upsertTransaction(transaction)
-        syncManager.requestSync()
+        syncManager.requestSync() //????????????
     }
 
     override suspend fun selectTransactionById(id: String): Transaction =

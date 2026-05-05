@@ -10,21 +10,26 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import sync.cloud.SyncRemoteDataSource
+import sync.cloud.dtos.AccountOutDTO
+import sync.cloud.dtos.CategoryRecordCreateDTO
 import sync.cloud.dtos.SyncRequest
 import sync.cloud.dtos.SyncTableType
 import sync.mappers.mapSyncQueueRow
 import utils.Logg
 import utils.data.withWebLock
 import utils.presentation.AsyncDispatcher
+import utils.types.HexColor
 
 class SyncManagerImpl(
     override val scope: CoroutineScope = CoroutineScope(AsyncDispatcher + SupervisorJob()),
     private val remoteDataSource: SyncRemoteDataSource,
     private val queueRepo: SyncQueueRepository,
     private val accountsRepo: AccountsRepository,
-    private val categoriesRepo: CategoriesRepository
+    private val categoriesRepo: CategoriesRepository,
+    private val json: Json,
 ) : SyncManager, KoinComponent {
 
     override val status = MutableStateFlow(SyncStatus.Ok)
@@ -92,12 +97,20 @@ class SyncManagerImpl(
 
             response.updateState.forEach {
                 upd ->
+                val record = upd.getTypedRecord(json)
                 when(upd.tableType) {
                     SyncTableType.ACCOUNTS -> {
-                        val r = upd.getTypedRecord(TODO("DI FOR SERIALIZATION"))
+                        val accDto = record as AccountOutDTO
+                        val color = HexColor(hex = accDto?.color.orEmpty())
+                        accountsRepo.upsertAccount(id = accDto.id, name = accDto.name, color , stringAmount = accDto.funds)
                     }
-                    else -> TODO()
+                    SyncTableType.CATEGORIES -> {
+                        val catDto = record as CategoryRecordCreateDTO
+                        categoriesRepo.upsertCategory(id = catDto.id, name = catDto.name, emoji = catDto.emoji, type = catDto.type)
+                    }
+                    else -> TODO("ADD TRANSFERS AND OPERATIONS")
                 }
+
             }
         }
 

@@ -1,5 +1,6 @@
 package sync.cloud.dtos
 
+import dbEnums.CategoryType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -32,7 +33,8 @@ data class AccountOutDTO(
 data class CategoryRecordCreateDTO(
     val id: String,
     val name: String,
-    val emoji: String
+    val emoji: String,
+    val type: CategoryType
 ) : RecordCreateDTO, RecordOutDTO
 
 @Serializable
