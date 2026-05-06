@@ -23,6 +23,7 @@ kotlin {
             implementation(projects.shared.utils.common)
             implementation(projects.shared.sync.domain)
             implementation(projects.shared.sync.data)
+            implementation(projects.shared.core)
 
             implementation(projects.shared.settings.domain)
 

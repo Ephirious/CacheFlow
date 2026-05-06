@@ -1,6 +1,6 @@
 import kotlin.Boolean;
 
-CREATE TABLE SyncSettings (
+CREATE TABLE IF NOT EXISTS SyncSettings (
     is_sync_running INTEGER AS Boolean NOT NULL DEFAULT 0
 );
 

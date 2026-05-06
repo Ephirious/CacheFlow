@@ -2,7 +2,7 @@ import dbEnums.SyncActionType;
 import dbEnums.SyncTableType;
 
 
-CREATE TABLE SyncOperations (
+CREATE TABLE IF NOT EXISTS SyncOperations (
     id TEXT NOT NULL PRIMARY KEY,
     processing_id TEXT NOT NULL,
     action TEXT AS SyncActionType NOT NULL,
@@ -12,9 +12,9 @@ CREATE TABLE SyncOperations (
     created_at TEXT NOT NULL
 );
 
-CREATE INDEX idx_sync_proc_id_date ON SyncOperations(processing_id, created_at);
-CREATE INDEX idx_sync_created_at ON SyncOperations(created_at);
-CREATE INDEX idx_processing_id ON SyncOperations(processing_id);
+CREATE INDEX IF NOT EXISTS idx_sync_proc_id_date ON SyncOperations(processing_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_sync_created_at ON SyncOperations(created_at);
+CREATE INDEX IF NOT EXISTS idx_processing_id ON SyncOperations(processing_id);
 
 getUnsyncedOperations:
 SELECT * FROM SyncOperations ORDER BY created_at ASC;

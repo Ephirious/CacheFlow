@@ -40,7 +40,7 @@ class SyncManagerImpl(
 
 
     private val scheduler =
-        SyncScheduler(scope, listOf(/*todo: подписаться на sync table*/))
+        SyncScheduler(scope, listOf(queueRepo.getUnsyncedFlow()))
 
     init {
         scope.launch(AsyncDispatcher) {

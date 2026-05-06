@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface SyncQueueRepository {
+    fun getUnsyncedFlow(): Flow<List<GetSyncQueue>>
+
     suspend fun getUnsynced(): List<GetSyncQueue>
 
     suspend fun deleteFromQueue(ids: List<String>)

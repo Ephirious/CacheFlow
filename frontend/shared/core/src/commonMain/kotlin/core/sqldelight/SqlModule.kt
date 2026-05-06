@@ -10,6 +10,8 @@ import data.CategoriesQueries
 import data.CommonQueries
 import data.Operations
 import data.OperationsQueries
+import data.SyncDBQueries
+import data.SyncInternalQueries
 import data.SyncOperations
 import data.Transfers
 import data.TransfersQueries
@@ -77,4 +79,7 @@ internal val sqlModule = module {
     single<OperationsQueries> { get<Database>().operationsQueries }
     single<TransfersQueries> { get<Database>().transfersQueries }
     single<CommonQueries> { get<Database>().commonQueries }
+
+    single<SyncDBQueries> { get<Database>().syncDBQueries }
+    single<SyncInternalQueries> { get<Database>().syncInternalQueries }
 }
