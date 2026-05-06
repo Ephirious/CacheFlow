@@ -13,7 +13,7 @@ data class Category(
     companion object {
         val Unknown = Category(
             id = "unknown",
-            name = "Неизвестная категория",
+            name = "Начальный баланс", // TODO
             emoji = "❔",
             type = CategoryType.INCOME
         )

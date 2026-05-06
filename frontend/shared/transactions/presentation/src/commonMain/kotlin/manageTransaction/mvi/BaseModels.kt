@@ -19,7 +19,7 @@ import kotlin.js.JsExport
 @GenerateValidator
 interface ManageTransactionFormBaseState<V> : MVIState {
 
-    @StringAmount
+    @StringAmount(param = true)
     @MaxLen(10)
     val value: String
     val transactionType: ManageTransactionType

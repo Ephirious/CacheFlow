@@ -31,7 +31,7 @@ sealed class CreateAccountState : ManageAccountBaseState<CreateAccountFormState>
 @GenerateValidator
 @DataCopyableNode
 data class CreateAccountFormState(
-    @StringAmount
+    @StringAmount(param = false)
     val initialBalance: String,
     override val validation: CreateAccountFormValidationErrors,
     override val title: String,

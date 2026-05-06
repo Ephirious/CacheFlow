@@ -8,9 +8,9 @@ fun CreateAccountContainer.getInitial(
 ) =
     CreateAccountState.OK(
         form = form ?: CreateAccountFormState(
-            initialBalance = "",
+            initialBalance = "0",
             title = "",
-            color = HexColor("#FF0000"),
+            color = HexColor("#4A86F7"),
             validation = CreateAccountFormValidationErrors()
         ),
     ).allValidate()
