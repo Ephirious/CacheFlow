@@ -13,9 +13,12 @@ import org.koin.core.component.KoinComponent
 import sync.cloud.SyncRemoteDataSource
 import sync.cloud.dtos.AccountOutDTO
 import sync.cloud.dtos.CategoryRecordCreateDTO
+import sync.cloud.dtos.OperationRecordCreateDTO
 import sync.cloud.dtos.SyncRequest
+import sync.cloud.dtos.TransferRecordCreateDTO
 import sync.local.SyncLocalDataSource
 import sync.mappers.mapSyncQueueRow
+import transactions.repositories.TransactionsRepository
 import utils.Logg
 import utils.data.withWebLock
 import utils.presentation.AsyncDispatcher
@@ -27,7 +30,8 @@ class SyncManagerImpl(
     private val localDataSource: SyncLocalDataSource,
     private val queueRepo: SyncQueueRepository,
     private val accountsRepo: AccountsRepository,
-    private val categoriesRepo: CategoriesRepository
+    private val categoriesRepo: CategoriesRepository,
+    private val transactionsRepo: TransactionsRepository
 ) : SyncManager, KoinComponent {
 
     override val status = MutableStateFlow(SyncStatus.Ok)
@@ -89,7 +93,8 @@ class SyncManagerImpl(
                     when (op.tableType) {
                         SyncTableType.ACCOUNTS -> accountsRepo.softDeleteAccount(op.id)
                         SyncTableType.CATEGORIES -> categoriesRepo.softDeleteCategory(op.id)
-                        else -> TODO()
+                        SyncTableType.TRANSFER -> transactionsRepo.hardDeleteTransfer(op.id)
+                        SyncTableType.OPERATIONS -> transactionsRepo.hardDeleteTransaction(op.id)
                     }
                 }
 
@@ -117,7 +122,27 @@ class SyncManagerImpl(
                             )
                         }
 
-                        else -> TODO("ADD TRANSFERS AND OPERATIONS")
+                        SyncTableType.TRANSFER -> {
+                            val transferDto = record as TransferRecordCreateDTO
+                            transactionsRepo.badInsertTransfer(
+                                id = transferDto.id,
+                                accountFromId = transferDto.accountFromId,
+                                accountToId = transferDto.accountToId
+                            )
+                        }
+
+                        SyncTableType.OPERATIONS -> {
+                            val operationDto = record as OperationRecordCreateDTO
+                            transactionsRepo.badInsertTransaction(
+                                id = operationDto.id,
+                                accountUuid = operationDto.accountUuid,
+                                transferId = operationDto.transferId,
+                                categoryId = operationDto.categoryId,
+                                amount = operationDto.amount,
+                                date = operationDto.date,
+                                notes = operationDto.notes
+                            )
+                        }
                     }
 
                 }
@@ -125,21 +150,5 @@ class SyncManagerImpl(
         }
 
         Logg.debug { "Syncing end" }
-//        val allTrans = getTransactionsFlowUseCase().firstOrNull() ?: listOf()
-//        val allCats = getCategoriesFlowUseCase().firstOrNull() ?: listOf()
-//        val allAccounts = getAccountsFlowUseCase().firstOrNull() ?: listOf()
-//
-//        val unsyncedData = SyncData(
-//            transactions = filterUnsynced(allTrans),
-//            categories = filterUnsynced(allCats),
-//            accounts = filterUnsynced(allAccounts)
-//        )
-
-
-//        if (unsyncedData.isEmpty()) {
-//            return
-//        }
-//
-//        remoteDataSource.sync(unsyncedData)
     }
 }
