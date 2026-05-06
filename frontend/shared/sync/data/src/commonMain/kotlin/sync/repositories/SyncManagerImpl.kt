@@ -40,7 +40,7 @@ class SyncManagerImpl(
 
 
     private val scheduler =
-        SyncScheduler(scope, listOf(/*todo*/))
+        SyncScheduler(scope, listOf(/*todo: подписаться на sync table*/))
 
     init {
         scope.launch(AsyncDispatcher) {
@@ -65,8 +65,9 @@ class SyncManagerImpl(
                     status.value = SyncStatus.InProcess
                     sync()
                 }.fold(
-                    onSuccess = {
+                    onSuccess = { lastTimeSync ->
                         status.value = SyncStatus.Ok
+                        localDataSource.setLastTimeSync(lastTimeSync)
                     },
                     onFailure = {
                         status.value = SyncStatus.Failed
@@ -76,7 +77,7 @@ class SyncManagerImpl(
         }
     }
 
-    private suspend fun sync() {
+    private suspend fun sync(): String {
         Logg.debug { "Syncing start" }
 
         val unsyncedRows = queueRepo.getUnsynced()
@@ -147,8 +148,12 @@ class SyncManagerImpl(
 
                 }
             }
+            Logg.debug { "Syncing end" }
+            return response.lastSyncDate
         }
 
-        Logg.debug { "Syncing end" }
+        Logg.debug { "Syncing wasn't started" }
+
+        return localDataSource.getLastTimeSync()
     }
 }
