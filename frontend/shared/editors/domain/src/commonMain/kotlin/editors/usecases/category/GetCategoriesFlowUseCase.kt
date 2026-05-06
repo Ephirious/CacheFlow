@@ -17,8 +17,8 @@ class GetCategoriesFlowUseCase(
 ) {
     operator fun invoke(onlyActive: Boolean = true) = repository.getCategoriesFlow(onlyActive).map { all ->
         CategoriesLists(
-            income = all.filter { it.type == CategoryType.INCOME },
-            outcome = all.filter { it.type == CategoryType.OUTCOME }
+            income = all.filter { it.type == CategoryType.income },
+            outcome = all.filter { it.type == CategoryType.outcome }
         )
     }
 }

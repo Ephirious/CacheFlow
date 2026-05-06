@@ -8,7 +8,7 @@ fun CreateCategoryContainer.getInitial(
 ) =
     CreateCategoryState.OK(
         form = form ?: CreateCategoryFormState(
-            categoryType = CategoryType.OUTCOME,
+            categoryType = CategoryType.outcome,
             title = "",
             emoji = "",
             validation = ManageCategoryFormBaseValidationErrors()

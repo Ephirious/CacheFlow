@@ -86,10 +86,10 @@ data class UpdateState(
 ) {
     fun getTypedRecord(): RecordOutDTO {
         return when (tableType) {
-            SyncTableType.ACCOUNTS -> Json.decodeFromJsonElement<AccountOutDTO>(record)
-            SyncTableType.CATEGORIES -> Json.decodeFromJsonElement<CategoryRecordCreateDTO>(record)
-            SyncTableType.TRANSFER -> Json.decodeFromJsonElement<TransferRecordCreateDTO>(record)
-            SyncTableType.OPERATIONS -> Json.decodeFromJsonElement<OperationRecordCreateDTO>(record)
+            SyncTableType.accounts -> Json.decodeFromJsonElement<AccountOutDTO>(record)
+            SyncTableType.categories -> Json.decodeFromJsonElement<CategoryRecordCreateDTO>(record)
+            SyncTableType.transfer -> Json.decodeFromJsonElement<TransferRecordCreateDTO>(record)
+            SyncTableType.operations -> Json.decodeFromJsonElement<OperationRecordCreateDTO>(record)
         }
     }
 }

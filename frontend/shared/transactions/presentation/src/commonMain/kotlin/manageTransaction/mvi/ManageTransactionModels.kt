@@ -33,7 +33,7 @@ sealed class ManageTransactionState : MVIState {
         ) : ManageTransactionFormBaseState<ManageTransactionFormBaseValidationErrors> {
             fun findAccount(id: String?) = accounts.firstOrNull { it.id == id }
             fun findCategory(id: String?, type: CategoryType): Category? {
-                val categories = if (type == CategoryType.INCOME) incomeCategories else outcomeCategories
+                val categories = if (type == CategoryType.income) incomeCategories else outcomeCategories
                 return categories.firstOrNull { it.id == id }
             }
 

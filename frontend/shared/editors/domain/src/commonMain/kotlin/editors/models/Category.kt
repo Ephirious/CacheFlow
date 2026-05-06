@@ -15,7 +15,7 @@ data class Category(
             id = "unknown",
             name = "Начальный баланс", // TODO
             emoji = "❔",
-            type = CategoryType.INCOME
+            type = CategoryType.income
         )
     }
 }

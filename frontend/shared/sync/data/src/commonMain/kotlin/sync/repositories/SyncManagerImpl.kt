@@ -6,6 +6,8 @@ import editors.repositories.CategoriesRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -44,13 +46,17 @@ class SyncManagerImpl(
 
     init {
         scope.launch(AsyncDispatcher) {
-            scheduler.debouncedSyncEvents.collect {
-                trySync()
-            }
+            scheduler.debouncedSyncEvents
+                .onStart { Logg.debug { "DebounceSyncFlow started" } }
+                .catch { e -> Logg.error { "DebounceSyncFlow error: ${e.message}" } }
+                .collect {
+                    trySync()
+                }
         }
     }
 
     override suspend fun requestSync() {
+        Logg.debug { "Syncing manual request" }
         scheduler.schedule()
     }
 
@@ -58,6 +64,7 @@ class SyncManagerImpl(
 
 
     private suspend fun trySync() {
+        Logg.debug { "Syncing try start" }
         mutex.withLock {
             withWebLock(scope) {
 
@@ -71,6 +78,7 @@ class SyncManagerImpl(
                     },
                     onFailure = {
                         status.value = SyncStatus.Failed
+                        Logg.error { "Syncing error: ${it.stackTraceToString()}" }
                     }
                 )
             }
@@ -92,17 +100,17 @@ class SyncManagerImpl(
                 }
                 response.deleteOperations.forEach { op ->
                     when (op.tableType) {
-                        SyncTableType.ACCOUNTS -> accountsRepo.softDeleteAccount(op.id)
-                        SyncTableType.CATEGORIES -> categoriesRepo.softDeleteCategory(op.id)
-                        SyncTableType.TRANSFER -> transactionsRepo.hardDeleteTransfer(op.id)
-                        SyncTableType.OPERATIONS -> transactionsRepo.hardDeleteTransaction(op.id)
+                        SyncTableType.accounts -> accountsRepo.softDeleteAccount(op.id)
+                        SyncTableType.categories -> categoriesRepo.softDeleteCategory(op.id)
+                        SyncTableType.transfer -> transactionsRepo.hardDeleteTransfer(op.id)
+                        SyncTableType.operations -> transactionsRepo.hardDeleteTransaction(op.id)
                     }
                 }
 
                 response.updateState.forEach { upd ->
                     val record = upd.getTypedRecord()
                     when (upd.tableType) {
-                        SyncTableType.ACCOUNTS -> {
+                        SyncTableType.accounts -> {
                             val accDto = record as AccountOutDTO
                             val color = HexColor(hex = accDto.color)
                             accountsRepo.upsertAccount(
@@ -113,7 +121,7 @@ class SyncManagerImpl(
                             )
                         }
 
-                        SyncTableType.CATEGORIES -> {
+                        SyncTableType.categories -> {
                             val catDto = record as CategoryRecordCreateDTO
                             categoriesRepo.upsertCategory(
                                 id = catDto.id,
@@ -123,7 +131,7 @@ class SyncManagerImpl(
                             )
                         }
 
-                        SyncTableType.TRANSFER -> {
+                        SyncTableType.transfer -> {
                             val transferDto = record as TransferRecordCreateDTO
                             transactionsRepo.badInsertTransfer(
                                 id = transferDto.id,
@@ -132,7 +140,7 @@ class SyncManagerImpl(
                             )
                         }
 
-                        SyncTableType.OPERATIONS -> {
+                        SyncTableType.operations -> {
                             val operationDto = record as OperationRecordCreateDTO
                             transactionsRepo.badInsertTransaction(
                                 id = operationDto.id,

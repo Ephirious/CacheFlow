@@ -3,6 +3,7 @@ package dbEnums
 import kotlin.js.JsExport
 
 @JsExport
+@Suppress("EnumEntryName")
 enum class CategoryType {
-    INCOME, OUTCOME
+    income, outcome
 }
