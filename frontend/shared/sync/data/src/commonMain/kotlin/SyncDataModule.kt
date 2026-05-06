@@ -12,11 +12,11 @@ val syncDataModule = module {
     single<SyncManager> {
         SyncManagerImpl(
             remoteDataSource = get(),
-            // TODO
             queueRepo = get(),
             accountsRepo = get(),
             categoriesRepo = get(),
             localDataSource = get(),
+            transactionsRepo = get(),
         )
     }
 

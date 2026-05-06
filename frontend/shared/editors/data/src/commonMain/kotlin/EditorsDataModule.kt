@@ -21,7 +21,7 @@ val editorsDataModule = module {
     single<AccountsDatabaseDataSource> { AccountsDatabaseDataSource(get()) }
     single<CategoriesDatabaseDataSource> { CategoriesDatabaseDataSource(get()) }
 
-    single<AccountsRepository> { AccountsRepositoryImpl(get(), get()) }
+    single<AccountsRepository> { AccountsRepositoryImpl(get()) }
     single<CategoriesRepository> { CategoriesRepositoryImpl(get()) }
 
 

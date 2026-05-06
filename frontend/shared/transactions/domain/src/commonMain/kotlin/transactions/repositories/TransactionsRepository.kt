@@ -13,8 +13,8 @@ interface TransactionsRepository {
 
 
     // МЕТОДЫ НИЖЕ ИСПОЛЬЗОВАТЬ АККУРАТНО – могут от*****ть
-    suspend fun hardDeleteTransaction(id: String): Transaction
-    suspend fun hardDeleteTransfer(id: String): Transaction
+    suspend fun hardDeleteTransaction(id: String)
+    suspend fun hardDeleteTransfer(id: String)
 
     suspend fun badInsertTransaction(
         id: String,
@@ -24,11 +24,11 @@ interface TransactionsRepository {
         amount: String,
         date: String,
         notes: String
-    ): Transaction
+    )
 
     suspend fun badInsertTransfer(
         id: String,
         accountFromId: String,
         accountToId: String
-    ): Transaction
+    )
 }

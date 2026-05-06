@@ -4,13 +4,11 @@ import editors.db.AccountsDatabaseDataSource
 import editors.models.Account
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import sync.repositories.SyncManager
 import utils.presentation.AsyncDispatcher
 import utils.types.HexColor
 
 class AccountsRepositoryImpl(
-    private val dbDataSource: AccountsDatabaseDataSource,
-    private val syncManager: SyncManager
+    private val dbDataSource: AccountsDatabaseDataSource
 ) : AccountsRepository {
     override fun getAccountsFlow(onlyActive: Boolean): Flow<List<Account>> =
         dbDataSource.getAccountsFlow(onlyActive).flowOn(AsyncDispatcher)
