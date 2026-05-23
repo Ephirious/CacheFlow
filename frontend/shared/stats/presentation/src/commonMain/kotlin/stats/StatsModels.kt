@@ -158,7 +158,7 @@ internal object StatsCalculator {
         val expense = filtered
             .asSequence()
             .filter { it.type is TransactionType.Outcome }
-            .fold(BigDecimal.ZERO) { acc, tx -> acc + tx.value }
+            .fold(BigDecimal.ZERO) { acc, tx -> acc + tx.value.abs() }
         val summary = StatSummary(
             income = income,
             expense = expense,
@@ -240,7 +240,7 @@ internal object StatsCalculator {
                 StatMetric.EXPENSE -> bucketTransactions
                     .asSequence()
                     .filter { it.type is TransactionType.Outcome }
-                    .fold(BigDecimal.ZERO) { acc, tx -> acc + tx.value }
+                    .fold(BigDecimal.ZERO) { acc, tx -> acc + tx.value.abs() }
 
                 StatMetric.BALANCE -> {
                     val income = bucketTransactions
@@ -250,7 +250,7 @@ internal object StatsCalculator {
                     val expense = bucketTransactions
                         .asSequence()
                         .filter { it.type is TransactionType.Outcome }
-                        .fold(BigDecimal.ZERO) { acc, tx -> acc + tx.value }
+                        .fold(BigDecimal.ZERO) { acc, tx -> acc + tx.value.abs() }
                     income - expense
                 }
             }
@@ -287,7 +287,7 @@ internal object StatsCalculator {
             .asSequence()
             .mapNotNull { tx ->
                 val type = tx.type as? TransactionType.Outcome ?: return@mapNotNull null
-                type.category to tx.value
+                type.category to tx.value.abs()
             }
             .groupBy(
                 keySelector = { (category, _) -> category.id },
