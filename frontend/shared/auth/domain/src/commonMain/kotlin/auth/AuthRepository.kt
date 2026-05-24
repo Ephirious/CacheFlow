@@ -1,5 +1,7 @@
 package auth
 
+import auth.models.Profile
+
 
 typealias UserId = String
 
@@ -11,7 +13,7 @@ interface AuthRepository {
 
 
     suspend fun login(email: String, password: String)
-    suspend fun logout()
+    fun logout()
 
-    suspend fun getProfile(): Any // TODO: ProfileData
+    suspend fun getProfile(): Profile
 }

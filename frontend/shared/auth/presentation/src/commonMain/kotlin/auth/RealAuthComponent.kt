@@ -57,7 +57,7 @@ class RealAuthComponent(
             pages = _pages,
             serializer = AuthConfig.serializer(),
             pathMapper = { config -> config.path() },
-            childSelector = { child ->
+            childSelector = { _ ->
                 null
             }
         )

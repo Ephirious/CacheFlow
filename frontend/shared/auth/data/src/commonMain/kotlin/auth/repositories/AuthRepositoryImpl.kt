@@ -6,10 +6,17 @@ import auth.cloud.AuthRemoteDataSource
 import auth.cloud.dtos.ResendCodeRequestDTO
 import auth.cloud.dtos.UserCreateDTO
 import auth.cloud.dtos.VerifyEmailRequestDTO
+import auth.local.AuthLocalDataSource
+import auth.models.Profile
 
 class AuthRepositoryImpl(
     private val remoteDataSource: AuthRemoteDataSource,
+    private val localDataSource: AuthLocalDataSource,
+    private val logoutDataInternalUseCase: LogoutDataInternalUseCase,
 ) : AuthRepository {
+
+
+    private var shouldRequestProfileFromServer: Boolean = true
 
     override suspend fun register(email: String, password: String, name: String): UserId =
         remoteDataSource.register(
@@ -34,10 +41,21 @@ class AuthRepositoryImpl(
     override suspend fun login(email: String, password: String) =
         remoteDataSource.login(email = email, password = password)
 
-    override suspend fun logout() =
-        remoteDataSource.logout()
+    override fun logout() {
+        logoutDataInternalUseCase()
+    }
 
-    override suspend fun getProfile(): Any =
-        remoteDataSource.getProfile() // .toDomain()
+    override suspend fun getProfile(): Profile {
+        val offlineData = localDataSource.getProfile()
+
+        if (offlineData == null || shouldRequestProfileFromServer) {
+            val profile = remoteDataSource.getProfile().toDomain()
+            shouldRequestProfileFromServer = true
+            localDataSource.setProfile(profile)
+            return profile
+        }
+
+        return offlineData
+    }
 
 }

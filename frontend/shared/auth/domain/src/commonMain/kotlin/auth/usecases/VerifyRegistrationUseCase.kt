@@ -6,6 +6,9 @@ import auth.UserId
 class VerifyRegistrationUseCase(
     private val repository: AuthRepository
 ) {
-    suspend operator fun invoke(userId: UserId, code: String) =
+    suspend operator fun invoke(userId: UserId, code: String, email: String, password: String) {
         repository.verifyRegistration(userId = userId, verificationCode = code)
+        repository.login(email = email, password = password)
+        repository.getProfile()
+    }
 }

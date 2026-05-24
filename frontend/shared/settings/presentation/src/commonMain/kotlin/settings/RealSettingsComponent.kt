@@ -1,6 +1,7 @@
 package settings
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.childContext
 import com.arkivanov.decompose.router.pages.ChildPages
 import com.arkivanov.decompose.router.pages.PagesNavigation
 import com.arkivanov.decompose.router.pages.childPages
@@ -12,6 +13,7 @@ import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.doOnResume
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.essenty.dsl.retainedStore
 import pro.respawn.flowmvi.essenty.dsl.subscribe
@@ -23,7 +25,9 @@ import settings.mvi.SettingsAction
 import settings.mvi.SettingsContainer
 import settings.mvi.SettingsIntent
 import settings.mvi.SettingsState
-import settings.sync.SyncComponent
+import settings.sync.RealSyncOverviewComponent
+import settings.sync.SyncOverviewComponent
+import settings.sync.mvi.SyncOverviewContainer
 import utils.Url
 import utils.interop.*
 import utils.path
@@ -38,11 +42,21 @@ class RealSettingsComponent(
 ) : SettingsComponent, KoinComponent, ComponentContext by componentCtx,
     Store<SettingsState, SettingsIntent, SettingsAction> by componentCtx.retainedStore(factory = container) {
 
-    override val syncComponent: SyncComponent = TODO()
+    override val syncOverviewComponent: SyncOverviewComponent = RealSyncOverviewComponent(
+        componentCtx.childContext("SyncOverview"),
+        container = {
+            SyncOverviewContainer(
+                logoutUseCase = get(),
+                getProfileUseCase = get(),
+                syncManager = get(),
+                tokenStorage = get()
+            )
+        }
+    )
 
     init {
         lifecycle.doOnResume {
-            syncComponent.refreshSyncData()
+            syncOverviewComponent.updateAuthStatus()
         }
     }
 

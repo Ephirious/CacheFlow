@@ -99,7 +99,9 @@ class RegistrationContainer(
             // если у него не получится распарсить токены – упадёт с ошибкой - упадёт в doOnRecover
             verifyRegistrationUseCase(
                 userId = userId,
-                code = codeInput
+                code = codeInput,
+                email = emailInput,
+                password = passwordInput,
             )
 
             onRegistrationFinished()

@@ -122,7 +122,7 @@ fun RealSettingsComponent.modalChild(): Value<ChildSlot<SettingsModalConfig, Set
                     componentCtx = childCtx,
                     backToSettings = {
                         dismissSlot()
-                        syncComponent.refreshSyncData()
+                        syncOverviewComponent.updateAuthStatus()
                     }
                 )
             )

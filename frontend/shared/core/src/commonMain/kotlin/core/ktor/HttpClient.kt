@@ -32,6 +32,7 @@ fun getHttpClient(
                 isLenient = true
                 ignoreUnknownKeys = true
                 classDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC
+                classDiscriminator = "kotlin_class_type"
             })
         }
 

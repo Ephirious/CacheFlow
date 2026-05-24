@@ -59,7 +59,5 @@ class AuthRemoteDataSource(
         httpClient.post(AuthUrls.GET_PROFILE).body()
     }
 
-    suspend fun logout() = throwableToException {
-        tokenStorage.clearTokens()
-    }
+
 }

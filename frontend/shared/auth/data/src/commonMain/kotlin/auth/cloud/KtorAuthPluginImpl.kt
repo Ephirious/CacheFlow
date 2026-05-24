@@ -4,6 +4,7 @@ import auth.AuthUrls
 import auth.cloud.dtos.TokenDTO
 import auth.KtorAuthPlugin
 import auth.TokenStorage
+import auth.repositories.LogoutDataInternalUseCase
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.Auth
@@ -14,7 +15,8 @@ import io.ktor.client.request.post
 import io.ktor.http.encodedPath
 
 class KtorAuthPluginImpl(
-    private val tokenStorage: TokenStorage
+    private val tokenStorage: TokenStorage,
+    private val logoutDataInternalUseCase: LogoutDataInternalUseCase,
 ) : KtorAuthPlugin {
     override fun install(config: HttpClientConfig<*>) {
         config.install(Auth) {
@@ -38,7 +40,7 @@ class KtorAuthPluginImpl(
                         tokenStorage.saveTokens(response.accessToken, response.refreshToken)
                         BearerTokens(response.accessToken, response.refreshToken)
                     } catch (_: Exception) {
-                        tokenStorage.clearTokens()
+                        logoutDataInternalUseCase()
                         null
                     }
                 }
