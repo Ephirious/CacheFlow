@@ -1,6 +1,7 @@
 package auth.repositories
 
 import auth.AuthRepository
+import auth.TokenStorage
 import auth.UserId
 import auth.cloud.AuthRemoteDataSource
 import auth.cloud.dtos.ResendCodeRequestDTO
@@ -15,6 +16,7 @@ class AuthRepositoryImpl(
     private val remoteDataSource: AuthRemoteDataSource,
     private val localDataSource: AuthLocalDataSource,
     private val logoutDataInternalUseCase: LogoutDataInternalUseCase,
+    private val tokenStorage: TokenStorage,
 ) : AuthRepository {
 
 
@@ -55,10 +57,20 @@ class AuthRepositoryImpl(
         val offlineData = localDataSource.getProfile()
 
         if (offlineData == null || shouldRequestProfileFromServer) {
-            val profile = remoteDataSource.getProfile().toDomain()
-            shouldRequestProfileFromServer = false
-            localDataSource.setProfile(profile)
-            return profile
+            try {
+                val profile = remoteDataSource.getProfile().toDomain()
+                shouldRequestProfileFromServer = false
+                localDataSource.setProfile(profile)
+                return profile
+            } catch (e: Exception) {
+
+                // Всё ок – просто нет инета
+                if (!tokenStorage.isTokensEmpty() && offlineData != null ) {
+                    return offlineData
+                } else { // Сессия устарела – выходим из акка
+                    throw e
+                }
+            }
         }
 
         return offlineData

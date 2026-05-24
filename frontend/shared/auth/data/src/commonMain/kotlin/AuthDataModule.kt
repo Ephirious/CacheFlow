@@ -22,7 +22,7 @@ val authDataModule = module {
 
     single<AuthRemoteDataSource> { AuthRemoteDataSource(get(), get()) }
     single<AuthLocalDataSource> { AuthLocalDataSource(get()) }
-    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get()) }
 
 
     factory { LogoutDataInternalUseCase(get(), get()) }
