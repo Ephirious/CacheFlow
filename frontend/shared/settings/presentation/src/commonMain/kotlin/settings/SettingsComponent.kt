@@ -9,6 +9,7 @@ import settings.mvi.SettingsState
 import settings.pages.SettingsPageComponent
 import settings.pages.accounts.AccountsComponent
 import settings.pages.categories.CategoriesPagesComponent
+import settings.sync.SyncComponent
 import utils.Url
 import utils.interop.JsChildSlot
 import utils.interop.JsValue
@@ -18,6 +19,9 @@ import kotlin.js.JsName
 
 @JsExport
 interface SettingsComponent : DefaultPages<SettingsConfig, SettingsChild>, ComponentContext {
+
+    val syncComponent: SyncComponent
+
     val jsModalSlot: JsValue<JsChildSlot<SettingsModalChild>>
 
     fun onOutput(output: SettingsOutput)

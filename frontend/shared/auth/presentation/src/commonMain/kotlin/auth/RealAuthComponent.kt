@@ -25,7 +25,7 @@ class RealAuthComponent(
                     resendCodeUseCase = get(),
                     verifyRegistrationUseCase = get(),
                     onNavigateBack = backToSettings,
-                    onRegistrationFinished = { backToSettings() } // TODO
+                    onRegistrationFinished = backToSettings
                 )
             }
         )
