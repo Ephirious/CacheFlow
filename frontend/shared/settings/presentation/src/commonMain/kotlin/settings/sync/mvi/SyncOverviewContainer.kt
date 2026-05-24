@@ -59,7 +59,7 @@ class SyncOverviewContainer(
                 when (intent) {
                     SyncOverviewIntent.ExportCSV -> TODO()
                     SyncOverviewIntent.ForceSync -> {
-                        syncManager.forceSync()
+                        syncManager.forceSync(retry = false)
                     }
 
                     SyncOverviewIntent.Logout -> {

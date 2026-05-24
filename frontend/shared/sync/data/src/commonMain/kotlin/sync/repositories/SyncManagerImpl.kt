@@ -72,10 +72,10 @@ class SyncManagerImpl(
         scheduler.schedule()
     }
 
-    override suspend fun forceSync() = trySync()
+    override suspend fun forceSync(retry: Boolean) = trySync(retry = retry)
 
 
-    private suspend fun trySync() {
+    private suspend fun trySync(retry: Boolean = true) {
         if (tokenStorage.isTokensEmpty()) {
             Logg.error { "CANT SYNC: No auth provided" }
             return
@@ -107,7 +107,7 @@ class SyncManagerImpl(
             }
         }
 
-        if (result == SyncStatus.Failed) {
+        if (result == SyncStatus.Failed && retry) {
             val waitTime = currentRetryDelay
 
             currentRetryDelay = (currentRetryDelay * 2).coerceAtMost(maxRetryDelay)

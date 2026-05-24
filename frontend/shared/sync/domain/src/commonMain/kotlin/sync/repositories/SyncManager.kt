@@ -15,7 +15,7 @@ interface SyncManager {
 
     // Добавляет запрос о синхронизации в очередь – выдерживает debounce перед отправкой
     suspend fun requestSync()
-    suspend fun forceSync()
+    suspend fun forceSync(retry: Boolean)
 
     // Статус синхронизации для отображения в UI
     val status: StateFlow<SyncStatus>

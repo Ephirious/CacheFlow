@@ -13,6 +13,6 @@ class VerifyRegistrationUseCase(
         repository.login(email = email, password = password)
         repository.getProfile()
 
-        syncManager.forceSync()
+        syncManager.forceSync(retry = true)
     }
 }
