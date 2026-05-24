@@ -12,6 +12,7 @@ kotlin {
 
             implementation(projects.shared.transactions.domain)
             implementation(projects.shared.editors.domain)
+            implementation(projects.shared.auth.domain)
         }
     }
 }

@@ -28,10 +28,10 @@ val authDataModule = module {
     factory { LogoutDataInternalUseCase(get(), get()) }
 
 
-    factory { LoginUseCase(get()) }
+    factory { LoginUseCase(get(), get()) }
     factory { LogoutUseCase(get()) }
     factory { RegisterUseCase(get()) }
     factory { GetProfileUseCase(get()) }
     factory { ResendVerificationCodeUseCase(get()) }
-    factory { VerifyRegistrationUseCase(get()) }
+    factory { VerifyRegistrationUseCase(get(), get()) }
 }

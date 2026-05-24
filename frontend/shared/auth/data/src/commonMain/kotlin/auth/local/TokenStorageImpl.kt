@@ -27,6 +27,9 @@ class TokenStorageImpl(
         settings.remove(REFRESH_TOKEN_KEY)
     }
 
+    override fun isTokensEmpty(): Boolean =
+        getAccessToken() == null || getRefreshToken() == null
+
     companion object {
         const val ACCESS_TOKEN_KEY = "access_token_key"
         const val REFRESH_TOKEN_KEY = "refresh_token_key"

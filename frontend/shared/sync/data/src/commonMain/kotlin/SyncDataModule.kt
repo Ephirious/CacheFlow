@@ -19,6 +19,7 @@ val syncDataModule = module {
             categoriesRepo = get(),
             localDataSource = get(),
             transactionsRepo = get(),
+            tokenStorage = get(),
         )
     }
 

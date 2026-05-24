@@ -1,10 +1,12 @@
 package sync.repositories
 
+import auth.TokenStorage
 import dbEnums.SyncTableType
 import editors.repositories.AccountsRepository
 import editors.repositories.CategoriesRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
@@ -25,6 +27,9 @@ import utils.Logg
 import utils.data.withWebLock
 import utils.presentation.AsyncDispatcher
 import utils.types.HexColor
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class SyncManagerImpl(
     override val scope: CoroutineScope = CoroutineScope(AsyncDispatcher + SupervisorJob()),
@@ -33,8 +38,15 @@ class SyncManagerImpl(
     private val queueRepo: SyncQueueRepository,
     private val accountsRepo: AccountsRepository,
     private val categoriesRepo: CategoriesRepository,
-    private val transactionsRepo: TransactionsRepository
+    private val transactionsRepo: TransactionsRepository,
+
+
+    private val tokenStorage: TokenStorage
 ) : SyncManager, KoinComponent {
+
+    private val initialRetryDelay = 10.seconds
+    private val maxRetryDelay = 5.minutes
+    private var currentRetryDelay = initialRetryDelay
 
     override val status = MutableStateFlow(SyncStatus.Ok)
 
@@ -64,7 +76,14 @@ class SyncManagerImpl(
 
 
     private suspend fun trySync() {
+        if (tokenStorage.isTokensEmpty()) {
+            Logg.error { "CANT SYNC: No auth provided" }
+            return
+        }
         Logg.debug { "Syncing try start" }
+
+        var result = SyncStatus.InProcess
+
         mutex.withLock {
             withWebLock(scope) {
 
@@ -75,12 +94,28 @@ class SyncManagerImpl(
                     onSuccess = { lastTimeSync ->
                         status.value = SyncStatus.Ok
                         localDataSource.setLastTimeSync(lastTimeSync)
+                        currentRetryDelay = initialRetryDelay
                     },
-                    onFailure = {
+                    onFailure = { error ->
                         status.value = SyncStatus.Failed
-                        Logg.error { "Syncing error: ${it.stackTraceToString()}" }
+                        if (error is CancellationException) throw error
+
+                        result = SyncStatus.Failed
+                        Logg.error { "Syncing error: ${error.stackTraceToString()}" }
                     }
                 )
+            }
+        }
+
+        if (result == SyncStatus.Failed) {
+            val waitTime = currentRetryDelay
+
+            currentRetryDelay = (currentRetryDelay * 2).coerceAtMost(maxRetryDelay)
+
+            scope.launch {
+                Logg.debug { "Will retry sync after $waitTime" }
+                delay(waitTime)
+                scheduler.schedule()
             }
         }
     }

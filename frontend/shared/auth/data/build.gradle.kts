@@ -8,6 +8,7 @@ kotlin {
         commonMain.dependencies {
 
             api(projects.shared.auth.domain)
+            api(projects.shared.sync.domain)
 
 
             implementation(libs.ktor.client.auth)

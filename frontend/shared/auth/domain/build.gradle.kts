@@ -8,6 +8,9 @@ kotlin {
         commonMain.dependencies {
             // for KtorAuthPlugin
             implementation(libs.ktor.client.core)
+
+
+            implementation(projects.shared.sync.domain)
         }
     }
 }

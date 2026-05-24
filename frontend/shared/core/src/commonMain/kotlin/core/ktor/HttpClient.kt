@@ -9,6 +9,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
+import utils.AppConfig
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -34,6 +35,11 @@ fun getHttpClient(
                 classDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC
                 classDiscriminator = "kotlin_class_type"
             })
+        }
+
+        install(DefaultRequest) {
+            this.host = AppConfig.serverIP
+            this.port = AppConfig.serverPort
         }
 
         configBlock()

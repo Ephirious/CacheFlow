@@ -8,4 +8,7 @@ interface TokenStorage {
     fun getRefreshToken(): Token?
     fun saveTokens(accessToken: Token, refreshToken: Token)
     fun clearTokens()
+
+
+    fun isTokensEmpty(): Boolean
 }
