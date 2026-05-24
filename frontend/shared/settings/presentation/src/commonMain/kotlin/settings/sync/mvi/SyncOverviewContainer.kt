@@ -14,9 +14,6 @@ import pro.respawn.flowmvi.plugins.JobManager
 import pro.respawn.flowmvi.plugins.init
 import pro.respawn.flowmvi.plugins.whileSubscribed
 import sync.repositories.SyncManager
-import utils.Logg
-import utils.NetworkObserver
-import utils.NetworkStatus
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
 import utils.presentation.flowMVI.observe
@@ -26,7 +23,7 @@ private typealias Ctx = PipelineContext<SyncOverviewState, SyncOverviewIntent, N
 
 
 private enum class Jobs {
-    UpdateAuthStatus, ObserveSyncStatus, ObserveNetworkStatus
+    UpdateAuthStatus, ObserveSyncStatus
 }
 
 class SyncOverviewContainer(
@@ -34,7 +31,6 @@ class SyncOverviewContainer(
     private val getProfileUseCase: GetProfileUseCase,
     private val syncManager: SyncManager,
     private val tokenStorage: TokenStorage,
-    private val networkObserver: NetworkObserver
 ) : Container<SyncOverviewState, SyncOverviewIntent, Nothing> {
 
     @OptIn(DelicateStoreApi::class)
@@ -57,7 +53,6 @@ class SyncOverviewContainer(
 
             whileSubscribed {
                 observeSyncStatus(jobs)
-                observeNetworkStatus(jobs)
             }
 
             customReduce { intent ->
@@ -84,18 +79,6 @@ class SyncOverviewContainer(
         ) { newSyncStatus ->
             updateState<SyncOverviewState.Authenticated, _> {
                 copy(syncStatus = newSyncStatus)
-            }
-        }
-    }
-
-    private fun Ctx.observeNetworkStatus(jobs: JobManager<Jobs>) {
-        observe(
-            flow = networkObserver.status, key = Jobs.ObserveNetworkStatus, jobs = jobs
-        ) { newNetworkStatus ->
-            Logg.warn { newNetworkStatus.name }
-            updateState {
-                this.isOnline = newNetworkStatus == NetworkStatus.Online
-                this
             }
         }
     }

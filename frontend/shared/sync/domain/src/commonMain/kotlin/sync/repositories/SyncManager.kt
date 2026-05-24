@@ -8,7 +8,7 @@ import kotlin.js.JsExport
 @Serializable
 @JsExport
 enum class SyncStatus {
-    Ok, InProcess, Failed, Offline
+    Ok, InProcess, Failed
 }
 
 interface SyncManager {

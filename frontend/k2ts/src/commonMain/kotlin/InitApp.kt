@@ -2,7 +2,6 @@ import data.SyncInternalQueries
 import di.initKoin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.promise
-import org.koin.dsl.module
 import root.RootComponent
 import settings.usecases.theme.GetThemeUseCase
 import startup.initRealRootComponent
@@ -11,7 +10,6 @@ import startup.registerServiceWorker
 import startup.setJsTheme
 import sync.repositories.SyncManager
 import utils.Logg
-import utils.NetworkObserver
 import utils.presentation.AsyncDispatcher
 
 @OptIn(ExperimentalJsExport::class)
@@ -21,15 +19,7 @@ fun initApp() = CoroutineScope(AsyncDispatcher).promise<RootComponent> {
     registerServiceWorker()
 //    setupPushNotifications() TODO
 
-    val koin = initKoin(
-        appDeclaration = {
-            modules(
-                module {
-                    single<NetworkObserver> { JsNetworkObserver() }
-                }
-            )
-        }
-    )
+    val koin = initKoin()
     setJsTheme(koin.koin.get<GetThemeUseCase>()())
     val syncManager: SyncManager = koin.koin.get()
 

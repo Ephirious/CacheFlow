@@ -6,19 +6,17 @@ import sync.repositories.SyncStatus
 import kotlin.js.JsExport
 
 @JsExport
-sealed class SyncOverviewState(
-    var isOnline: Boolean
-) : MVIState {
-    data object Loading : SyncOverviewState(false)
+sealed class SyncOverviewState : MVIState {
+    data object Loading : SyncOverviewState()
 
-    data object NotAuthenticated : SyncOverviewState(false)
+    data object NotAuthenticated : SyncOverviewState()
 
     data class Authenticated(
         val name: String,
         val email: String,
         val id: String,
         val syncStatus: SyncStatus,
-    ) : SyncOverviewState(false)
+    ) : SyncOverviewState()
 }
 
 
