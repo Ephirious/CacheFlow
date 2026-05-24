@@ -11,6 +11,7 @@ class ErrorCode(str, Enum):
     INVALID_CREDENTIALS = "invalid_credentials"
     ALREADY_VERIFIED = "already_verified"
     FORBIDDEN = "forbidden"
+    INTERNAL = "internal"
 
 @dataclass(frozen=True)
 class Error:

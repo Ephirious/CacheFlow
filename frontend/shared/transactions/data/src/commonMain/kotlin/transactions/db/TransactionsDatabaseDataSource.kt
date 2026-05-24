@@ -20,8 +20,8 @@ import kotlin.uuid.Uuid
 
 
 class TransactionsDatabaseDataSource(
-    private val transactionsQueries: OperationsQueries,
-    private val transfersQueries: TransfersQueries,
+    val transactionsQueries: OperationsQueries,
+    val transfersQueries: TransfersQueries,
     private val accountsQueries: AccountsQueries,
     private val commonQueries: CommonQueries
 ) {

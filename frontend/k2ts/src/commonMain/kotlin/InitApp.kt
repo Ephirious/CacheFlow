@@ -1,3 +1,4 @@
+import data.SyncInternalQueries
 import di.initKoin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.promise
@@ -21,6 +22,8 @@ fun initApp() = CoroutineScope(AsyncDispatcher).promise<RootComponent> {
     val koin = initKoin()
     setJsTheme(koin.koin.get<GetThemeUseCase>()())
     val syncManager: SyncManager = koin.koin.get()
+
+    koin.koin.get<SyncInternalQueries>().initSettings()
 
     observeNetwork(
         syncManager = syncManager

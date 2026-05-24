@@ -54,4 +54,14 @@ class CategoriesDatabaseDataSource(
     ) {
         categoriesQueries.softDelete(id)
     }
+
+    @OptIn(ExperimentalUuidApi::class)
+    suspend fun upsertCategory(
+        id: String,
+        name: String,
+        emoji: String,
+        type: CategoryType,
+    ) {
+        categoriesQueries.upsert(id = id, name = name, emoji = emoji, type = type)
+    }
 }

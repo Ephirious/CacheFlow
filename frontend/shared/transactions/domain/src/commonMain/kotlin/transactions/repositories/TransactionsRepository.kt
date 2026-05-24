@@ -10,4 +10,25 @@ interface TransactionsRepository {
     suspend fun deleteTransaction(id: String)
 
     suspend fun selectTransactionById(id: String): Transaction
+
+
+    // МЕТОДЫ НИЖЕ ИСПОЛЬЗОВАТЬ АККУРАТНО – могут от*****ть
+    suspend fun hardDeleteTransaction(id: String)
+    suspend fun hardDeleteTransfer(id: String)
+
+    suspend fun badInsertTransaction(
+        id: String,
+        accountUuid: String,
+        transferId: String?,
+        categoryId: String?,
+        amount: String,
+        date: String,
+        notes: String
+    )
+
+    suspend fun badInsertTransfer(
+        id: String,
+        accountFromId: String,
+        accountToId: String
+    )
 }

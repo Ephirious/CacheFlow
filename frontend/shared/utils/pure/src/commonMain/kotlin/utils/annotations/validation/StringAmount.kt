@@ -6,8 +6,9 @@ import utils.annotations.LinkedRule
 import utils.annotations.ValidationRule
 import utils.types.BigDecimal
 
-object StringAmountRule : ValidationRule<String, Any, Nothing?, StringAmountError> {
-    override fun validate(value: String, ctx: Any, param: Nothing?): StringAmountError? {
+object StringAmountRule : ValidationRule<String, Any, Boolean, StringAmountError> {
+    override fun validate(value: String, ctx: Any, param: Boolean): StringAmountError? {
+
         if (value.isBlank()) return EmptyAmount
 
         val decimal = try {
@@ -16,7 +17,8 @@ object StringAmountRule : ValidationRule<String, Any, Nothing?, StringAmountErro
             return NotANumber
         }
 
-        if (decimal <= BigDecimal.ZERO) {
+        // param = mustBePositive
+        if (param && decimal <= BigDecimal.ZERO) {
             return NotPositive
         }
 
@@ -40,4 +42,5 @@ object StringAmountRule : ValidationRule<String, Any, Nothing?, StringAmountErro
 
 @LinkedRule(StringAmountRule::class)
 @Target(AnnotationTarget.PROPERTY)
-annotation class StringAmount
+// param – must be positive
+annotation class StringAmount(@Suppress("unused")  val param: Boolean)

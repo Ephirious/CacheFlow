@@ -49,7 +49,7 @@ class CreateCategoryContainer(
                 when (intent) {
                     CreateCategoryIntent.ClickedCreate -> createCategory()
                     is CreateCategoryIntent.ChangedCategoryType -> updateState<CreateCategoryState.OK, _> {
-                        copy(form = form.copy(categoryType = if (intent.type == "income") CategoryType.INCOME else CategoryType.OUTCOME))
+                        copy(form = form.copy(categoryType = if (intent.type == "income") CategoryType.income else CategoryType.outcome))
                     }
                 }
             }
