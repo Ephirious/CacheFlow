@@ -48,8 +48,8 @@ class ManageTransactionContainer(
         ) {
             fastConfig(
                 name = "ManageTransaction", resetOnStop = false,
-                doOnRecover = {
-                    ManageTransactionState.FatalError(it.message.orUnknown, (this as? ManageTransactionState.OK)?.form)
+                doOnRecover = { state, e ->
+                    ManageTransactionState.FatalError(e.message.orUnknown, (state as? ManageTransactionState.OK)?.form)
                 }
             )
             install(

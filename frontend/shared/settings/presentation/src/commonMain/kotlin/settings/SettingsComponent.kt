@@ -18,8 +18,6 @@ import kotlin.js.JsName
 
 @JsExport
 interface SettingsComponent : DefaultPages<SettingsConfig, SettingsChild>, ComponentContext {
-
-
     val jsModalSlot: JsValue<JsChildSlot<SettingsModalChild>>
 
     fun onOutput(output: SettingsOutput)

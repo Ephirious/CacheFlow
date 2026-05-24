@@ -1,5 +1,6 @@
 package settings
 
+import auth.RealAuthComponent
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.pages.*
 import com.arkivanov.decompose.router.slot.ChildSlot
@@ -53,7 +54,7 @@ import utils.presentation.componentCoroutineScope
 class RealSettingsComponent(
     componentCtx: ComponentContext,
     container: () -> SettingsContainer,
-    deepLinkUrl: Url? = null,
+    deepLinkUrl: Url? = null
 ) : SettingsComponent, KoinComponent, ComponentContext by componentCtx,
     Store<SettingsState, SettingsIntent, SettingsAction> by componentCtx.retainedStore(factory = container) {
 
@@ -121,6 +122,13 @@ class RealSettingsComponent(
                                 closeModal = ::dismissSlot
                             )
                         }
+                    )
+                )
+
+                SettingsModalConfig.Auth -> SettingsModalChild.AuthChild(
+                    RealAuthComponent(
+                        componentCtx = childCtx,
+                        backToSettings = ::dismissSlot // TODO
                     )
                 )
             }

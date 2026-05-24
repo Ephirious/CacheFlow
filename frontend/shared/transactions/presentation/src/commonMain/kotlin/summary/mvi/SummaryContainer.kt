@@ -34,7 +34,7 @@ class SummaryContainer(
             fastConfig(
                 name = "Summary",
                 resetOnStop = true,
-                doOnRecover = { throwErrorToParent { it.message.orUnknown }; this }
+                doOnRecover = { state, e -> throwErrorToParent { e.message.orUnknown }; state }
             )
 
             val jobs = JobManager<Jobs>()
