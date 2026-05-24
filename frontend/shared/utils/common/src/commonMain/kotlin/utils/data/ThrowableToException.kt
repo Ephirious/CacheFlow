@@ -1,8 +1,13 @@
 package utils.data
 
-inline fun <R> throwableToException(block: () -> R) = runCatching {
-    block()
-}.fold(
-    onSuccess = { data -> data },
-    onFailure = { error -> throw (error as? Exception ?: RuntimeException(error)) }
-)
+import kotlin.coroutines.cancellation.CancellationException
+
+inline fun <R> throwableToException(block: () -> R): R {
+    return try {
+        block()
+    } catch (e: Throwable) {
+        if (e is CancellationException) throw e
+
+        throw (e as? Exception ?: RuntimeException(e.message, e))
+    }
+}

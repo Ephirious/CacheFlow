@@ -25,8 +25,8 @@ class AuthLocalDataSource(
 
     fun setProfile(profile: Profile) {
         settings[NAME_KEY] = profile.name
-        settings[EMAIL_KEY] = profile.name
-        settings[ID_KEY] = profile.name
+        settings[EMAIL_KEY] = profile.email
+        settings[ID_KEY] = profile.id
     }
 
     fun clearProfile() {

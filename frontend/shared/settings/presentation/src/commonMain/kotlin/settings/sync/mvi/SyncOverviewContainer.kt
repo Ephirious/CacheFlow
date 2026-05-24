@@ -10,12 +10,21 @@ import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.dsl.updateState
+import pro.respawn.flowmvi.plugins.JobManager
 import pro.respawn.flowmvi.plugins.init
+import pro.respawn.flowmvi.plugins.whileSubscribed
 import sync.repositories.SyncManager
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
+import utils.presentation.flowMVI.observe
+import utils.presentation.flowMVI.registerOrIgnore
 
 private typealias Ctx = PipelineContext<SyncOverviewState, SyncOverviewIntent, Nothing>
+
+
+private enum class Jobs {
+    UpdateAuthStatus, ObserveSyncStatus
+}
 
 class SyncOverviewContainer(
     private val logoutUseCase: LogoutUseCase,
@@ -36,16 +45,14 @@ class SyncOverviewContainer(
                 }
             )
 
-            init {
-                updateAuthStatus()
+            val jobs = JobManager<Jobs>()
 
-                launch {
-                    syncManager.status.collect { newSyncStatus ->
-                        updateState<SyncOverviewState.Authenticated, _> {
-                            copy(syncStatus = newSyncStatus)
-                        }
-                    }
-                }
+            init {
+                updateAuthStatus(jobs)
+            }
+
+            whileSubscribed {
+                observeSyncStatus(jobs)
             }
 
             customReduce { intent ->
@@ -57,21 +64,31 @@ class SyncOverviewContainer(
 
                     SyncOverviewIntent.Logout -> {
                         logoutUseCase()
-                        updateAuthStatus()
+                        jobs.cancel(Jobs.UpdateAuthStatus)
+                        updateAuthStatus(jobs)
                     }
 
-                    SyncOverviewIntent.UpdateAuthStatus -> updateAuthStatus()
+                    SyncOverviewIntent.UpdateAuthStatus -> updateAuthStatus(jobs)
                 }
             }
         }
 
+    private fun Ctx.observeSyncStatus(jobs: JobManager<Jobs>) {
+        observe(
+            flow = syncManager.status, key = Jobs.ObserveSyncStatus, jobs = jobs
+        ) { newSyncStatus ->
+            updateState<SyncOverviewState.Authenticated, _> {
+                copy(syncStatus = newSyncStatus)
+            }
+        }
+    }
 
-    private suspend fun Ctx.updateAuthStatus() {
-        withState {
 
+    private fun Ctx.updateAuthStatus(jobs: JobManager<Jobs>) {
+        launch {
             if (tokenStorage.isTokensEmpty()) {
                 updateState { SyncOverviewState.NotAuthenticated }
-                return@withState
+                return@launch
             }
 
             val profile = getProfileUseCase()
@@ -84,6 +101,6 @@ class SyncOverviewContainer(
                     syncStatus = syncManager.status.value
                 )
             }
-        }
+        }.registerOrIgnore(manager = jobs, key = Jobs.UpdateAuthStatus)
     }
 }

@@ -13,6 +13,7 @@ import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.http.encodedPath
+import utils.Logg
 
 class KtorAuthPluginImpl(
     private val tokenStorage: TokenStorage,
@@ -41,16 +42,18 @@ class KtorAuthPluginImpl(
                         BearerTokens(response.accessToken, response.refreshToken)
                     } catch (_: Exception) {
                         logoutDataInternalUseCase()
+                        Logg.error { "Session expired" }
                         null
                     }
                 }
 
                 sendWithoutRequest { request ->
                     val path = request.url.encodedPath
-                    path.contains(AuthUrls.LOGIN) ||
-                            path.contains(AuthUrls.REGISTER) ||
-                            path.contains(AuthUrls.VERIFY_REGISTRATION) ||
-                            path.contains(AuthUrls.RESEND_VERIFICATION_CODE)
+                    !path.contains(AuthUrls.LOGIN) &&
+                            !path.contains(AuthUrls.REGISTER) &&
+                            !path.contains(AuthUrls.VERIFY_REGISTRATION) &&
+                            !path.contains(AuthUrls.RESEND_VERIFICATION_CODE) &&
+                            !path.contains(AuthUrls.REFRESH_TOKEN)
                 }
             }
         }

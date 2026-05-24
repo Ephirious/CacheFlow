@@ -56,7 +56,7 @@ class AuthRepositoryImpl(
 
         if (offlineData == null || shouldRequestProfileFromServer) {
             val profile = remoteDataSource.getProfile().toDomain()
-            shouldRequestProfileFromServer = true
+            shouldRequestProfileFromServer = false
             localDataSource.setProfile(profile)
             return profile
         }
