@@ -55,6 +55,10 @@ include(":shared:editors:presentation")
 include(":shared:sync:data")
 include(":shared:sync:domain")
 
+include(":shared:auth:data")
+include(":shared:auth:domain")
+include(":shared:auth:presentation")
+
 include(":shared:utils:common")
 include(":shared:utils:pure")
 
