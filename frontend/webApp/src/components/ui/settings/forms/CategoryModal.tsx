@@ -88,7 +88,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
 
                     {isAddMode && component.type === 'create' && (
                         <SegmentedTabs
-                            active={(state as CreateCategoryState.OK).getForm().categoryType === CategoryType.INCOME ? "income" : "outcome"}
+                            active={(state as CreateCategoryState.OK).getForm().categoryType === CategoryType.income ? "income" : "outcome"}
                             onChange={(newCategory) => component.intent(new CreateCategoryIntent.ChangedCategoryType(newCategory))}
                             options={categoryTypeTabs}/>
                     )}

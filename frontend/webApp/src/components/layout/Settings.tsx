@@ -23,6 +23,7 @@ import {
 } from "k2ts";
 import {useValue, when} from "interop";
 import {useActions} from "../../interop/useActions.ts";
+import AuthBottomSheet from "../ui/settings/forms/auth/AuthBottomSheet.tsx";
 
 const isStandalone = () =>
     window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & {
@@ -49,7 +50,7 @@ const CategoriesPages = ({component}: { component: CategoriesPagesComponent }) =
     const pages = useValue(component.childPages)
     const activeChild = pages.active;
 
-    const tsCategoryType: CategoryTypeId = activeChild.type === CategoryType.INCOME ? "income" : "outcome"
+    const tsCategoryType: CategoryTypeId = activeChild.type === CategoryType.income ? "income" : "outcome"
 
     const categories = useValue(activeChild.categoriesList);
 
@@ -175,7 +176,7 @@ const Settings = ({component}: { component: SettingsComponent }) => {
                         .run()
                 }
             </SettingsMainSection>
-            <SyncSection/>
+            <SyncSection component={component.syncOverviewComponent}/>
 
             {
                 modalChild && when(modalChild)
@@ -208,6 +209,11 @@ const Settings = ({component}: { component: SettingsComponent }) => {
                             mode="edit"
                             onClose={() => component.dismissSlot()}
                             open={true}/>
+                    ))
+
+                    .on(SettingsModalChild.AuthChild, (child) => (
+                        <AuthBottomSheet component={child.component}/>
+
                     ))
 
                     .run()

@@ -3,6 +3,7 @@ package settings.sync.mvi
 import auth.TokenStorage
 import auth.usecases.GetProfileUseCase
 import auth.usecases.LogoutUseCase
+import kotlinx.coroutines.launch
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
 import pro.respawn.flowmvi.api.PipelineContext
@@ -38,9 +39,11 @@ class SyncOverviewContainer(
             init {
                 updateAuthStatus()
 
-                syncManager.status.collect { newSyncStatus ->
-                    updateState<SyncOverviewState.Authenticated, _> {
-                        copy(syncStatus = newSyncStatus)
+                launch {
+                    syncManager.status.collect { newSyncStatus ->
+                        updateState<SyncOverviewState.Authenticated, _> {
+                            copy(syncStatus = newSyncStatus)
+                        }
                     }
                 }
             }

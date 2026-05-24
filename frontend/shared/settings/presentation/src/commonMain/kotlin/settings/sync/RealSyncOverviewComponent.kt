@@ -14,6 +14,7 @@ import utils.presentation.componentCoroutineScope
 class RealSyncOverviewComponent(
     componentCtx: ComponentContext,
     container: () -> SyncOverviewContainer,
+    override val onAuthenticateClick: () -> Unit,
 ) : SyncOverviewComponent, KoinComponent, ComponentContext by componentCtx,
     Store<SyncOverviewState, SyncOverviewIntent, Nothing> by componentCtx.retainedStore(factory = container) {
 

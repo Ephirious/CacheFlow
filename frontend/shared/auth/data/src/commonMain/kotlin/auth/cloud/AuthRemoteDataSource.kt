@@ -16,21 +16,19 @@ import io.ktor.http.Parameters
 import utils.data.throwableToException
 
 class AuthRemoteDataSource(
-    private val httpClient: HttpClient,
+    val httpClient: HttpClient,
     private val tokenStorage: TokenStorage
 ) {
     suspend fun register(request: UserCreateDTO): UserId = throwableToException {
         httpClient.post(AuthUrls.REGISTER) {
             setBody(request)
-        }.body()
+        }.body<UserDataDTO>().id
     }
 
     suspend fun verifyRegistration(request: VerifyEmailRequestDTO) = throwableToException {
-        val tokens = httpClient.post(AuthUrls.VERIFY_REGISTRATION) {
+        httpClient.post(AuthUrls.VERIFY_REGISTRATION) {
             setBody(request)
-        }.body<TokenDTO>()
-
-        tokenStorage.saveTokens(tokens.accessToken, tokens.refreshToken)
+        }
     }
 
     suspend fun resendVerificationCode(request: ResendCodeRequestDTO) {

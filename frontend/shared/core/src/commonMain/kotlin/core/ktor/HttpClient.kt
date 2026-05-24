@@ -5,6 +5,8 @@ import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.ClassDiscriminatorMode
@@ -40,6 +42,7 @@ fun getHttpClient(
         install(DefaultRequest) {
             this.host = AppConfig.serverIP
             this.port = AppConfig.serverPort
+            this.contentType(ContentType.Application.Json)
         }
 
         configBlock()

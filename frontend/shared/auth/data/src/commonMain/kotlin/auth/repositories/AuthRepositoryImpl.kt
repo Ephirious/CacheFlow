@@ -8,6 +8,8 @@ import auth.cloud.dtos.UserCreateDTO
 import auth.cloud.dtos.VerifyEmailRequestDTO
 import auth.local.AuthLocalDataSource
 import auth.models.Profile
+import io.ktor.client.plugins.auth.authProviders
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 
 class AuthRepositoryImpl(
     private val remoteDataSource: AuthRemoteDataSource,
@@ -27,13 +29,14 @@ class AuthRepositoryImpl(
             )
         )
 
-    override suspend fun verifyRegistration(userId: UserId, verificationCode: String) =
+    override suspend fun verifyRegistration(userId: UserId, verificationCode: String) {
         remoteDataSource.verifyRegistration(
             VerifyEmailRequestDTO(
                 userId = userId,
                 code = verificationCode
             )
         )
+    }
 
     override suspend fun resendVerificationCode(userId: UserId) =
         remoteDataSource.resendVerificationCode(ResendCodeRequestDTO(userId = userId))
@@ -43,6 +46,9 @@ class AuthRepositoryImpl(
 
     override fun logout() {
         logoutDataInternalUseCase()
+        remoteDataSource.httpClient.authProviders
+            .filterIsInstance<BearerAuthProvider>()
+            .forEach { it.clearToken() }
     }
 
     override suspend fun getProfile(): Profile {

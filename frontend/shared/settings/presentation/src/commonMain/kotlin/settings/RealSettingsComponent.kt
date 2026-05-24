@@ -8,6 +8,7 @@ import com.arkivanov.decompose.router.pages.childPages
 import com.arkivanov.decompose.router.pages.select
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.router.slot.SlotNavigation
+import com.arkivanov.decompose.router.slot.activate
 import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
@@ -51,7 +52,8 @@ class RealSettingsComponent(
                 syncManager = get(),
                 tokenStorage = get()
             )
-        }
+        },
+        onAuthenticateClick = { modalNavigation.activate(SettingsModalConfig.Auth) }
     )
 
     init {
