@@ -3,8 +3,6 @@ package settings.sync.mvi
 import auth.TokenStorage
 import auth.usecases.GetProfileUseCase
 import auth.usecases.LogoutUseCase
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.launch
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
 import pro.respawn.flowmvi.api.PipelineContext
@@ -13,8 +11,6 @@ import pro.respawn.flowmvi.dsl.store
 import pro.respawn.flowmvi.dsl.updateState
 import pro.respawn.flowmvi.plugins.init
 import sync.repositories.SyncManager
-import sync.repositories.SyncStatus
-import utils.presentation.AsyncDispatcher
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
 
