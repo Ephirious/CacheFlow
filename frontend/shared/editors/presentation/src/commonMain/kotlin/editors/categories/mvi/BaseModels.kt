@@ -27,7 +27,10 @@ interface ManageCategoryBaseState<F : ManageCategoryFormBaseState<*>> : MVIState
 @DataCopyable
 @GenerateValidator
 interface ManageCategoryFormBaseState<V> : MVIState {
-    val name: String
+
+    @MaxLen(100)
+    @NotEmptyOrNullString
+    val title: String
 
     @MaxLen(1)
     @NotEmptyOrNullString
@@ -40,7 +43,7 @@ sealed class ManageCategoryBaseIntent : MVIIntent {
 
     sealed interface Internal
 
-    data class ChangedName(val name: String) : ManageCategoryBaseIntent(), Internal
+    data class ChangedTitle(val title: String) : ManageCategoryBaseIntent(), Internal
     data class ChangedEmoji(val emoji: String) : ManageCategoryBaseIntent(), Internal
     data object ClickedTryAgain : ManageCategoryBaseIntent(), Internal
 }

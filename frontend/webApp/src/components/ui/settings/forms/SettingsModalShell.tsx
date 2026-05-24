@@ -12,10 +12,10 @@ const SettingsModalShell = ({open, title, children, onClose}: SettingsModalShell
     if (!open) return null;
 
     return (
-        <div className="fixed z-100 inset-0 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]">
-            <div className="flex flex-col w-full rounded-2xl bg-surface-sheet p-6 shadow-xl gap-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]">
+            <div className="flex w-full max-w-lg flex-col gap-4 rounded-2xl bg-surface-sheet p-6 shadow-xl">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold">{title}</h3>
+                    <h3 className="text-lg font-bold text-text-primary">{title}</h3>
                     <button
                         aria-label="Закрыть"
                         className="rounded-lg p-1 text-text-primary hover:bg-surface-base/60"

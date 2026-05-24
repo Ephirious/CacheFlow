@@ -46,13 +46,13 @@ const TransactionCard = ({
                                 when(type)
                                     .on(TransactionType.Transfer, (transfer) =>
                                         <>
-                                            <span className="truncate">{transfer.from.title}</span>
+                                            <span className="truncate text-text-primary">{transfer.from.title}</span>
                                             <FaArrowRight className="w-2.5 h-2.5 shrink-0"/>
-                                            <span className="truncate">{transfer.to.title}</span>
+                                            <span className="truncate text-text-primary">{transfer.to.title}</span>
                                         </>
                                     )
                                     .on([TransactionType.Income, TransactionType.Outcome], ({category}) =>
-                                        <span className="truncate">{category.name}</span>
+                                        <span className="truncate text-text-primary">{category.name}</span>
                                     ).run()
                             }
                         </span>

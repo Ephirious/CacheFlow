@@ -22,7 +22,9 @@ interface CategoryModalProps {
     onClose: () => void;
 }
 
-const inputClass = "flex py-3 px-4 rounded-xl border border-border-default bg-surface-muted text-base outline-none placeholder:text-text-muted";
+const inputClass = "flex py-3 px-4 rounded-xl border border-border-default bg-surface-muted text-base outline-none placeholder:text-text-muted text-text-primary";
+
+const basicEmojis = ['🛒', '🚗', '🏠', '🍔', '💊', '👕', '🎁', '✈️', '🐶'];
 
 const CategoryModal = ({open, component, mode, category, onClose}: CategoryModalProps) => {
 
@@ -35,7 +37,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
 
     const isAddMode = mode === "add";
     if (state instanceof CreateCategoryState.OK || state instanceof EditCategoryState.OK) {
-        const canSubmit = state.getForm().name.trim().length > 0;
+        const canSubmit = state.getForm().title.trim().length > 0;
 
         return (
             <SettingsModalShell
@@ -53,18 +55,36 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                 >
                     <input
                         className={inputClass}
-                        onChange={(e) => component.intent(new ManageCategoryBaseIntent.ChangedName(e.target.value))}
+                        onChange={(e) => component.intent(new ManageCategoryBaseIntent.ChangedTitle(e.target.value))}
                         placeholder="Название категории"
                         type="text"
-                        value={state.getForm().name}
+                        value={state.getForm().title}
                     />
-                    <input
-                        className={inputClass}
-                        onChange={(e) => component.intent(new ManageCategoryBaseIntent.ChangedEmoji(e.target.value))}
-                        placeholder="Иконка (необязательно)"
-                        type="text"
-                        value={state.getForm().emoji}
-                    />
+                    <div className="flex flex-col gap-2">
+                        <p className="text-sm font-semibold text-text-label">Иконка</p>
+                        <div className="grid grid-cols-5 gap-2">
+                            {basicEmojis.map((emoji) => {
+                                const isActive = state.getForm().emoji === emoji;
+                                return (
+                                    <button
+                                        key={emoji}
+                                        className={`flex items-center justify-center h-14 w-full rounded-xl bg-surface-muted text-2xl ${isActive ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet" : ""}`}
+                                        onClick={() => component.intent(new ManageCategoryBaseIntent.ChangedEmoji(emoji))}
+                                        type="button"
+                                    >
+                                        {emoji}
+                                    </button>
+                                );
+                            })}
+                            <input
+                                className={`flex text-center items-center justify-center h-14 w-full rounded-xl bg-surface-muted text-2xl outline-none placeholder:text-text-muted ${!basicEmojis.includes(state.getForm().emoji) && state.getForm().emoji !== "" ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet" : ""}`}
+                                onChange={(e) => component.intent(new ManageCategoryBaseIntent.ChangedEmoji(e.target.value))}
+                                placeholder="✍️"
+                                type="text"
+                                value={!basicEmojis.includes(state.getForm().emoji) ? state.getForm().emoji : ""}
+                            />
+                        </div>
+                    </div>
 
                     {isAddMode && component.type === 'create' && (
                         <SegmentedTabs
@@ -80,6 +100,19 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                     >
                         {isAddMode ? "Добавить" : "Сохранить"}
                     </button>
+                    {!isAddMode && (
+                        <button
+                            className="h-11 rounded-xl border border-state-danger text-base font-semibold text-state-danger"
+                            onClick={() => {
+                                if (window.confirm("Удалить категорию?")) {
+                                    component.intent(EditCategoryIntent.ClickedDelete);
+                                }
+                            }}
+                            type="button"
+                        >
+                            Удалить
+                        </button>
+                    )}
                 </form>
             </SettingsModalShell>
         );

@@ -14,8 +14,8 @@ const SettingsAccountCard = ({account, onClick}: SettingsAccountCardProps) => {
         >
             <div className={`h-12 w-12 rounded-xl`} style={{ backgroundColor: account.color }}></div>
             <div className="flex flex-col gap-1">
-                <p className="text-base font-semibold">{account.title}</p>
-                <p className="text-xl font-bold">{account.balance}</p>
+                <p className="text-base font-semibold text-text-primary">{account.title}</p>
+                <p className="text-xl font-bold text-text-primary">{account.balance}</p>
             </div>
         </button>
     );

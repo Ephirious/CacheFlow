@@ -3,6 +3,9 @@ package settings
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.serialization.Serializable
 import settings.modals.SettingsModalChild
+import settings.mvi.SettingsAction
+import settings.mvi.SettingsIntent
+import settings.mvi.SettingsState
 import settings.pages.SettingsPageComponent
 import settings.pages.accounts.AccountsComponent
 import settings.pages.categories.CategoriesPagesComponent
@@ -11,6 +14,7 @@ import utils.interop.JsChildSlot
 import utils.interop.JsValue
 import utils.presentation.DefaultPages
 import kotlin.js.JsExport
+import kotlin.js.JsName
 
 @JsExport
 interface SettingsComponent : DefaultPages<SettingsConfig, SettingsChild>, ComponentContext {
@@ -22,11 +26,13 @@ interface SettingsComponent : DefaultPages<SettingsConfig, SettingsChild>, Compo
 
     fun dismissSlot()
 
-//    @JsName("state")
-//    val jsState: JsValue<MoreState>
+    @JsName("state")
+    val jsState: JsValue<SettingsState>
 
-//    @Suppress("unused")
-//    fun intent(intent: MoreIntent)
+    @Suppress("unused")
+    fun intent(intent: SettingsIntent)
+
+    fun subscribeActions(onAction: (SettingsAction) -> Unit): () -> Unit
 }
 
 @JsExport

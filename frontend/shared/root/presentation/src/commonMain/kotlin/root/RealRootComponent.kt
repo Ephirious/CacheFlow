@@ -14,6 +14,7 @@ import org.koin.core.component.get
 import root.RootChild.*
 import root.outputs.onRootOutput
 import settings.RealSettingsComponent
+import settings.mvi.SettingsContainer
 import stats.RealStatsComponent
 import utils.Url
 import utils.consumePathSegment
@@ -55,7 +56,7 @@ class RealRootComponent(
             )
 
             is RootConfig.Settings -> SettingsChild(
-                RealSettingsComponent(childCtx, deepLinkUrl = config.deepLinkUrl)
+                RealSettingsComponent(childCtx, container = { get<SettingsContainer>() }, deepLinkUrl = config.deepLinkUrl)
             )
 
         }

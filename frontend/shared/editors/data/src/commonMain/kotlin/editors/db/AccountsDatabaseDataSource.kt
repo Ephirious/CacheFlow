@@ -18,8 +18,8 @@ import kotlin.uuid.Uuid
 class AccountsDatabaseDataSource(
     private val accountsQueries: AccountsQueries
 ) {
-    fun getAccountsFlow(): Flow<List<Account>> {
-        return accountsQueries.selectAll()
+    fun getAccountsFlow(onlyActive: Boolean): Flow<List<Account>> {
+        return (if (onlyActive) accountsQueries.selectActive() else accountsQueries.selectAll())
             .asFlow()
             .mapToList(AsyncDispatcher)
             .map { entity ->
@@ -38,7 +38,7 @@ class AccountsDatabaseDataSource(
     ) {
         val funds = try {
             BigDecimal(stringAmount)
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             BigDecimal.ZERO
         }
 
@@ -53,5 +53,11 @@ class AccountsDatabaseDataSource(
         color: HexColor,
     ) {
         accountsQueries.update(id = id, name = name, color = color.normalizedHex)
+    }
+
+    suspend fun softDeleteAccount(
+        id: String,
+    ) {
+        accountsQueries.softDelete(id)
     }
 }

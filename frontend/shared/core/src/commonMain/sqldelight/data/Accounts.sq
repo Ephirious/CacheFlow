@@ -1,14 +1,21 @@
-import utils.types.BigDecimal;
+import kotlin.Boolean;
 import kotlin.time.Instant;
+import utils.types.BigDecimal;
 
 CREATE TABLE IF NOT EXISTS Accounts (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     funds TEXT AS BigDecimal NOT NULL,
     color TEXT NOT NULL,
+    is_deleted INTEGER AS Boolean NOT NULL DEFAULT 0,
     created_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     updated_at TEXT AS Instant NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
+
+selectActive:
+SELECT * FROM Accounts
+WHERE is_deleted = 0
+ORDER BY name ASC;
 
 selectAll:
 SELECT * FROM Accounts ORDER BY name ASC;
@@ -42,5 +49,5 @@ SET funds = funds + :delta,
     updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 WHERE id = :id;
 
-delete:
-DELETE FROM Accounts WHERE id = ?;
+softDelete:
+UPDATE Accounts SET is_deleted = 1 WHERE id = ?;

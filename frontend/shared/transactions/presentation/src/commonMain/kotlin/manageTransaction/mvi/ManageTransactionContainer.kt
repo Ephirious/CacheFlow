@@ -5,8 +5,6 @@ import editors.usecases.category.GetCategoriesFlowUseCase
 import manageTransaction.mvi.ManageTransactionType.*
 import manageTransaction.mvi.base.manageTransactionBasePlugin
 import manageTransaction.mvi.base.toFormState
-import manageTransaction.mvi.base.validated
-import manageTransaction.mvi.base.validationHasErrors
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.DelicateStoreApi
 import pro.respawn.flowmvi.api.PipelineContext
@@ -17,6 +15,7 @@ import pro.respawn.flowmvi.dsl.withState
 import pro.respawn.flowmvi.plugins.JobManager
 import pro.respawn.flowmvi.plugins.init
 import pro.respawn.flowmvi.plugins.whileSubscribed
+import transactions.usecases.DeleteTransactionUseCase
 import transactions.usecases.GetTransactionUseCase
 import transactions.usecases.UpsertTransactionUseCase
 import utils.orUnknown
@@ -30,25 +29,6 @@ private enum class Jobs {
     ObserveAccounts, ObserveCategories
 }
 
-fun ManageTransactionContainer.getInitial(
-    form: ManageTransactionState.OK.FormState? = null
-) =
-    ManageTransactionState.OK(
-        form = form ?: ManageTransactionState.OK.FormState(),
-        isCreateMode = isCreateMode,
-    ).allValidate()
-
-fun ManageTransactionState.OK.allValidate(
-) = copy(form = form.let {
-    it.copy(validation = it.validate(), transactionType = it.transactionType.validated())
-})
-
-fun ManageTransactionState.OK.allValidated(
-) = allValidate().isValid()
-
-fun ManageTransactionState.OK.isValid(
-) = !form.validation.hasErrors && !form.transactionType.validationHasErrors()
-
 
 class ManageTransactionContainer(
     private val transactionId: String?,
@@ -56,7 +36,8 @@ class ManageTransactionContainer(
     private val getCategoriesFlowUseCase: GetCategoriesFlowUseCase,
     private val upsertTransactionUseCase: UpsertTransactionUseCase,
     private val getTransactionUseCase: GetTransactionUseCase,
-    private val closeRequest: () -> Unit
+    private val deleteTransactionUseCase: DeleteTransactionUseCase,
+    private val closeModal: () -> Unit
 ) : Container<ManageTransactionState, ManageTransactionIntent, Nothing> {
     val isCreateMode = transactionId == null
 
@@ -99,14 +80,17 @@ class ManageTransactionContainer(
             customReduce { intent ->
                 when (intent) {
                     ManageTransactionIntent.ClickedDelete -> if (!isCreateMode) {
-                        TODO()
+                        withState<ManageTransactionState.OK, _> {
+                            deleteTransactionUseCase(transactionId!!)
+                            closeModal()
+                        }
                     }
 
                     ManageTransactionIntent.ClickedSave -> {
                         withState<ManageTransactionState.OK, _> {
                             if (allValidated()) {
                                 upsertTransactionUseCase(this.form.toDomain(transactionId))
-                                closeRequest()
+                                closeModal()
                             }
                         }
                     }

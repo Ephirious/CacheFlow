@@ -19,6 +19,9 @@ import editors.categories.mvi.CreateCategoryContainer
 import editors.categories.mvi.EditCategoryContainer
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import pro.respawn.flowmvi.api.Store
+import pro.respawn.flowmvi.essenty.dsl.retainedStore
+import pro.respawn.flowmvi.essenty.dsl.subscribe
 import settings.SettingsChild.AccountsChild
 import settings.SettingsChild.CategoriesChild
 import settings.modals.SettingsModalChild
@@ -27,6 +30,10 @@ import settings.modals.SettingsModalChild.CreateCategoryChild
 import settings.modals.SettingsModalChild.EditAccountChild
 import settings.modals.SettingsModalChild.EditCategoryChild
 import settings.modals.SettingsModalConfig
+import settings.mvi.SettingsAction
+import settings.mvi.SettingsContainer
+import settings.mvi.SettingsIntent
+import settings.mvi.SettingsState
 import settings.pages.accounts.RealAccountsComponent
 import settings.pages.categories.RealCategoriesPagesComponent
 import utils.Url
@@ -36,16 +43,24 @@ import utils.interop.JsChildSlot
 import utils.interop.JsValue
 import utils.interop.asJsPages
 import utils.interop.asJsSlot
+import utils.interop.jsStateSubscribe
 import utils.path
 import utils.pathSegmentOf
 import utils.presentation.CustomPagesWebNavigation
+import utils.presentation.componentCoroutineScope
 
 
 class RealSettingsComponent(
     componentCtx: ComponentContext,
+    container: () -> SettingsContainer,
     deepLinkUrl: Url? = null,
-) : SettingsComponent, KoinComponent, ComponentContext by componentCtx {
+) : SettingsComponent, KoinComponent, ComponentContext by componentCtx,
+    Store<SettingsState, SettingsIntent, SettingsAction> by componentCtx.retainedStore(factory = container) {
 
+
+    override val jsState: JsValue<SettingsState> by lazy {
+        jsStateSubscribe(scope = componentCoroutineScope, lifecycleOwner = this)
+    }
 
     private val modalNavigation = SlotNavigation<SettingsModalConfig>()
 
@@ -87,6 +102,7 @@ class RealSettingsComponent(
                                 config.id,
                                 getCategoryByIdUseCase = get(),
                                 editCategoryUseCase = get(),
+                                deleteCategoryUseCase = get(),
                                 closeModal = ::dismissSlot
                             )
                         }
@@ -101,6 +117,7 @@ class RealSettingsComponent(
                                 config.id,
                                 getAccountByIdUseCase = get(),
                                 editAccountUseCase = get(),
+                                deleteAccountUseCase = get(),
                                 closeModal = ::dismissSlot
                             )
                         }
@@ -199,5 +216,15 @@ class RealSettingsComponent(
             SettingsOutput.NavigateToAccounts -> nav.select(SettingsConfig.Accounts.index)
             SettingsOutput.NavigateToCategories -> nav.select(SettingsConfig.Categories(null).index)
         }
+    }
+
+
+    override fun subscribeActions(onAction: (SettingsAction) -> Unit): () -> Unit {
+        val job = subscribe(scope = componentCoroutineScope) {
+            actions.collect { action ->
+                onAction(action)
+            }
+        }
+        return { job.cancel() }
     }
 }

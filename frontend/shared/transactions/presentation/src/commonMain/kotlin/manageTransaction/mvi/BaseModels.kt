@@ -25,6 +25,8 @@ interface ManageTransactionFormBaseState<V> : MVIState {
     val transactionType: ManageTransactionType
 
     val date: LocalDate
+
+    @MaxLen(1024)
     val note: String
 
     val incomeCategories: List<Category>
