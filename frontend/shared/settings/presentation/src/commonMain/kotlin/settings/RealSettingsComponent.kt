@@ -50,7 +50,8 @@ class RealSettingsComponent(
                 logoutUseCase = get(),
                 getProfileUseCase = get(),
                 syncManager = get(),
-                tokenStorage = get()
+                tokenStorage = get(),
+                networkObserver = get()
             )
         },
         onAuthenticateClick = { modalNavigation.activate(SettingsModalConfig.Auth) }

@@ -20,6 +20,7 @@ val syncDataModule = module {
             localDataSource = get(),
             transactionsRepo = get(),
             tokenStorage = get(),
+            networkObserver = get(),
         )
     }
 

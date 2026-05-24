@@ -24,6 +24,8 @@ import sync.local.SyncLocalDataSource
 import sync.mappers.mapSyncQueueRow
 import transactions.repositories.TransactionsRepository
 import utils.Logg
+import utils.NetworkObserver
+import utils.NetworkStatus
 import utils.data.withWebLock
 import utils.presentation.AsyncDispatcher
 import utils.types.HexColor
@@ -41,7 +43,9 @@ class SyncManagerImpl(
     private val transactionsRepo: TransactionsRepository,
 
 
-    private val tokenStorage: TokenStorage
+    private val tokenStorage: TokenStorage,
+
+    private val networkObserver: NetworkObserver
 ) : SyncManager, KoinComponent {
 
     private val initialRetryDelay = 10.seconds
@@ -64,6 +68,16 @@ class SyncManagerImpl(
                 .collect {
                     trySync()
                 }
+        }
+
+        // Уже есть в k2ts, но здесь мультиплатформенно + на всякий – всё равно оно с debounce
+        scope.launch(AsyncDispatcher) {
+            networkObserver.status.collect { status ->
+                if (status == NetworkStatus.Online) {
+                    Logg.debug { "Network is back ONLINE (multiplatform). Auto-sync triggered." }
+                    requestSync()
+                }
+            }
         }
     }
 
@@ -88,8 +102,13 @@ class SyncManagerImpl(
             withWebLock(scope) {
 
                 runCatching {
-                    status.value = SyncStatus.InProcess
-                    sync()
+
+                    if (networkObserver.isOnline) {
+                        status.value = SyncStatus.InProcess
+                        sync()
+                    } else {
+                        throw Exception("Network not connected")
+                    }
                 }.fold(
                     onSuccess = { lastTimeSync ->
                         status.value = SyncStatus.Ok
@@ -97,11 +116,11 @@ class SyncManagerImpl(
                         currentRetryDelay = initialRetryDelay
                     },
                     onFailure = { error ->
-                        status.value = SyncStatus.Failed
                         if (error is CancellationException) throw error
+                        result = if (networkObserver.isOnline) SyncStatus.Failed else SyncStatus.Offline
+                        status.value = result
 
-                        result = SyncStatus.Failed
-                        Logg.error { "Syncing error: ${error.stackTraceToString()}" }
+                        Logg.error { "Syncing error: ${if (networkObserver.isOnline) error.stackTraceToString() else "OFFLINE"}" }
                     }
                 )
             }
