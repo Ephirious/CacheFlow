@@ -4,16 +4,18 @@ import editors.db.AccountsDatabaseDataSource
 import editors.models.Account
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import sync.repositories.SyncManager
 import utils.presentation.AsyncDispatcher
 import utils.types.HexColor
 
 class AccountsRepositoryImpl(
-    private val dbDataSource: AccountsDatabaseDataSource,
-    private val syncManager: SyncManager
+    private val dbDataSource: AccountsDatabaseDataSource
 ) : AccountsRepository {
-    override fun getAccountsFlow(): Flow<List<Account>> =
-        dbDataSource.getAccountsFlow().flowOn(AsyncDispatcher)
+    override fun getAccountsFlow(onlyActive: Boolean): Flow<List<Account>> =
+        dbDataSource.getAccountsFlow(onlyActive).flowOn(AsyncDispatcher)
+
+    override suspend fun softDelete(id: String) {
+        dbDataSource.softDeleteAccount(id)
+    }
 
     override suspend fun getAccountById(id: String): Account =
         dbDataSource.getAccountById(id)
@@ -24,5 +26,11 @@ class AccountsRepositoryImpl(
     override suspend fun updateAccount(id: String, name: String, color: HexColor) =
         dbDataSource.updateAccount(id = id, name = name, color = color)
 
+    override suspend fun softDeleteAccount(id: String) {
+        dbDataSource.softDeleteAccount(id)
+    }
 
+    override suspend fun upsertAccount(id: String, name: String, color: HexColor, stringAmount: String) {
+        dbDataSource.upsertAccount(id = id, name = name, color = color, stringAmount = stringAmount)
+    }
 }

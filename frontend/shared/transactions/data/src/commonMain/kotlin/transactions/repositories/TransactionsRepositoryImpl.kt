@@ -4,8 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import sync.repositories.SyncManager
-import transactions.db.TransactionsDatabaseDataSource
+import transactions.db.*
 import transactions.local.TransactionsLocalDataSource
 import transactions.models.Transaction
 import utils.Logg
@@ -15,7 +14,6 @@ import kotlin.coroutines.EmptyCoroutineContext
 class TransactionsRepositoryImpl(
     private val dbDataSource: TransactionsDatabaseDataSource,
     private val localDataSource: TransactionsLocalDataSource,
-    private val syncManager: SyncManager
 ) : TransactionsRepository {
     init {
         if (!localDataSource.getFirstEntrance()) {
@@ -35,10 +33,56 @@ class TransactionsRepositoryImpl(
 
     override suspend fun upsertTransaction(transaction: Transaction) {
         dbDataSource.upsertTransaction(transaction)
-        syncManager.requestSync()
+    }
+
+    override suspend fun deleteTransaction(id: String) {
+        dbDataSource.deleteTransaction(id)
     }
 
     override suspend fun selectTransactionById(id: String): Transaction =
         dbDataSource.selectPrimaryTransaction(id)
+
+
+    // not safety extensions
+
+    override suspend fun hardDeleteTransaction(id: String) {
+        dbDataSource.hardDeleteTransaction(id)
+    }
+
+    override suspend fun hardDeleteTransfer(id: String) {
+        dbDataSource.hardDeleteTransfer(id)
+    }
+
+    override suspend fun badInsertTransaction(
+        id: String,
+        accountUuid: String,
+        transferId: String?,
+        categoryId: String?,
+        amount: String,
+        date: String,
+        notes: String
+    ) {
+        dbDataSource.badInsertTransaction(
+            id = id,
+            accountUuid = accountUuid,
+            transferId = transferId,
+            categoryId = categoryId,
+            amount = amount,
+            date = date,
+            notes = notes
+        )
+    }
+
+    override suspend fun badInsertTransfer(
+        id: String,
+        accountFromId: String,
+        accountToId: String
+    ) {
+        dbDataSource.badInsertTransfer(
+            id = id,
+            accountFromId = accountFromId,
+            accountToId = accountToId
+        )
+    }
 
 }

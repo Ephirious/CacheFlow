@@ -5,7 +5,8 @@ import kotlinx.coroutines.flow.Flow
 import utils.types.HexColor
 
 interface AccountsRepository {
-    fun getAccountsFlow(): Flow<List<Account>>
+    fun getAccountsFlow(onlyActive: Boolean = true): Flow<List<Account>>
+    suspend fun softDelete(id: String)
     suspend fun getAccountById(id: String): Account
 
     suspend fun insertAccount(
@@ -19,4 +20,8 @@ interface AccountsRepository {
         name: String,
         color: HexColor,
     )
+
+    suspend fun softDeleteAccount(id: String)
+
+    suspend fun upsertAccount(id: String, name: String, color: HexColor, stringAmount: String)
 }

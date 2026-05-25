@@ -74,12 +74,12 @@ class RealCategoriesPagesComponent(
 
             CategoriesPagesConfig.Income -> RealCategoriesComponent(
                 childCtx,
-                type = CategoryType.INCOME,
+                type = CategoryType.income,
                 categories = _categories.map { it.income })
 
             CategoriesPagesConfig.Outcome -> RealCategoriesComponent(
                 childCtx,
-                type = CategoryType.OUTCOME,
+                type = CategoryType.outcome,
                 categories = _categories.map { it.outcome }
             )
         }

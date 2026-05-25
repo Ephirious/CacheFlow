@@ -5,7 +5,9 @@ import editors.models.Category
 import kotlinx.coroutines.flow.Flow
 
 interface CategoriesRepository {
-    fun getCategoriesFlow(): Flow<List<Category>>
+    fun getCategoriesFlow(onlyActive: Boolean = true): Flow<List<Category>>
+
+    suspend fun softDelete(id: String)
 
     suspend fun getCategoryById(id: String): Category
 
@@ -20,4 +22,8 @@ interface CategoriesRepository {
         name: String,
         emoji: String,
     )
+
+    suspend fun softDeleteCategory(id: String)
+
+    suspend fun upsertCategory(id: String, name: String, emoji: String, type: CategoryType)
 }

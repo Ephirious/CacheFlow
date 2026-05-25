@@ -20,8 +20,8 @@ import kotlin.uuid.Uuid
 
 
 class TransactionsDatabaseDataSource(
-    private val transactionsQueries: OperationsQueries,
-    private val transfersQueries: TransfersQueries,
+    val transactionsQueries: OperationsQueries,
+    val transfersQueries: TransfersQueries,
     private val accountsQueries: AccountsQueries,
     private val commonQueries: CommonQueries
 ) {
@@ -73,6 +73,29 @@ class TransactionsDatabaseDataSource(
                 transactionsQueries.deleteByTransferId(oldTransferId)
                 // Удаление записи из Transaction
                 transfersQueries.delete(oldTransferId)
+            }
+        }
+    }
+
+    suspend fun deleteTransaction(id: String) {
+        transactionsQueries.transaction {
+            val relatedOps = transactionsQueries.selectRelatedOperations(id).awaitAsList()
+
+            if (relatedOps.isEmpty()) return@transaction
+
+            // Откатываем балансы и удаляем связанные операции
+            relatedOps.forEach { op ->
+                accountsQueries.updateAccountBalance(
+                    delta = -op.amount,
+                    id = op.account_uuid
+                )
+
+                transactionsQueries.delete(op.id)
+            }
+
+            // Если был трансфер – удаляем его
+            relatedOps.firstOrNull()?.transfer_id?.let { transferId ->
+                transfersQueries.delete(transferId)
             }
         }
     }

@@ -16,9 +16,13 @@ import {
     CategoryType,
     CategoriesPagesOutput,
     AccountsComponent,
-    SettingsModalChild
+    SettingsModalChild,
+    SettingsAction,
+    setJsTheme,
+    SettingsIntent
 } from "k2ts";
 import {useValue, when} from "interop";
+import {useActions} from "../../interop/useActions.ts";
 
 const isStandalone = () =>
     window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & {
@@ -77,6 +81,15 @@ const Accounts = ({component}: { component: AccountsComponent }) => {
 
 const Settings = ({component}: { component: SettingsComponent }) => {
 
+    const state = useValue(component.state)
+
+    useActions(component, (action) => {
+        when(action)
+            .on(SettingsAction.ThemeChanged, ({theme}) => {
+                setJsTheme(theme)
+            })
+            .run()
+    });
 
     const pages = useValue(component.childPages)
     const activeChild = pages.active;
@@ -96,10 +109,11 @@ const Settings = ({component}: { component: SettingsComponent }) => {
         let tintBarEl: HTMLDivElement | null = null;
 
         const applyWhiteTheme = () => {
-            if (themeMeta) themeMeta.content = "#ffffff";
+            const bgColor = getComputedStyle(document.documentElement).getPropertyValue("--color-surface-base").trim() || "#ffffff";
+            if (themeMeta) themeMeta.content = bgColor;
             if (appleStatusMeta) appleStatusMeta.content = "default";
-            document.documentElement.style.backgroundColor = "#ffffff";
-            document.body.style.backgroundColor = "#ffffff";
+            document.documentElement.style.backgroundColor = "";
+            document.body.style.backgroundColor = "";
         };
 
         applyWhiteTheme();
@@ -107,7 +121,8 @@ const Settings = ({component}: { component: SettingsComponent }) => {
         if (needsManualKick) {
             let frame = 0;
             const kickThemeRefresh = () => {
-                const nextTintBar = createTintBar("#ffffff");
+                const bgColor = getComputedStyle(document.documentElement).getPropertyValue("--color-surface-base").trim() || "#ffffff";
+                const nextTintBar = createTintBar(bgColor);
                 if (!tintBarEl) {
                     document.body.appendChild(nextTintBar);
                 } else {
@@ -134,14 +149,17 @@ const Settings = ({component}: { component: SettingsComponent }) => {
     }, []);
 
     return (
-        <div className="flex pb-6 flex-col bg-surface-subtle min-h-screen">
-            <SettingsHeader tab={tab} onTabChange={(newTab) => {
-                if (newTab === "categories") {
-                    component.onOutput(SettingsOutput.NavigateToCategories)
-                } else {
-                    component.onOutput(SettingsOutput.NavigateToAccounts)
-                }
-            }}/>
+        <div className="flex min-h-screen flex-col bg-surface-base pb-6 lg:pb-10">
+            <SettingsHeader curTheme={state.currentTheme}
+                            onThemeClick={() => component.intent(SettingsIntent.ChangeTheme)}
+                            tab={tab}
+                            onTabChange={(newTab) => {
+                                if (newTab === "categories") {
+                                    component.onOutput(SettingsOutput.NavigateToCategories)
+                                } else {
+                                    component.onOutput(SettingsOutput.NavigateToAccounts)
+                                }
+                            }}/>
             <SettingsMainSection
                 onAddClick={() => (activeChild.component.onCreateClick())}
                 tab={tab}

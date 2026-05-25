@@ -44,8 +44,8 @@ fun ManageTransactionType.updateAccount(newAccountId: String): ManageTransaction
 }
 
 fun ManageTransactionType.getCategoryType(): CategoryType = when (this) {
-    is Income -> CategoryType.INCOME
-    else -> CategoryType.OUTCOME
+    is Income -> CategoryType.income
+    else -> CategoryType.outcome
 }
 
 fun ManageTransactionType.updateTransferToAccount(newAccountId: String): ManageTransactionType = when (this) {

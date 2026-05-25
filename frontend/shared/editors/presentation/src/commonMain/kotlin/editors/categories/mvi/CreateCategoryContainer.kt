@@ -24,14 +24,7 @@ class CreateCategoryContainer(
     @OptIn(DelicateStoreApi::class)
     override val store: Store<CreateCategoryState, CreateCategoryIntent, Nothing> =
         store(
-            initial = CreateCategoryState.OK(
-                form = CreateFormState(
-                    categoryType = CategoryType.OUTCOME,
-                    name = "",
-                    emoji = "",
-                    validation = ManageCategoryFormBaseValidationErrors()
-                )
-            )
+            initial = getInitial()
 
         ) {
             fastConfig(
@@ -56,7 +49,7 @@ class CreateCategoryContainer(
                 when (intent) {
                     CreateCategoryIntent.ClickedCreate -> createCategory()
                     is CreateCategoryIntent.ChangedCategoryType -> updateState<CreateCategoryState.OK, _> {
-                        copy(form = form.copy(categoryType = if (intent.type == "income") CategoryType.INCOME else CategoryType.OUTCOME))
+                        copy(form = form.copy(categoryType = if (intent.type == "income") CategoryType.income else CategoryType.outcome))
                     }
                 }
             }
@@ -64,12 +57,14 @@ class CreateCategoryContainer(
 
     private suspend fun CtxCreate.createCategory() {
         withState<CreateCategoryState.OK, _> {
-            createCategoryUseCase(
-                name = this.form.name,
-                emoji = this.form.emoji,
-                type = this.form.categoryType
-            )
-            closeModal()
+            if (allValidated()) {
+                createCategoryUseCase(
+                    name = this.form.title,
+                    emoji = this.form.emoji,
+                    type = this.form.categoryType
+                )
+                closeModal()
+            }
         }
 
     }

@@ -8,11 +8,11 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.js.JsExport
 import kotlin.time.Instant
 
-val currentTimeZone = TimeZone.currentSystemDefault()
+val utcTimeZone = TimeZone.UTC
 
-fun LocalDate.toInstant() = atStartOfDayIn(currentTimeZone)
+fun LocalDate.toInstant() = atStartOfDayIn(utcTimeZone)
 
-fun Instant.toLocalDate() = toLocalDateTime(currentTimeZone).date
+fun Instant.toLocalDate() = toLocalDateTime(utcTimeZone).date
 
 
 @JsExport

@@ -10,6 +10,9 @@ import data.CategoriesQueries
 import data.CommonQueries
 import data.Operations
 import data.OperationsQueries
+import data.SyncDBQueries
+import data.SyncInternalQueries
+import data.SyncOperations
 import data.Transfers
 import data.TransfersQueries
 import data.WeatherEntity
@@ -62,6 +65,10 @@ internal val sqlModule = module {
             TransfersAdapter = Transfers.Adapter(
                 created_atAdapter = instantAdapter,
                 updated_atAdapter = instantAdapter
+            ),
+            SyncOperationsAdapter = SyncOperations.Adapter(
+                actionAdapter = EnumColumnAdapter(),
+                table_typeAdapter = EnumColumnAdapter()
             )
         )
     }
@@ -72,4 +79,7 @@ internal val sqlModule = module {
     single<OperationsQueries> { get<Database>().operationsQueries }
     single<TransfersQueries> { get<Database>().transfersQueries }
     single<CommonQueries> { get<Database>().commonQueries }
+
+    single<SyncDBQueries> { get<Database>().syncDBQueries }
+    single<SyncInternalQueries> { get<Database>().syncInternalQueries }
 }

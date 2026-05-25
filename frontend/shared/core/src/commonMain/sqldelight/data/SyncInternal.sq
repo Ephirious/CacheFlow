@@ -1,0 +1,14 @@
+import kotlin.Boolean;
+
+CREATE TABLE IF NOT EXISTS SyncSettings (
+    is_sync_running INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+initSettings:
+INSERT OR IGNORE INTO SyncSettings (is_sync_running) VALUES (0);
+
+getSyncStatus:
+SELECT is_sync_running FROM SyncSettings LIMIT 1;
+
+updateSyncStatus:
+UPDATE SyncSettings SET is_sync_running = ?;
