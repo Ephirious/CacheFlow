@@ -11,11 +11,11 @@ router = APIRouter(prefix = "/sync", tags = ["Sync"])
 async def sync(user: CurrentUser, body: SyncRequest, sync_service: SyncServiceDep):
     #TODO: add auth check for {user}
 
-    resp = await sync_service.sync(body.operations, body.last_sync_date)
+    resp = await sync_service.sync(body.operations, body.last_sync_date, user.id)
     if resp.is_success:
         return resp.value
     
     raise HTTPException(
-        status_code=resp.error.status_code or 500, 
+        status_code= 500,
         detail=resp.error.message
     )

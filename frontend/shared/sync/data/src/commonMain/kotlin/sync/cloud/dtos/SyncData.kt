@@ -42,17 +42,17 @@ data class CategoryRecordCreateDTO(
 @Serializable
 data class TransferRecordCreateDTO(
     val id: String,
-    val accountFromId: String,
-    val accountToId: String
+    @SerialName("account_from_id") val accountFromId: String,
+    @SerialName("account_to_id" )val accountToId: String
 ) : RecordCreateDTO, RecordOutDTO
 
 @Serializable
 data class OperationRecordCreateDTO(
     val id: String,
-    val accountUuid: String,
-    val transferId: String?,
-    val categoryId: String?,
-    val amount: String,
+    @SerialName("account_uuid") val accountUuid: String,
+    @SerialName("transfer_id") val transferId: String?,
+    @SerialName("category_uuid") val categoryId: String?,
+    @SerialName("amount") val amount: String,
     val date: String,
     val notes: String
 ) : RecordCreateDTO, RecordOutDTO
@@ -75,7 +75,7 @@ data class SyncOperationDTO(
 @Serializable
 data class SyncRequest(
     @SerialName("last_sync_date") val lastSyncDate: String,
-    @SerialName("sync_ops") val operations: List<SyncOperationDTO>,
+    @SerialName("operations") val operations: List<SyncOperationDTO>,
 )
 
 @Serializable

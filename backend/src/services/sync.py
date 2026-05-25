@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
@@ -10,7 +11,7 @@ from backend.src.schemas.account import AccountCreateRecord, AccountUpdate, Acco
 from backend.src.schemas.category import CategoryRecord, CategoryUpdate
 from backend.src.schemas.operation import OperationRecord, OperationUpdate
 from backend.src.schemas.result import ErrorCode, Result
-from backend.src.schemas.sync import RECORD_CREATE, RECORD_OUT, StateDelete, StateUpdate, SyncOperation, SyncResponse
+from backend.src.schemas.sync import RECORD_CREATE, RECORD_OUT, StateDelete, StateUpdate, SyncOperation, SyncResponse, SyncOperationBase, SyncOperationDb
 from backend.src.models import SyncOperation as ModelSyncOperation
 from backend.src.schemas.transfer import TransferRecord, TransferUpdate
 
@@ -40,17 +41,20 @@ class SyncService:
         return schema_record.model_validate(updated, from_attributes=True)
         
 
-    async def _apply_create(self, row: RECORD_CREATE, table_type: TableType) -> RECORD_OUT:
+    async def _apply_create(self, row: RECORD_CREATE, table_type: TableType, user_id) -> RECORD_OUT:
         repo, schema_record, _, _ = self._schemas_map[table_type]
+        print(row)
+        row["user_id"] = user_id
+        row = schema_record.model_validate(row)
         created = await repo.insert(row)
         return schema_record.model_validate(created, from_attributes=True)
     
     async def _apply_delete(self, entity_id: UUID, table_type: TableType):
-        repo, _, _ = self._schemas_map[table_type]
+        repo, _, _, _ = self._schemas_map[table_type]
         await repo.delete(entity_id=entity_id)
 
 
-    async def sync(self, sync_ops: list[SyncOperation], last_sync: datetime) -> Result[SyncResponse]:
+    async def sync(self, sync_ops: list[SyncOperation], last_sync: datetime, user_id) -> Result[SyncResponse]:
         grouped_ops: dict[UUID, list[SyncOperation]] = {}
         for op in sync_ops:
             grouped_ops.setdefault(op.processing_id, []).append(op)
@@ -90,7 +94,7 @@ class SyncService:
                     if op.action == Action.CREATE:
                         db_exists = await self._schemas_map[table_type][0].get_by_id(p_id)
                         if not db_exists:
-                            cur_record = await self._apply_create(op.record_to_create, table_type)
+                            cur_record = await self._apply_create(op.record_to_create, table_type, user_id)
                             should_apply = True
                             if op.table_type == TableType.OPERATIONS:
                                 affected_accounts.add(cur_record.account_uuid)
@@ -123,7 +127,8 @@ class SyncService:
                         break
 
                     if should_apply:
-                        await self.uow.sync_repository.insert(op)
+                        to_ins = SyncOperationDb.model_validate(op, from_attributes=True)
+                        await self.uow.sync_repository.insert(to_ins)
 
                 if pending_updates:
                     cur_record = await self._apply_updates(p_id, pending_updates, table_type)
@@ -151,12 +156,12 @@ class SyncService:
                         id=s_op.processing_id
                     ))
                 else:
-                    repo, schema_record, _ = self._schemas_map[s_op.table_type]
+                    repo, schema_record, _, _ = self._schemas_map[s_op.table_type]
                     db_obj = await repo.get_by_id(s_op.processing_id)
                     if db_obj:
                         resp.update_state.append(StateUpdate(
                             table_type=s_op.table_type,
-                            record=schema_record.model_validate(db_obj, from_attributes=True),
+                            record=schema_record.model_validate(db_obj, from_attributes=True).model_dump(),
                             updated_at=db_obj.updated_at
                         ))
                 added_ids.add(s_op.processing_id)
@@ -170,7 +175,7 @@ class SyncService:
                 for acc in affected_acc_records:
                     resp.update_state.append(StateUpdate(
                         table_type = TableType.ACCOUNTS,
-                        record = AccountOutRecord.model_validate(acc),
+                        record = AccountOutRecord.model_validate(acc).model_dump(),
                         updated_at = acc.updated_at
                     ))
                     
@@ -179,6 +184,7 @@ class SyncService:
 
         except Exception as e:
             await self.uow.rollback()
+            traceback.print_exc()
             return Result.err(
                 message = str(e), error_code = ErrorCode.INTERNAL
             )

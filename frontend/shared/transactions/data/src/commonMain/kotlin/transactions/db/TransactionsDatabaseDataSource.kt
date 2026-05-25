@@ -27,8 +27,24 @@ class TransactionsDatabaseDataSource(
 ) {
 
     // не нашёл лучшего места...
+    @OptIn(ExperimentalUuidApi::class)
     suspend fun initBase() {
-        commonQueries.initDefaultData().await()
+
+        val newUuid7 = { Uuid.generateV7().toString() }
+
+        commonQueries.initDefaultData(
+            cashAccountId = newUuid7(),
+            cardAccountId = newUuid7(),
+            cashOpId = newUuid7(),
+            cardOpId = newUuid7(),
+            // categories
+            newUuid7(),
+            newUuid7(),
+            newUuid7(),
+            newUuid7(),
+            newUuid7(),
+            newUuid7(),
+        ).await()
     }
 
     fun getTransactionsFlow(accountId: String?): Flow<List<Transaction>> {
