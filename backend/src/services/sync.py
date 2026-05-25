@@ -50,7 +50,7 @@ class SyncService:
         return schema_record.model_validate(created, from_attributes=True)
     
     async def _apply_delete(self, entity_id: UUID, table_type: TableType):
-        repo, _, _ = self._schemas_map[table_type]
+        repo, _, _, _ = self._schemas_map[table_type]
         await repo.delete(entity_id=entity_id)
 
 
@@ -156,7 +156,7 @@ class SyncService:
                         id=s_op.processing_id
                     ))
                 else:
-                    repo, schema_record, _ = self._schemas_map[s_op.table_type]
+                    repo, schema_record, _, _ = self._schemas_map[s_op.table_type]
                     db_obj = await repo.get_by_id(s_op.processing_id)
                     if db_obj:
                         resp.update_state.append(StateUpdate(
