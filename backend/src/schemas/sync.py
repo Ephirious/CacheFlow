@@ -23,9 +23,18 @@ class SyncOperationBase(BaseModel):
     field_to_update: Optional[str] = None
     value_to_update: Optional[Any] = None
 
+class SyncOperationDb(BaseModel):
+    id: UUID
+    processing_id: UUID
+    created_at: datetime
+    action: Action
+    table_type: TableType
+    field_to_update: Optional[str] = None
+    value_to_update: Optional[Any] = None
+
 
 class SyncOperation(SyncOperationBase):
-    record_to_create: Optional[RECORD_CREATE] = Field(default=None, union_mode='left_to_right')
+    record_to_create: Optional[Any]
 
     @model_validator(mode='before')
     @classmethod
@@ -89,8 +98,39 @@ class SyncRequest(BaseModel):
 
 class StateUpdate(BaseModel):
     table_type: TableType
-    record: RECORD_OUT
+    record: Any
     updated_at: datetime
+
+    @model_validator(mode='before')
+    @classmethod
+    def validate_record_by_table_type(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            table_type_raw = data.get("table_type")
+            record = data.get("record")
+
+            table_type = None
+            if table_type_raw:
+                try:
+                    table_type = TableType(table_type_raw)
+                except ValueError:
+                    pass
+
+            if True:
+                if not record:
+                    raise ValueError('"record_to_create" must not be empty')
+
+                mapping = {
+                    TableType.ACCOUNTS: AccountOutRecord,
+                    TableType.CATEGORIES: CategoryRecord,
+                    TableType.TRANSFER: TransferRecord,
+                    TableType.OPERATIONS: OperationRecord,
+                }
+
+                target_model = mapping.get(table_type)
+                if target_model and isinstance(record, dict):
+                    data["record"] = target_model.model_validate(record)
+
+        return data
 
 class StateDelete(BaseModel):
     table_type: TableType
