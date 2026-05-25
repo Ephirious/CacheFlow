@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_validator, Field
 
 from backend.src.models.sync import Action, TableType
 from backend.src.schemas.account import AccountCreateRecord, AccountOutRecord
@@ -25,17 +25,24 @@ class SyncOperationBase(BaseModel):
 
 
 class SyncOperation(SyncOperationBase):
-    record_to_create: Optional[Any] = None
+    record_to_create: Optional[RECORD_CREATE] = Field(default=None, union_mode='left_to_right')
 
     @model_validator(mode='before')
     @classmethod
     def validate_record_by_table_type(cls, data: Any) -> Any:
         if isinstance(data, dict):
             action = data.get("action")
-            table_type = data.get("table_type")
+            table_type_raw = data.get("table_type")
             record = data.get("record_to_create")
 
-            if action == "CREATE" or action == Action.CREATE:
+            table_type = None
+            if table_type_raw:
+                try:
+                    table_type = TableType(table_type_raw)
+                except ValueError:
+                    pass
+
+            if action in ("CREATE", Action.CREATE):
                 if not record:
                     raise ValueError('"record_to_create" must not be empty')
                 
@@ -47,14 +54,13 @@ class SyncOperation(SyncOperationBase):
                 }
                 
                 target_model = mapping.get(table_type)
-                if target_model:
-                    if isinstance(record, dict):
-                        data["record_to_create"] = target_model.model_validate(record)
+                if target_model and isinstance(record, dict):
+                    data["record_to_create"] = target_model.model_validate(record)
                         
         return data
 
     @model_validator(mode='after')
-    def check_field_exists(self):
+    def check_field_exists(self) -> "SyncOperation":
         if self.action == Action.CREATE and not self.record_to_create:
             raise ValueError('"record_to_create" must not be empty')
 
@@ -69,9 +75,11 @@ class SyncOperation(SyncOperationBase):
                 TableType.TRANSFER: {'account_from_id', 'account_to_id'}
             }
 
-            allowed_type = allowed[self.table_type]
-            if self.field_to_update not in allowed_type:
-                raise ValueError('"field_to_update" must be one of {}'.format(allowed_type))
+            allowed_type = allowed.get(self.table_type)
+            if not allowed_type or self.field_to_update not in allowed_type:
+                raise ValueError(f'"field_to_update" must be one of {allowed_type}')
+
+        return self
 
 
 class SyncRequest(BaseModel):
@@ -93,4 +101,3 @@ class SyncResponse(BaseModel):
     accepted_ids: list[UUID]
     delete_operations: list[StateDelete]
     update_state: list[StateUpdate]
-    
