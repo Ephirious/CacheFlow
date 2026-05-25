@@ -25,7 +25,33 @@ class SyncOperationBase(BaseModel):
 
 
 class SyncOperation(SyncOperationBase):
-    record_to_create: Optional[RECORD_CREATE] = None
+    record_to_create: Optional[Any] = None
+
+    @model_validator(mode='before')
+    @classmethod
+    def validate_record_by_table_type(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            action = data.get("action")
+            table_type = data.get("table_type")
+            record = data.get("record_to_create")
+
+            if action == "CREATE" or action == Action.CREATE:
+                if not record:
+                    raise ValueError('"record_to_create" must not be empty')
+                
+                mapping = {
+                    TableType.ACCOUNTS: AccountCreateRecord,
+                    TableType.CATEGORIES: CategoryRecord,
+                    TableType.TRANSFER: TransferRecord,
+                    TableType.OPERATIONS: OperationRecord,
+                }
+                
+                target_model = mapping.get(table_type)
+                if target_model:
+                    if isinstance(record, dict):
+                        data["record_to_create"] = target_model.model_validate(record)
+                        
+        return data
 
     @model_validator(mode='after')
     def check_field_exists(self):
