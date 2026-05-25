@@ -75,7 +75,7 @@ data class SyncOperationDTO(
 @Serializable
 data class SyncRequest(
     @SerialName("last_sync_date") val lastSyncDate: String,
-    @SerialName("sync_ops") val operations: List<SyncOperationDTO>,
+    @SerialName("operations") val operations: List<SyncOperationDTO>,
 )
 
 @Serializable
