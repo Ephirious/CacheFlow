@@ -4,10 +4,12 @@ import {
     MainComponent,
     MainState,
     ManageTransactionComponent,
-    ManageTransactionState
+    ManageTransactionState,
+    TransactionsIntent
 } from "k2ts";
 import {useValue, when} from "interop";
 import {useEffect, useLayoutEffect, useRef, useState} from "react";
+import {createPortal} from "react-dom";
 import {useActions} from "interop/useActions";
 import {FiX} from "react-icons/fi";
 
@@ -191,6 +193,7 @@ const MainOK = ({component}: { component: MainComponent }) => {
                             onEditClick={(transactionId) => {
                                 component.openTransactionToEdit(transactionId);
                             }}
+                            onLoadMore={() => component.transactionsComponent.intent(TransactionsIntent.LoadMore)}
                         />
                     </section>
                 ) : (
@@ -254,7 +257,7 @@ const MainOK = ({component}: { component: MainComponent }) => {
                 </BottomSheet>
             )}
 
-            {useDesktopModal && isManageOpen && manageTransactionComponent && (
+            {useDesktopModal && isManageOpen && manageTransactionComponent && createPortal(
                 <div
                     className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]"
                     onClick={() => setIsManageOpen(false)}
@@ -280,7 +283,8 @@ const MainOK = ({component}: { component: MainComponent }) => {
                             />
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

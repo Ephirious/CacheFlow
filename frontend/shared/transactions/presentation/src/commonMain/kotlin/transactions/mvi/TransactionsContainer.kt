@@ -44,6 +44,7 @@ class TransactionsContainer(
             customReduce { intent ->
                 when (intent) {
                     is TransactionsIntent.TransactionClicked -> TODO()
+                    TransactionsIntent.LoadMore -> TODO()
                 }
             }
         }

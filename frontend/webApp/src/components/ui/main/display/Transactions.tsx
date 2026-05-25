@@ -1,4 +1,5 @@
 import { LiaFilterSolid } from "react-icons/lia";
+import { LuArrowRightLeft } from "react-icons/lu";
 import {motion} from "framer-motion";
 import { TransactionCard } from "./index";
 import { prettyDate, Transaction } from "k2ts";
@@ -7,10 +8,12 @@ import { useMemo, useState } from "react";
 
 const Transactions = ({
     transactions,
-    onEditClick
+    onEditClick,
+    onLoadMore
 }: {
     transactions: readonly Transaction[];
     onEditClick: (transactionId: string) => void;
+    onLoadMore?: () => void;
 }) => {
     const sections = useMemo(() => {
         return transactions.reduce<Array<{ dateLabel: string; items: Transaction[] }>>((acc, transaction) => {
@@ -48,31 +51,50 @@ const Transactions = ({
                     <p className="text-text-primary">Фильтры</p>
                 </motion.div>
             </div>
-            <div className="flex flex-col gap-3 pb-4">
-                {sections.map((section, sectionIndex) => (
-                    <div key={`${section.dateLabel}-${sectionIndex}`} className="flex flex-col gap-2">
-                        <div className="sticky top-[-10px] z-20 -mx-1 rounded-md px-1 py-1 lg:top-0">
-                            <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
-                                {section.dateLabel}
-                            </span>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            {section.items.map((transaction, transactionIndex) => {
-                                const transactionId = transaction.id;
-                                return (
-                                    <TransactionCard
-                                        key={transactionId ?? `${section.dateLabel}-${transactionIndex}`}
-                                        transaction={transaction}
-                                        isExpanded={transactionId ? expandedId === transactionId : false}
-                                        onClick={transactionId ? () => onTransactionClick(transactionId) : undefined}
-                                        onEditClick={transactionId ? () => onEditClick(transactionId) : undefined}
-                                    />
-                                );
-                            })}
-                        </div>
+            {transactions.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-surface-muted">
+                        <LuArrowRightLeft className="h-10 w-10 text-text-secondary" />
                     </div>
-                ))}
-            </div>
+                    <h3 className="mb-2 text-lg font-semibold text-text-primary">Нет транзакций</h3>
+                    <p className="text-sm text-text-secondary">Нажмите + чтобы добавить первую транзакцию</p>
+                </div>
+            ) : (
+                <div className="flex flex-col gap-3 pb-4">
+                    {sections.map((section, sectionIndex) => (
+                        <div key={`${section.dateLabel}-${sectionIndex}`} className="flex flex-col gap-2">
+                            <div className="sticky top-[-10px] z-20 -mx-1 rounded-md px-1 py-1 lg:top-0">
+                                <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                                    {section.dateLabel}
+                                </span>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                {section.items.map((transaction, transactionIndex) => {
+                                    const transactionId = transaction.id;
+                                    return (
+                                        <TransactionCard
+                                            key={transactionId ?? `${section.dateLabel}-${transactionIndex}`}
+                                            transaction={transaction}
+                                            isExpanded={transactionId ? expandedId === transactionId : false}
+                                            onClick={transactionId ? () => onTransactionClick(transactionId) : undefined}
+                                            onEditClick={transactionId ? () => onEditClick(transactionId) : undefined}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
+                    {transactions.length >= 25 && onLoadMore && (
+                        <button
+                            onClick={onLoadMore}
+                            className="mt-2 w-full rounded-xl border border-border-default bg-surface-muted py-3 text-sm font-medium text-text-primary transition-colors hover:bg-surface-hover"
+                            type="button"
+                        >
+                            Показать ещё
+                        </button>
+                    )}
+                </div>
+            )}
         </div>
     )
 }
