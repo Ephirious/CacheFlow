@@ -65,6 +65,8 @@ class SyncOperation(SyncOperationBase):
                 target_model = mapping.get(table_type)
                 if target_model and isinstance(record, dict):
                     data["record_to_create"] = target_model.model_validate(record)
+            else:
+                data["record_to_create"] = None
                         
         return data
 

@@ -36,7 +36,7 @@ class SyncService:
         db_record = await repo.get_by_id(id)
         if not db_record:
             return None
-        upd = schema_upd.model_validate(updates)
+        upd = schema_upd(**updates)
         updated = await repo.update(db_record, upd)
         return schema_record.model_validate(updated, from_attributes=True)
         
@@ -156,12 +156,12 @@ class SyncService:
                         id=s_op.processing_id
                     ))
                 else:
-                    repo, schema_record, _, _ = self._schemas_map[s_op.table_type]
+                    repo, _, _, schema_out_record = self._schemas_map[s_op.table_type]
                     db_obj = await repo.get_by_id(s_op.processing_id)
                     if db_obj:
                         resp.update_state.append(StateUpdate(
                             table_type=s_op.table_type,
-                            record=schema_record.model_validate(db_obj, from_attributes=True).model_dump(),
+                            record=schema_out_record.model_validate(db_obj, from_attributes=True).model_dump(),
                             updated_at=db_obj.updated_at
                         ))
                 added_ids.add(s_op.processing_id)

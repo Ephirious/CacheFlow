@@ -78,7 +78,9 @@ services:
 
 volumes:
   cacheflow_postgres_data:
+    name: cacheflow_postgres_data
   cacheflow_pgadmin_data:
+    name: cacheflow_pgadmin_data
 
 networks:
   app:
