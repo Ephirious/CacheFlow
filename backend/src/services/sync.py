@@ -167,7 +167,6 @@ class SyncService:
                     repo, _, _, schema_out_record = self._schemas_map[s_op.table_type]
                     db_obj = await repo.get_by_id(s_op.processing_id)
                     if db_obj:
-                        # Твой фикс с .model_dump() (если фронт принимает dict, оставляем .model_dump())
                         resp.update_state.append(StateUpdate(
                             table_type=s_op.table_type,
                             record=schema_out_record.model_validate(db_obj, from_attributes=True).model_dump(),
