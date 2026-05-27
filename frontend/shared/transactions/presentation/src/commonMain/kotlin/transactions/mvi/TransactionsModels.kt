@@ -15,4 +15,5 @@ data class TransactionsState(
 @JsExport
 sealed class TransactionsIntent : MVIIntent {
     data class TransactionClicked(val transactionId: String) : TransactionsIntent()
+    data object LoadMore : TransactionsIntent()
 }
