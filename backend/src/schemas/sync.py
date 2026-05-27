@@ -29,6 +29,7 @@ class SyncOperationDb(BaseModel):
     created_at: datetime
     action: Action
     table_type: TableType
+    user_id: UUID
     field_to_update: Optional[str] = None
     value_to_update: Optional[Any] = None
 
@@ -43,7 +44,6 @@ class SyncOperation(SyncOperationBase):
             action = data.get("action")
             table_type_raw = data.get("table_type")
             record = data.get("record_to_create")
-
             table_type = None
             if table_type_raw:
                 try:
@@ -51,7 +51,7 @@ class SyncOperation(SyncOperationBase):
                 except ValueError:
                     pass
 
-            if action in ("CREATE", Action.CREATE):
+            if action in ("create", Action.CREATE):
                 if not record:
                     raise ValueError('"record_to_create" must not be empty')
                 
@@ -67,13 +67,10 @@ class SyncOperation(SyncOperationBase):
                     data["record_to_create"] = target_model.model_validate(record)
             else:
                 data["record_to_create"] = None
-                        
         return data
 
     @model_validator(mode='after')
     def check_field_exists(self) -> "SyncOperation":
-        if self.action == Action.CREATE and not self.record_to_create:
-            raise ValueError('"record_to_create" must not be empty')
 
         if self.action == Action.UPDATE:
             if not self.field_to_update:

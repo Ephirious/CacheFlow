@@ -43,7 +43,9 @@ class SyncService:
 
     async def _apply_create(self, row: RECORD_CREATE, table_type: TableType, user_id) -> RECORD_OUT:
         repo, schema_record, _, _ = self._schemas_map[table_type]
-        print(row)
+        if not isinstance(row, dict):
+            row = row.model_dump()
+        print(row, table_type)
         row["user_id"] = user_id
         row = schema_record.model_validate(row)
         created = await repo.insert(row)
@@ -60,7 +62,9 @@ class SyncService:
             grouped_ops.setdefault(op.processing_id, []).append(op)
 
         history = await self.uow.sync_repository.get_by_processing_ids(
-            [op.processing_id for op in sync_ops], last_sync
+            ids=[op.processing_id for op in sync_ops], 
+            last_sync_date=last_sync,
+            user_id=user_id
         )
         
         history_map: dict[UUID, list[ModelSyncOperation]] = {}
@@ -127,7 +131,7 @@ class SyncService:
                         break
 
                     if should_apply:
-                        to_ins = SyncOperationDb.model_validate(op, from_attributes=True)
+                        to_ins = SyncOperationDb.model_validate({**op.model_dump(), "user_id": user_id})
                         await self.uow.sync_repository.insert(to_ins)
 
                 if pending_updates:
@@ -144,7 +148,11 @@ class SyncService:
                             updated_at=datetime.now(timezone.utc)
                         ))
 
-            other_ops = await self.uow.sync_repository.get_by_date(last_sync)
+            other_ops = await self.uow.sync_repository.get_by_date(
+                sync_date=last_sync,
+                user_id=user_id 
+            )
+            
             added_ids = set(resp.accepted_ids)
             for s_op in other_ops:
                 if s_op.processing_id in added_ids:
@@ -159,12 +167,14 @@ class SyncService:
                     repo, _, _, schema_out_record = self._schemas_map[s_op.table_type]
                     db_obj = await repo.get_by_id(s_op.processing_id)
                     if db_obj:
+                        # Твой фикс с .model_dump() (если фронт принимает dict, оставляем .model_dump())
                         resp.update_state.append(StateUpdate(
                             table_type=s_op.table_type,
                             record=schema_out_record.model_validate(db_obj, from_attributes=True).model_dump(),
                             updated_at=db_obj.updated_at
                         ))
                 added_ids.add(s_op.processing_id)
+                
             resp.last_sync_date = datetime.now(timezone.utc)
             await self.uow._session.flush()
 
@@ -173,10 +183,14 @@ class SyncService:
             if affected_accounts:
                 affected_acc_records = await self.uow.account_repository.get_by_in(list(affected_accounts))
                 for acc in affected_acc_records:
+                    if not isinstance(acc, dict):
+                        rec = AccountOutRecord.model_validate(acc, from_attributes=True)
+                    else:
+                        rec = AccountOutRecord.model_validate(acc)
                     resp.update_state.append(StateUpdate(
-                        table_type = TableType.ACCOUNTS,
-                        record = AccountOutRecord.model_validate(acc).model_dump(),
-                        updated_at = acc.updated_at
+                        table_type=TableType.ACCOUNTS,
+                        record=rec.model_dump(),
+                        updated_at=acc.updated_at
                     ))
                     
             await self.uow.commit()
@@ -186,5 +200,5 @@ class SyncService:
             await self.uow.rollback()
             traceback.print_exc()
             return Result.err(
-                message = str(e), error_code = ErrorCode.INTERNAL
+                message=str(e), error_code=ErrorCode.INTERNAL
             )
