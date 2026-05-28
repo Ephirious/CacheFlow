@@ -7,6 +7,7 @@ import auth.cloud.AuthRemoteDataSource
 import auth.cloud.dtos.ResendCodeRequestDTO
 import auth.cloud.dtos.UserCreateDTO
 import auth.cloud.dtos.VerifyEmailRequestDTO
+import auth.db.AuthDatabaseDataSource
 import auth.local.AuthLocalDataSource
 import auth.models.Profile
 import io.ktor.client.plugins.auth.authProviders
@@ -15,6 +16,7 @@ import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 class AuthRepositoryImpl(
     private val remoteDataSource: AuthRemoteDataSource,
     private val localDataSource: AuthLocalDataSource,
+    private val authDatabaseDataSource: AuthDatabaseDataSource,
     private val logoutDataInternalUseCase: LogoutDataInternalUseCase,
     private val tokenStorage: TokenStorage,
 ) : AuthRepository {
@@ -43,6 +45,10 @@ class AuthRepositoryImpl(
     override suspend fun resendVerificationCode(userId: UserId) =
         remoteDataSource.resendVerificationCode(ResendCodeRequestDTO(userId = userId))
 
+    override suspend fun clearAllTables() {
+        authDatabaseDataSource.clearAllTables()
+    }
+
     override suspend fun login(email: String, password: String) =
         remoteDataSource.login(email = email, password = password)
 
@@ -65,7 +71,7 @@ class AuthRepositoryImpl(
             } catch (e: Exception) {
 
                 // Всё ок – просто нет инета
-                if (!tokenStorage.isTokensEmpty() && offlineData != null ) {
+                if (!tokenStorage.isTokensEmpty() && offlineData != null) {
                     return offlineData
                 } else { // Сессия устарела – выходим из акка
                     throw e

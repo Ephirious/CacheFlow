@@ -57,6 +57,15 @@ class SyncManagerImpl(
         SyncScheduler(scope, listOf(queueRepo.getUnsyncedFlow()))
 
     init {
+
+
+        // TODO: убрать
+        scope.launch(AsyncDispatcher) {
+            queueRepo.getUnsyncedFlow().collect {
+                Logg.warn("UnsyncedFlow") { "${it.size}" }
+            }
+        }
+
         scope.launch(AsyncDispatcher) {
             scheduler.debouncedSyncEvents
                 .onStart { Logg.debug { "DebounceSyncFlow started" } }
@@ -121,82 +130,82 @@ class SyncManagerImpl(
     }
 
     private suspend fun sync(): String {
+        val unsyncedRows = queueRepo.getUnsynced()
+
         Logg.debug { "Syncing start" }
 
-        val unsyncedRows = queueRepo.getUnsynced()
         if (!unsyncedRows.isEmpty()) {
-            val dtoOperations = unsyncedRows.map { mapSyncQueueRow(it) }
-            val request = SyncRequest(operations = dtoOperations, lastSyncDate = localDataSource.getLastTimeSync())
-            val response = remoteDataSource.sendSyncRequest(request)
-
-            queueRepo.withSyncDisabled {
-                if (response.acceptedIds.isNotEmpty()) {
-                    queueRepo.deleteByProcessingIds(response.acceptedIds)
-                }
-                response.deleteOperations.forEach { op ->
-                    when (op.tableType) {
-                        SyncTableType.accounts -> accountsRepo.softDeleteAccount(op.id)
-                        SyncTableType.categories -> categoriesRepo.softDeleteCategory(op.id)
-                        SyncTableType.transfer -> transactionsRepo.hardDeleteTransfer(op.id)
-                        SyncTableType.operations -> transactionsRepo.hardDeleteTransaction(op.id)
-                    }
-                }
-
-                response.updateState.forEach { upd ->
-                    val record = upd.getTypedRecord()
-                    when (upd.tableType) {
-                        SyncTableType.accounts -> {
-                            val accDto = record as AccountOutDTO
-                            val color = HexColor(hex = accDto.color)
-                            accountsRepo.upsertAccount(
-                                id = accDto.id,
-                                name = accDto.name,
-                                color,
-                                stringAmount = accDto.funds
-                            )
-                        }
-
-                        SyncTableType.categories -> {
-                            val catDto = record as CategoryRecordCreateDTO
-                            categoriesRepo.upsertCategory(
-                                id = catDto.id,
-                                name = catDto.name,
-                                emoji = catDto.emoji,
-                                type = catDto.type
-                            )
-                        }
-
-                        SyncTableType.transfer -> {
-                            val transferDto = record as TransferRecordCreateDTO
-                            transactionsRepo.badInsertTransfer(
-                                id = transferDto.id,
-                                accountFromId = transferDto.accountFromId,
-                                accountToId = transferDto.accountToId
-                            )
-                        }
-
-                        SyncTableType.operations -> {
-                            val operationDto = record as OperationRecordCreateDTO
-                            transactionsRepo.badInsertTransaction(
-                                id = operationDto.id,
-                                accountUuid = operationDto.accountUuid,
-                                transferId = operationDto.transferId,
-                                categoryId = operationDto.categoryId,
-                                amount = operationDto.amount,
-                                date = operationDto.date,
-                                notes = operationDto.notes
-                            )
-                        }
-                    }
-
-                }
-            }
-            Logg.debug { "Syncing end" }
-            return response.lastSyncDate
+            Logg.debug { "Nothing to send to server (for sync) – But wait data from server" }
         }
 
-        Logg.debug { "Syncing wasn't started" }
+        val dtoOperations = unsyncedRows.map { mapSyncQueueRow(it) }
+        val request = SyncRequest(operations = dtoOperations, lastSyncDate = localDataSource.getLastTimeSync())
+        val response = remoteDataSource.sendSyncRequest(request)
 
-        return localDataSource.getLastTimeSync()
+
+        queueRepo.withSyncDisabled {
+            if (response.acceptedIds.isNotEmpty()) {
+                queueRepo.deleteByProcessingIds(response.acceptedIds)
+            }
+            response.deleteOperations.forEach { op ->
+                when (op.tableType) {
+                    SyncTableType.accounts -> accountsRepo.softDeleteAccount(op.id)
+                    SyncTableType.categories -> categoriesRepo.softDeleteCategory(op.id)
+                    SyncTableType.transfer -> transactionsRepo.hardDeleteTransfer(op.id)
+                    SyncTableType.operations -> transactionsRepo.hardDeleteTransaction(op.id)
+                }
+            }
+
+            response.updateState.forEach { upd ->
+                val record = upd.getTypedRecord()
+                when (upd.tableType) {
+                    SyncTableType.accounts -> {
+                        val accDto = record as AccountOutDTO
+                        val color = HexColor(hex = accDto.color)
+                        accountsRepo.upsertAccount(
+                            id = accDto.id,
+                            name = accDto.name,
+                            color,
+                            stringAmount = accDto.funds
+                        )
+                    }
+
+                    SyncTableType.categories -> {
+                        val catDto = record as CategoryRecordCreateDTO
+                        categoriesRepo.upsertCategory(
+                            id = catDto.id,
+                            name = catDto.name,
+                            emoji = catDto.emoji,
+                            type = catDto.type
+                        )
+                    }
+
+                    SyncTableType.transfer -> {
+                        val transferDto = record as TransferRecordCreateDTO
+                        transactionsRepo.badInsertTransfer(
+                            id = transferDto.id,
+                            accountFromId = transferDto.accountFromId,
+                            accountToId = transferDto.accountToId
+                        )
+                    }
+
+                    SyncTableType.operations -> {
+                        val operationDto = record as OperationRecordCreateDTO
+                        transactionsRepo.badInsertTransaction(
+                            id = operationDto.id,
+                            accountUuid = operationDto.accountUuid,
+                            transferId = operationDto.transferId,
+                            categoryId = operationDto.categoryId,
+                            amount = operationDto.amount,
+                            date = operationDto.date,
+                            notes = operationDto.notes
+                        )
+                    }
+                }
+
+            }
+        }
+        Logg.debug { "Syncing end" }
+        return response.lastSyncDate
     }
 }

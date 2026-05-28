@@ -2,7 +2,7 @@ package utils
 
 @Suppress("ConstPropertyName")
 object AppConfig {
-    const val isDebuggable = true
+    const val isDebuggable = false
     const val pushVapidPublicKey = "BDJfPY2ZNH_L1IIWABoh5_ELqPjSM4osBATVW0bzaaWxdEMehnPgtRNtXq86K34Z3w5EvOt7obu142LnrhhIE_A"
 
     const val serverIP = "localhost"

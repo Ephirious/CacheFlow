@@ -3,10 +3,12 @@ package sync.cloud.dtos
 import dbEnums.CategoryType
 import dbEnums.SyncActionType
 import dbEnums.SyncTableType
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import kotlinx.serialization.json.decodeFromJsonElement
 
 @Serializable
@@ -23,6 +25,8 @@ data class AccountRecordCreateDTO(
 ) : RecordCreateDTO
 
 
+@OptIn(ExperimentalSerializationApi::class)
+@JsonIgnoreUnknownKeys
 @Serializable
 data class AccountOutDTO(
     val id: String,
@@ -31,6 +35,8 @@ data class AccountOutDTO(
     val funds: String
 ) : RecordOutDTO
 
+@OptIn(ExperimentalSerializationApi::class)
+@JsonIgnoreUnknownKeys
 @Serializable
 data class CategoryRecordCreateDTO(
     val id: String,

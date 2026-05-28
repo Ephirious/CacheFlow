@@ -9,6 +9,7 @@ kotlin {
 
             api(projects.shared.auth.domain)
             api(projects.shared.sync.domain)
+            api(projects.shared.transactions.domain)
 
 
             implementation(libs.ktor.client.auth)

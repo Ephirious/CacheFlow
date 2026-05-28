@@ -3,6 +3,7 @@ import auth.KtorAuthPlugin
 import auth.TokenStorage
 import auth.cloud.AuthRemoteDataSource
 import auth.cloud.KtorAuthPluginImpl
+import auth.db.AuthDatabaseDataSource
 import auth.local.AuthLocalDataSource
 import auth.local.TokenStorageImpl
 import auth.repositories.AuthRepositoryImpl
@@ -22,16 +23,20 @@ val authDataModule = module {
 
     single<AuthRemoteDataSource> { AuthRemoteDataSource(get(), get()) }
     single<AuthLocalDataSource> { AuthLocalDataSource(get()) }
-    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get()) }
+    single<AuthDatabaseDataSource> { AuthDatabaseDataSource(get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get(), get()) }
 
 
     factory { LogoutDataInternalUseCase(get(), get()) }
 
 
     factory { LoginUseCase(get(), get()) }
-    factory { LogoutUseCase(get()) }
+    factory { VerifyRegistrationUseCase(get(), get()) }
+
+
+    factory { LogoutUseCase(get(), get(), get()) }
     factory { RegisterUseCase(get()) }
     factory { GetProfileUseCase(get()) }
     factory { ResendVerificationCodeUseCase(get()) }
-    factory { VerifyRegistrationUseCase(get(), get()) }
+
 }

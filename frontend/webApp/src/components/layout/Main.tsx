@@ -40,17 +40,6 @@ const ManageTransactionContent = ({
 }) => {
     const state = useValue(component.state);
 
-    useEffect(() => {
-        if (state instanceof ManageTransactionState.FatalError) {
-            console.error("[ManageTransaction] FatalError", {
-                message: state.message,
-                lastValidForm: state.lastValidForm
-            });
-            return;
-        }
-        console.debug("[ManageTransaction] State changed", state);
-    }, [state]);
-
     return when(state)
         .on(ManageTransactionState.OK, (okState) => (
             <CreateTransaction

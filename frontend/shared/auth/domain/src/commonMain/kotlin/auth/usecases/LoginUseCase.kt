@@ -11,6 +11,7 @@ class LoginUseCase(
         repository.login(email = email, password = password)
         repository.getProfile()
 
+        repository.clearAllTables()
         syncManager.forceSync(retry = true)
     }
 }

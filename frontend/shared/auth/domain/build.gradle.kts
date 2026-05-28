@@ -11,6 +11,7 @@ kotlin {
 
 
             implementation(projects.shared.sync.domain)
+            implementation(projects.shared.transactions.domain)
         }
     }
 }

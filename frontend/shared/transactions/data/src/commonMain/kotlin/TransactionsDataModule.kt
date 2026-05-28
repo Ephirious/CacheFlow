@@ -12,7 +12,7 @@ val transactionsDataModule = module {
 
     single<TransactionsDatabaseDataSource> { TransactionsDatabaseDataSource(get(), get(), get(), get()) }
     single<TransactionsLocalDataSource> { TransactionsLocalDataSource(get()) }
-    single<TransactionsRepository> { TransactionsRepositoryImpl(get(), get()) }
+    single<TransactionsRepository> { TransactionsRepositoryImpl(get(), get(), get()) }
 
 
     factory<GetTransactionsFlowUseCase> { GetTransactionsFlowUseCase(get()) }

@@ -11,6 +11,11 @@ enum class SyncStatus {
     Ok, InProcess, Failed
 }
 
+
+interface SyncRepository {
+    fun resetLastSyncDate()
+}
+
 interface SyncManager {
 
     // Добавляет запрос о синхронизации в очередь – выдерживает debounce перед отправкой

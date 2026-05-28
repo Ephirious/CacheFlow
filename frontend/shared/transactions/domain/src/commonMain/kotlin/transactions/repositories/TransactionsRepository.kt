@@ -31,4 +31,9 @@ interface TransactionsRepository {
         accountFromId: String,
         accountToId: String
     )
+
+    fun setDbOnFirstEntranceAndTriggers(force: Boolean)
+
+
+    fun unsetFirstEntrance()
 }

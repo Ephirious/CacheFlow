@@ -26,6 +26,9 @@ const LoginForm = ({component}: LoginFormProps) => {
 
     return (
         <div className="flex flex-col gap-4 w-full">
+
+            <>Артём, добавь сюда уведомление о том, что после входа в аккаунт все данные ЭТОЙ сессии будут удалены (при выходе из акка – всё сбросится локально – тоже нужно как-то сообщить об этом пользователю)</>
+
             <input
                 className={inputClass}
                 onChange={(e) => component.intent(new LoginIntent.ChangeEmail(e.target.value))}

@@ -11,6 +11,7 @@ interface AuthRepository {
     suspend fun verifyRegistration(userId: UserId, verificationCode: String)
     suspend fun resendVerificationCode(userId: UserId)
 
+    suspend fun clearAllTables()
 
     suspend fun login(email: String, password: String)
     fun logout()

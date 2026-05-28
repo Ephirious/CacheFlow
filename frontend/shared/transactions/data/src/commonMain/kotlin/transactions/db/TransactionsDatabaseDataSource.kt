@@ -29,8 +29,8 @@ class TransactionsDatabaseDataSource(
     // не нашёл лучшего места...
     @OptIn(ExperimentalUuidApi::class)
     suspend fun initBase() {
-
-        val newUuid7 = { Uuid.generateV7().toString() }
+        val newUuid7: () -> String =
+            { Uuid.generateV7().toString() }
 
         commonQueries.initDefaultData(
             cashAccountId = newUuid7(),

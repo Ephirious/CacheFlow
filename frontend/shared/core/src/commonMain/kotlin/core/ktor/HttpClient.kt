@@ -34,7 +34,7 @@ fun getHttpClient(
             json(Json {
                 isLenient = true
                 ignoreUnknownKeys = true
-                classDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC
+                classDiscriminatorMode = ClassDiscriminatorMode.NONE
                 classDiscriminator = "kotlin_class_type"
             })
         }
