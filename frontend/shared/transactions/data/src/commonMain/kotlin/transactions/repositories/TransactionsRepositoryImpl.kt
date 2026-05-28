@@ -20,15 +20,15 @@ class TransactionsRepositoryImpl(
 
     ) : TransactionsRepository {
     init {
-        setDbOnFirstEntranceAndTriggers(false)
+        CoroutineScope(EmptyCoroutineContext).launch(AsyncDispatcher) {
+            setDbOnFirstEntranceAndTriggers(false)
+        }
     }
 
 
-    override fun setDbOnFirstEntranceAndTriggers(force: Boolean) {
-        CoroutineScope(EmptyCoroutineContext).launch(AsyncDispatcher) {
-            triggersQueries.createTriggers().await()
-            setDbOnFirstEntrance(force = force)
-        }
+    override suspend fun setDbOnFirstEntranceAndTriggers(force: Boolean) {
+        triggersQueries.createTriggers().await()
+        setDbOnFirstEntrance(force = force)
     }
 
     suspend fun setDbOnFirstEntrance(force: Boolean) {

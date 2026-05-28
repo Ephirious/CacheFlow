@@ -14,6 +14,9 @@ enum class SyncStatus {
 
 interface SyncRepository {
     fun resetLastSyncDate()
+
+
+    suspend fun setSyncLock(isSyncRunning: Boolean)
 }
 
 interface SyncManager {

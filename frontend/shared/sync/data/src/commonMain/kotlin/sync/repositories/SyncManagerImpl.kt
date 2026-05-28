@@ -15,11 +15,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.koin.core.component.KoinComponent
 import sync.cloud.SyncRemoteDataSource
-import sync.cloud.dtos.AccountOutDTO
-import sync.cloud.dtos.CategoryRecordCreateDTO
-import sync.cloud.dtos.OperationRecordCreateDTO
-import sync.cloud.dtos.SyncRequest
-import sync.cloud.dtos.TransferRecordCreateDTO
+import sync.cloud.dtos.*
 import sync.local.SyncLocalDataSource
 import sync.mappers.mapSyncQueueRow
 import transactions.repositories.TransactionsRepository
@@ -57,15 +53,6 @@ class SyncManagerImpl(
         SyncScheduler(scope, listOf(queueRepo.getUnsyncedFlow()))
 
     init {
-
-
-        // TODO: убрать
-        scope.launch(AsyncDispatcher) {
-            queueRepo.getUnsyncedFlow().collect {
-                Logg.warn("UnsyncedFlow") { "${it.size}" }
-            }
-        }
-
         scope.launch(AsyncDispatcher) {
             scheduler.debouncedSyncEvents
                 .onStart { Logg.debug { "DebounceSyncFlow started" } }

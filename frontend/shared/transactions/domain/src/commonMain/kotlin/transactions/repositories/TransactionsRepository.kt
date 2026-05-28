@@ -32,7 +32,7 @@ interface TransactionsRepository {
         accountToId: String
     )
 
-    fun setDbOnFirstEntranceAndTriggers(force: Boolean)
+    suspend fun setDbOnFirstEntranceAndTriggers(force: Boolean)
 
 
     fun unsetFirstEntrance()

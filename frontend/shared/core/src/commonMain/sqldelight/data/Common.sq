@@ -65,11 +65,10 @@ initDefaultData {
 }
 
 clearAllTables {
-    DELETE FROM Accounts;
-    DELETE FROM Categories;
     DELETE FROM Operations;
     DELETE FROM Transfers;
-    DELETE FROM SyncSettings;
+    DELETE FROM Accounts;
+    DELETE FROM Categories;
+
     DELETE FROM SyncOperations;
-    VACUUM;
 }

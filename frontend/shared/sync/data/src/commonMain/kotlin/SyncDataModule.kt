@@ -21,11 +21,11 @@ val syncDataModule = module {
             categoriesRepo = get(),
             localDataSource = get(),
             transactionsRepo = get(),
-            tokenStorage = get(),
+            tokenStorage = get()
         )
     }
 
-    single<SyncRepository> { SyncRepositoryImpl(get()) }
+    single<SyncRepository> { SyncRepositoryImpl(get(), get()) }
 
     single<SyncLocalDataSource> { SyncLocalDataSource(get()) }
 }
