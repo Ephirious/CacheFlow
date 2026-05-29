@@ -42,12 +42,11 @@ class SyncService:
         
 
     async def _apply_create(self, row: RECORD_CREATE, table_type: TableType, user_id) -> RECORD_OUT:
-        repo, schema_record, _, _ = self._schemas_map[table_type]
+        repo, schema_create, _, schema_record = self._schemas_map[table_type]
         if not isinstance(row, dict):
             row = row.model_dump()
-        print(row, table_type)
         row["user_id"] = user_id
-        row = schema_record.model_validate(row)
+        row = schema_create.model_validate(row)
         created = await repo.insert(row)
         return schema_record.model_validate(created, from_attributes=True)
     
@@ -144,7 +143,7 @@ class SyncService:
                             affected_accounts.add(cur_record.account_uuid)
                         resp.update_state.append(StateUpdate(
                             table_type=table_type, 
-                            record=cur_record, 
+                            record=cur_record.__dict__,
                             updated_at=datetime.now(timezone.utc)
                         ))
 

@@ -125,10 +125,10 @@ class StateUpdate(BaseModel):
                     TableType.OPERATIONS: OperationRecord,
                 }
 
+
                 target_model = mapping.get(table_type)
                 if target_model and isinstance(record, dict):
                     data["record"] = target_model.model_validate(record)
-
         return data
 
 class StateDelete(BaseModel):

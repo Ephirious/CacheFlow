@@ -10,7 +10,6 @@ router = APIRouter(prefix = "/sync", tags = ["Sync"])
 @router.post("/", response_model = SyncResponse, responses = {500: {"description": "Something went wrong"}})
 async def sync(user: CurrentUser, body: SyncRequest, sync_service: SyncServiceDep):
     #TODO: add auth check for {user}
-    print(body)
     resp = await sync_service.sync(body.operations, body.last_sync_date, user.id)
     if resp.is_success:
         return resp.value
