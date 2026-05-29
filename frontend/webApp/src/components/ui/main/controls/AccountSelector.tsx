@@ -18,7 +18,7 @@ const AccountSelector = ({accounts, selectedId, onSelect}: AccountSelectorProps)
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between px-4 py-3.5 bg-surface-muted rounded-2xl border border-border-strong cursor-pointer transition-all hover:bg-surface-hover active:scale-[0.98]"
             >
-                <span className={selectedAccount ? "text-text-primary" : "text-text-primary"}>
+                <span className={selectedAccount ? "text-text-primary truncate overflow-hidden pr-2" : "text-text-primary pr-2"}>
                     {selectedAccount ? selectedAccount.title : "Выберите счёт"}
                 </span>
                 <IoChevronDown
@@ -49,8 +49,8 @@ const AccountSelector = ({accounts, selectedId, onSelect}: AccountSelectorProps)
                                     className="w-3 h-3 rounded-full shrink-0"
                                     style={{ backgroundColor: account.color.normalizedHex }}
                                 />
-                                <div className="flex-1 text-left">
-                                    <div className="text-text-primary font-medium">
+                                <div className="flex-1 text-left min-w-0">
+                                    <div className="text-text-primary font-medium truncate overflow-hidden">
                                         {account.title}
                                     </div>
                                     <div className="text-text-secondary text-sm">

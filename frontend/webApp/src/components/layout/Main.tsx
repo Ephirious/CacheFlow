@@ -30,7 +30,6 @@ const Main = ({component}: { component: MainComponent }) => {
     )
 }
 
-// TODO: Артём, отрефактори, пж – вынес, чтобы хук state был сверху
 const ManageTransactionContent = ({
                                        component,
                                        onClose
@@ -59,7 +58,7 @@ const ManageTransactionContent = ({
 
 const MainOK = ({component}: { component: MainComponent }) => {
     const sheetThemeThreshold = 0.92;
-    const desktopMediaQuery = "(min-width: 1024px)";
+    const desktopMediaQuery = "(min-width: 768px)";
     const modalMediaQuery = "(min-width: 640px)";
 
     const summaryState = useValue(component.summaryComponent.state);
@@ -130,7 +129,6 @@ const MainOK = ({component}: { component: MainComponent }) => {
             .run()
     });
 
-    // TODO: Артём, отрефактори (спросишь потом, чё это)
     useEffect(() => {
         if (!isManageOpen && manageTransactionComponent) {
             const timer = setTimeout(() => {
@@ -164,9 +162,9 @@ const MainOK = ({component}: { component: MainComponent }) => {
     return (
         <div
             ref={(el) => el && setThemeElement(el)}
-            className="fixed inset-0 bg-brand-primary pt-[env(safe-area-inset-top)] lg:relative lg:min-h-screen lg:bg-surface-base lg:pt-0"
+            className="fixed inset-0 bg-brand-primary pt-[env(safe-area-inset-top)] md:relative md:min-h-screen md:bg-surface-base md:pt-0"
         >
-            <main className="relative h-full w-full lg:mx-auto lg:flex lg:min-h-screen lg:max-w-6xl lg:flex-col lg:px-6 lg:py-6">
+            <main className="relative h-full w-full md:mx-auto md:flex md:min-h-screen md:max-w-6xl md:flex-col md:px-6 md:py-6">
                 <div ref={cardRef}>
                     <MainCard data={{
                         accounts: summaryState.accounts.asJsReadonlyArrayView(),

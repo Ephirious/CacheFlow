@@ -25,7 +25,7 @@ const AccountSelector = ({account, options, onChange}: AccountSelectorProps) => 
                         onClick={() => onChange(option.value)}
                         type="button"
                     >
-                        <span className="font-medium">{option.label}</span>
+                        <span className="font-medium truncate max-w-[120px] sm:max-w-[160px]">{option.label}</span>
                         {option.balance && <span className="text-xs text-text-secondary">{option.balance}</span>}
                     </button>
                 );

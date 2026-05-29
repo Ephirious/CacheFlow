@@ -32,7 +32,7 @@ const RootScreen = ({component}: { component: RootComponent }) => {
     }, [isMainActive]);
 
     return (
-        <div className="fixed flex h-dvh w-screen flex-col sm:flex-row">
+        <div className="fixed flex h-dvh w-screen flex-col md:flex-row">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeChild.constructor.name}

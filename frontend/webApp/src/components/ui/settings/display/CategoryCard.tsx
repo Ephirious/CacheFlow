@@ -15,7 +15,7 @@ const CategoryCard = ({item, onClick}: CategoryCardProps) => {
             <div className={`flex rounded-2xl w-12 h-12 p-3 text-category-groceries bg-indigo-100 justify-center`}> {/* TODO: Артём? ${item.color} */}
                 {item.icon}
             </div>
-            <p className="text-sm font-semibold text-text-primary">{item.title}</p>
+            <p className="text-sm font-semibold text-text-primary truncate w-full text-center px-1">{item.title}</p>
         </button>
     );
 };

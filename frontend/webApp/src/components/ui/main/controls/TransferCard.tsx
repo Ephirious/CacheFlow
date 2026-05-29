@@ -35,7 +35,7 @@ const AccountDropdown = ({
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between px-4 py-3.5 bg-surface-muted rounded-2xl border border-border-strong shadow-sm cursor-pointer transition-all hover:border-border-default active:scale-[0.98]"
             >
-                <span className={selectedAccount ? "text-text-primary font-medium overflow-hidden h-6" : "text-text-primary"}>
+                <span className={selectedAccount ? "text-text-primary font-medium truncate overflow-hidden pr-2 h-6" : "text-text-primary pr-2"}>
                     {selectedAccount ? selectedAccount.title : "Счёт"}
                 </span>
                 <IoChevronDown
