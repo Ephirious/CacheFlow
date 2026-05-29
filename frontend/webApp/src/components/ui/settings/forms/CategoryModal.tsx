@@ -30,7 +30,6 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
 
     const state = useValue(component.state)
 
-
     useEffect(() => {
         if (!open) return;
     }, [category, open]);
@@ -68,7 +67,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                                 return (
                                     <button
                                         key={emoji}
-                                        className={`flex items-center justify-center h-14 w-full rounded-xl bg-surface-muted text-2xl ${isActive ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet" : ""}`}
+                                        className={`flex items-center justify-center h-14 w-full rounded-xl bg-surface-muted text-2xl cursor-pointer transition-transform hover:scale-105 active:scale-95 ${isActive ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet" : ""}`}
                                         onClick={() => component.intent(new ManageCategoryBaseIntent.ChangedEmoji(emoji))}
                                         type="button"
                                     >
@@ -77,7 +76,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                                 );
                             })}
                             <input
-                                className={`flex text-center items-center justify-center h-14 w-full rounded-xl bg-surface-muted text-2xl outline-none placeholder:text-text-muted ${!basicEmojis.includes(state.getForm().emoji) && state.getForm().emoji !== "" ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet" : ""}`}
+                                className={`flex text-center items-center justify-center h-14 w-full rounded-xl bg-surface-muted text-2xl outline-none placeholder:text-text-muted transition-all focus:scale-105 ${!basicEmojis.includes(state.getForm().emoji) && state.getForm().emoji !== "" ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet" : ""}`}
                                 onChange={(e) => component.intent(new ManageCategoryBaseIntent.ChangedEmoji(e.target.value))}
                                 placeholder="✍️"
                                 type="text"
@@ -94,7 +93,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                     )}
 
                     <button
-                        className={`h-11 rounded-xl text-base font-semibold text-brand-on-primary ${canSubmit ? "bg-brand-primary" : "bg-state-disabled-bg text-state-disabled-text"}`}
+                        className={`h-11 rounded-xl text-base font-semibold text-brand-on-primary transition-all ${canSubmit ? "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]" : "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed"}`}
                         disabled={!canSubmit}
                         type="submit"
                     >
@@ -102,7 +101,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                     </button>
                     {!isAddMode && (
                         <button
-                            className="h-11 rounded-xl border border-state-danger text-base font-semibold text-state-danger"
+                            className="h-11 rounded-xl border border-state-danger text-base font-semibold text-state-danger cursor-pointer transition-colors hover:bg-state-danger/10 active:bg-state-danger/20"
                             onClick={() => {
                                 if (window.confirm("Удалить категорию?")) {
                                     component.intent(EditCategoryIntent.ClickedDelete);

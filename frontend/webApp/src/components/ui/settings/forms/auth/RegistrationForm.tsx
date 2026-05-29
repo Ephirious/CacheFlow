@@ -56,7 +56,7 @@ const RegistrationForm = ({component}: RegistrationFormProps) => {
                         />
 
                         <button 
-                            className="mt-2 w-full rounded-xl bg-brand-primary py-3 text-base font-semibold text-brand-on-primary disabled:opacity-50"
+                            className="mt-2 w-full rounded-xl bg-brand-primary py-3 text-base font-semibold text-brand-on-primary transition-all cursor-pointer hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100"
                             disabled={state.isLoading}
                             onClick={() => component.intent(RegistrationIntent.SubmitRegistrationClicked)}
                         >
@@ -79,14 +79,14 @@ const RegistrationForm = ({component}: RegistrationFormProps) => {
                         />
 
                         <button 
-                            className="text-sm font-medium text-brand-primary text-center"
+                            className="text-sm font-medium text-brand-primary text-center cursor-pointer transition-all hover:opacity-80 active:scale-95"
                             onClick={() => component.intent(RegistrationIntent.ResendCodeClicked)}
                         >
                             Не пришёл код? Отправить снова
                         </button>
 
                         <button 
-                            className="mt-2 w-full rounded-xl bg-brand-primary py-3 text-base font-semibold text-brand-on-primary disabled:opacity-50"
+                            className="mt-2 w-full rounded-xl bg-brand-primary py-3 text-base font-semibold text-brand-on-primary transition-all cursor-pointer hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100"
                             disabled={state.isLoading}
                             onClick={() => component.intent(RegistrationIntent.SubmitCodeClicked)}
                         >

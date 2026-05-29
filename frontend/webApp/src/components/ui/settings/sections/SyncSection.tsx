@@ -27,7 +27,7 @@ const SyncSection = ({component}: { component: SyncOverviewComponent }) => {
                     .is(SyncOverviewState.NotAuthenticated, () => (
                         <button
                             onClick={() => component.onAuthenticateClick()}
-                            className="flex w-full items-center gap-3 rounded-lg border border-border-subtle bg-surface-base px-4 py-3 text-base hover:bg-surface-muted transition-colors"
+                            className="flex w-full items-center gap-3 rounded-lg border border-border-subtle bg-surface-base px-4 py-3 text-base cursor-pointer hover:bg-surface-muted active:scale-[0.98] transition-all"
                             type="button"
                         >
                             <span className="rounded-xl bg-brand-primary-emphasis/10 p-2 text-brand-primary">
@@ -44,7 +44,7 @@ const SyncSection = ({component}: { component: SyncOverviewComponent }) => {
                             </div>
                             <button
                                 onClick={() => component.intent(SyncOverviewIntent.ForceSync)}
-                                className="flex w-full items-center gap-3 rounded-lg border border-border-subtle bg-surface-base px-4 py-3 text-base hover:bg-surface-muted transition-colors"
+                                className="flex w-full items-center gap-3 rounded-lg border border-border-subtle bg-surface-base px-4 py-3 text-base cursor-pointer hover:bg-surface-muted active:scale-[0.98] transition-all"
                                 type="button"
                             >
                                 <span className="rounded-xl bg-text-primary/5 p-2 text-text-primary">
@@ -54,7 +54,7 @@ const SyncSection = ({component}: { component: SyncOverviewComponent }) => {
                             </button>
                             <button
                                 onClick={() => component.intent(SyncOverviewIntent.ExportCSV)}
-                                className="flex w-full items-center gap-3 rounded-lg border border-border-subtle bg-surface-base px-4 py-3 text-base hover:bg-surface-muted transition-colors"
+                                className="flex w-full items-center gap-3 rounded-lg border border-border-subtle bg-surface-base px-4 py-3 text-base cursor-pointer hover:bg-surface-muted active:scale-[0.98] transition-all"
                                 type="button"
                             >
                                 <span className="rounded-xl bg-text-primary/5 p-2 text-text-primary">
@@ -62,9 +62,15 @@ const SyncSection = ({component}: { component: SyncOverviewComponent }) => {
                                 </span>
                                 <p className="text-text-primary font-medium">Экспорт в CSV</p>
                             </button>
+                            <div className="flex items-start gap-2 rounded-xl bg-state-danger/10 p-3 text-sm text-state-danger border border-state-danger/20 mt-2">
+                                <FiAlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+                                <p>
+                                    При выходе из аккаунта все данные на этом устройстве будут удалены.
+                                </p>
+                            </div>
                             <button
                                 onClick={() => component.intent(SyncOverviewIntent.Logout)}
-                                className="flex w-full items-center gap-3 rounded-lg border border-state-danger/30 bg-surface-base px-4 py-3 text-base hover:bg-state-danger/10 transition-colors"
+                                className="flex w-full items-center gap-3 rounded-lg border border-state-danger/30 bg-surface-base px-4 py-3 text-base cursor-pointer hover:bg-state-danger/10 active:scale-[0.98] transition-all"
                                 type="button"
                             >
                                 <span className="rounded-xl bg-state-danger/10 p-2 text-state-danger">

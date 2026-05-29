@@ -30,7 +30,7 @@ const SettingsModalShell = ({open, title, children, onClose}: SettingsModalShell
                     <h3 className="text-lg font-bold text-text-primary">{title}</h3>
                     <button
                         aria-label="Закрыть"
-                        className="rounded-lg p-1 text-text-primary hover:bg-surface-base/60"
+                        className="rounded-lg p-1 text-text-primary transition-all cursor-pointer hover:bg-surface-base/60 active:scale-95"
                         onClick={onClose}
                         type="button"
                     >

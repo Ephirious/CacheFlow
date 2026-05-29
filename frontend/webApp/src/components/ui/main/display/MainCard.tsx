@@ -117,7 +117,7 @@ const MainCard = ({data}: { data: MainCardData }) => {
                                     type="button"
                                     aria-label={`Перейти к странице счетов ${pageIndex + 1}`}
                                     onClick={() => scrollToPage(pageIndex)}
-                                    className={`h-2 rounded-full transition-all ${
+                                    className={`h-2 rounded-full cursor-pointer transition-all hover:bg-brand-on-primary/80 active:scale-95 ${
                                         activePage === pageIndex
                                             ? "w-5 bg-brand-on-primary"
                                             : "w-2 bg-brand-on-primary/40"

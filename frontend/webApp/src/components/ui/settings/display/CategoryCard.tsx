@@ -8,7 +8,7 @@ interface CategoryCardProps {
 const CategoryCard = ({item, onClick}: CategoryCardProps) => {
     return (
         <button
-            className="flex flex-col items-center gap-2 rounded-xl border border-border-strong bg-surface-base py-2"
+            className="flex flex-col items-center gap-2 rounded-xl border border-border-strong bg-surface-base py-2 cursor-pointer transition-all hover:bg-surface-muted active:scale-95"
             onClick={() => onClick(item)}
             type="button"
         >

@@ -205,8 +205,8 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         component.intent(ManageTransactionIntent.ClickedSave);
                     }}
                     className={`
-                    py-4 text-base font-bold rounded-2xl
-                    ${hasValidationError ? "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed" : "bg-brand-primary text-brand-on-primary"}
+                    py-4 text-base font-bold rounded-2xl transition-all cursor-pointer transition-all cursor-pointer
+                    ${hasValidationError ? "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed" : "bg-brand-primary text-brand-on-primary hover:opacity-90 active:scale-[0.98] hover:opacity-90 active:scale-[0.98]"}
                     `}>
                     Сохранить
                 </button>
@@ -228,7 +228,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         component.intent(ManageTransactionIntent.ClickedDelete);
                     }}
                     className={`
-                    rounded-2xl border border-state-danger text-base font-semibold text-state-danger py-4
+                    rounded-2xl border border-state-danger text-base font-semibold text-state-danger py-4 cursor-pointer transition-all hover:bg-state-danger/10 active:scale-[0.98]
                     
                     ${state.isCreateMode ? "hidden" : ""}
                     `}

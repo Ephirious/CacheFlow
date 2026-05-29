@@ -87,7 +87,7 @@ const Transactions = ({
                     {transactions.length >= 25 && onLoadMore && (
                         <button
                             onClick={onLoadMore}
-                            className="mt-2 w-full rounded-xl border border-border-default bg-surface-muted py-3 text-sm font-medium text-text-primary transition-colors hover:bg-surface-hover"
+                            className="mt-2 w-full rounded-xl border border-border-default bg-surface-muted py-3 text-sm font-medium text-text-primary cursor-pointer transition-all hover:bg-surface-hover active:scale-[0.98]"
                             type="button"
                         >
                             Показать ещё

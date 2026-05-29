@@ -8,7 +8,7 @@ interface SettingsAccountCardProps {
 const SettingsAccountCard = ({account, onClick}: SettingsAccountCardProps) => {
     return (
         <button
-            className="flex w-full items-center gap-4 rounded-xl border border-border-subtle bg-surface-base p-5 text-left"
+            className="flex w-full items-center gap-4 rounded-xl border border-border-subtle bg-surface-base p-5 text-left cursor-pointer transition-all hover:bg-surface-muted active:scale-[0.98]"
             onClick={() => onClick(account)}
             type="button"
         >

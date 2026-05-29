@@ -16,7 +16,7 @@ const AccountSelector = ({account, options, onChange}: AccountSelectorProps) => 
                 const isActive = account === option.value;
                 return (
                     <button
-                        className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
+                        className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-surface-hover active:scale-95 ${
                             isActive
                                 ? "border-brand-primary/30 bg-brand-primary/10 text-brand-primary"
                                 : "border-border-strong bg-surface-base text-text-secondary"
