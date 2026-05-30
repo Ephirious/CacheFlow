@@ -1,4 +1,4 @@
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {CategoryItem} from "../types.ts";
 import {SegmentedTabs} from "../primitives";
 import {categoryTypeTabs} from "../data.tsx";
@@ -10,7 +10,8 @@ import {
     CreateCategoryState,
     ManageCategoryBaseIntent,
     EditCategoryState,
-    EditCategoryIntent
+    EditCategoryIntent,
+    localz
 } from "k2ts";
 import {useValue} from "interop";
 
@@ -29,14 +30,17 @@ const basicEmojis = ['🛒', '🚗', '🏠', '🍔', '💊', '👕', '🎁', '�
 const CategoryModal = ({open, component, mode, category, onClose}: CategoryModalProps) => {
 
     const state = useValue(component.state)
+    const [touched, setTouched] = useState({ title: false });
 
     useEffect(() => {
         if (!open) return;
+        setTouched({ title: false });
     }, [category, open]);
 
     const isAddMode = mode === "add";
     if (state instanceof CreateCategoryState.OK || state instanceof EditCategoryState.OK) {
-        const canSubmit = state.getForm().title.trim().length > 0;
+        const validation = state.getForm().validation;
+        const hasError = Boolean(validation.title);
 
         return (
             <SettingsModalShell
@@ -48,17 +52,28 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                     className="flex flex-col gap-3"
                     onSubmit={(e) => {
                         e.preventDefault();
-                        if (!canSubmit) return;
+                        if (hasError) {
+                            setTouched({ title: true });
+                            return;
+                        }
                         component.intent(state instanceof CreateCategoryState.OK ? CreateCategoryIntent.ClickedCreate : EditCategoryIntent.ClickedEdit);
                     }}
                 >
-                    <input
-                        className={inputClass}
-                        onChange={(e) => component.intent(new ManageCategoryBaseIntent.ChangedTitle(e.target.value))}
-                        placeholder="Название категории"
-                        type="text"
-                        value={state.getForm().title}
-                    />
+                    <div className="flex flex-col gap-1">
+                        <input
+                            className={inputClass}
+                            onChange={(e) => component.intent(new ManageCategoryBaseIntent.ChangedTitle(e.target.value))}
+                            onBlur={() => setTouched(prev => ({ ...prev, title: true }))}
+                            placeholder="Название категории"
+                            type="text"
+                            value={state.getForm().title}
+                        />
+                        {touched.title && validation.title && (
+                            <span className="text-xs text-state-danger px-1">
+                                {localz.get().byValidation(validation.title!)}
+                            </span>
+                        )}
+                    </div>
                     <div className="flex flex-col gap-2">
                         <p className="text-sm font-semibold text-text-label">Иконка</p>
                         <div className="grid grid-cols-5 gap-2">
@@ -93,8 +108,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                     )}
 
                     <button
-                        className={`h-11 rounded-xl text-base font-semibold text-brand-on-primary transition-all ${canSubmit ? "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]" : "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed"}`}
-                        disabled={!canSubmit}
+                        className={`h-11 rounded-xl text-base font-semibold text-brand-on-primary transition-all ${!hasError ? "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]" : (touched.title ? "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed" : "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]")}`}
                         type="submit"
                     >
                         {isAddMode ? "Добавить" : "Сохранить"}

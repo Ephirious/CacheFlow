@@ -25,16 +25,21 @@ interface AccountModalProps {
 const inputClass = "h-11 rounded-xl border border-border-default bg-surface-muted px-3 text-base outline-none placeholder:text-text-muted text-text-primary";
 
 const AccountModal = ({component, open, mode, account, onClose}: AccountModalProps) => {
+    const state = useValue(component.state)
+    const [touched, setTouched] = useState({ title: false, initialBalance: false });
+
     useEffect(() => {
+        if (!open) return;
+        setTouched({ title: false, initialBalance: false });
     }, [account, open]);
 
     const isAddMode = mode === "add";
 
-    const state = useValue(component.state)
-    const [touched, setTouched] = useState({ title: false, initialBalance: false });
-
     if (state instanceof CreateAccountState.OK || state instanceof EditAccountState.OK) {
-        const canSubmit = state.getForm().title.trim().length > 0;
+        const validation = state.getForm().validation;
+        const initialBalanceValidation = (state as any).getForm().validation.initialBalance;
+        const hasError = Boolean(validation.title || initialBalanceValidation);
+
         return (
             <SettingsModalShell onClose={onClose} open={open}
                                 title={isAddMode ? "Добавить счёт" : "Редактировать счёт"}>
@@ -42,7 +47,10 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                     className="flex flex-col gap-3"
                     onSubmit={(e) => {
                         e.preventDefault();
-                        if (!canSubmit) return;
+                        if (hasError) {
+                            setTouched({ title: true, initialBalance: true });
+                            return;
+                        }
                         component.intent(state instanceof CreateAccountState.OK ? CreateAccountIntent.ClickedCreate : EditAccountIntent.ClickedEdit);
                     }}
                 >
@@ -51,10 +59,16 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                         <input
                             className={inputClass}
                             onChange={(e) => component.intent(new ManageAccountBaseIntent.ChangedTitle(e.target.value))}
+                            onBlur={() => setTouched(prev => ({ ...prev, title: true }))}
                             placeholder="Наличные, Карта..."
                             type="text"
                             value={state.getForm().title}
                         />
+                        {touched.title && validation.title && (
+                            <span className="text-xs text-state-danger px-1">
+                                {localz.get().byValidation(validation.title!)}
+                            </span>
+                        )}
                     </div>
 
                     {isAddMode && component.type === 'create' && (
@@ -99,8 +113,7 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                     </div>
 
                     <button
-                        className={`mt-1 h-11 rounded-xl text-base font-semibold text-brand-on-primary transition-all ${canSubmit ? "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]" : "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed"}`}
-                        disabled={!canSubmit}
+                        className={`mt-1 h-11 rounded-xl text-base font-semibold text-brand-on-primary transition-all ${!hasError ? "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]" : ((touched.title || touched.initialBalance) ? "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed" : "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]")}`}
                         type="submit"
                     >
                         {isAddMode ? "Добавить" : "Сохранить"}
