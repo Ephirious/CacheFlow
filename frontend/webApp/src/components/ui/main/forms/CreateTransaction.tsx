@@ -92,7 +92,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         placeholder="0"
                         className="w-full px-4 py-3 border border-border-default rounded-xl bg-surface-muted text-text-primary text-base outline-none placeholder:text-text-muted"
                     />
-                    <p className="text-text-primary text-sm">{valueError && localz.get().byValidation(valueError)}</p>
+                    <p className="text-xs text-state-danger px-1">{valueError && localz.get().byValidation(valueError)}</p>
 
                 </div>
                 <div className="flex w-full flex-col gap-2">
@@ -130,7 +130,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         onAdd={() => console.log("Add category")}
                     />
                     {
-                        <p className="text-text-primary text-sm">{categoryError && localz.get().byValidation(categoryError)}</p>
+                        <p className="text-xs text-state-danger px-1">{categoryError && localz.get().byValidation(categoryError)}</p>
                     }
                 </div>
                 <div className={`flex w-full flex-col gap-2 ${state.form.transactionType.type == 'Transfer' ? "" : "hidden"}`}>
@@ -155,7 +155,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                             component.intent(new ManageTransactionBaseIntent.ChangedTransferToAccount(id))
                         }}
                     />
-                    {transferFromError && localz.get().byValidation(transferFromError)}
+                    <p className="text-xs text-state-danger px-1">{transferFromError && localz.get().byValidation(transferFromError)}</p>
                 </div>
                 <div className={`flex w-full flex-col gap-2 ${state.form.transactionType.type == 'Transfer' ? "hidden" : ""}`}>
                     <span className="text-sm font-medium text-text-primary">Счёт</span>
@@ -175,7 +175,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                             component.intent(new ManageTransactionBaseIntent.ChangedAccount(id))
                         }}
                     />
-                    <p className="text-text-primary text-sm">{accountError && localz.get().byValidation(accountError)}</p>
+                    <p className="text-xs text-state-danger px-1">{accountError && localz.get().byValidation(accountError)}</p>
                 </div>
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium text-text-primary">Дата</span>
