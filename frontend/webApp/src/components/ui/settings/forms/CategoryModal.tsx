@@ -30,17 +30,17 @@ const basicEmojis = ['🛒', '🚗', '🏠', '🍔', '💊', '👕', '🎁', '�
 const CategoryModal = ({open, component, mode, category, onClose}: CategoryModalProps) => {
 
     const state = useValue(component.state)
-    const [touched, setTouched] = useState({ title: false });
+    const [touched, setTouched] = useState({ title: false, emoji: false });
 
     useEffect(() => {
         if (!open) return;
-        setTouched({ title: false });
+        setTouched({ title: false, emoji: false });
     }, [category, open]);
 
     const isAddMode = mode === "add";
     if (state instanceof CreateCategoryState.OK || state instanceof EditCategoryState.OK) {
         const validation = state.getForm().validation;
-        const hasError = Boolean(validation.title);
+        const hasError = Boolean(validation.title || validation.emoji);
 
         return (
             <SettingsModalShell
@@ -53,7 +53,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                     onSubmit={(e) => {
                         e.preventDefault();
                         if (hasError) {
-                            setTouched({ title: true });
+                            setTouched({ title: true, emoji: true });
                             return;
                         }
                         component.intent(state instanceof CreateCategoryState.OK ? CreateCategoryIntent.ClickedCreate : EditCategoryIntent.ClickedEdit);
@@ -98,12 +98,18 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                                     const nextEmoji = chars.length > 0 ? chars[chars.length - 1] : "";
                                     component.intent(new ManageCategoryBaseIntent.ChangedEmoji(nextEmoji));
                                 }}
+                                onBlur={() => setTouched(prev => ({ ...prev, emoji: true }))}
                                 placeholder="🙂"
                                 title="Ввести свой эмодзи"
                                 type="text"
                                 value={!basicEmojis.includes(state.getForm().emoji) ? state.getForm().emoji : ""}
                             />
                         </div>
+                        {touched.emoji && validation.emoji && (
+                            <span className="text-xs text-state-danger px-1">
+                                {localz.get().byValidation(validation.emoji!)}
+                            </span>
+                        )}
                     </div>
 
                     {isAddMode && component.type === 'create' && (
@@ -114,7 +120,7 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                     )}
 
                     <button
-                        className={`h-11 rounded-xl text-base font-semibold text-brand-on-primary transition-all ${!hasError ? "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]" : (touched.title ? "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed" : "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]")}`}
+                        className={`h-11 rounded-xl text-base font-semibold text-brand-on-primary transition-all ${!hasError ? "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]" : ((touched.title || touched.emoji) ? "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed" : "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]")}`}
                         type="submit"
                     >
                         {isAddMode ? "Добавить" : "Сохранить"}
