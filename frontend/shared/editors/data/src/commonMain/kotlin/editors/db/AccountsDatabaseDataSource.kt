@@ -49,6 +49,9 @@ class AccountsDatabaseDataSource(
             }
 
             val accountId = Uuid.generateV7().toString()
+            accountsQueries.insert(id = accountId, name = name, funds = funds, color = color.normalizedHex)
+
+
 
 
             if (!funds.isZero) {
@@ -63,7 +66,7 @@ class AccountsDatabaseDataSource(
                 )
             }
 
-            accountsQueries.insert(id = accountId, name = name, funds = funds, color = color.normalizedHex)
+
         }
     }
 
@@ -91,7 +94,7 @@ class AccountsDatabaseDataSource(
     ) {
         val funds = try {
             BigDecimal(stringAmount)
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             BigDecimal.ZERO
         }
 
