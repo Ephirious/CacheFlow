@@ -176,8 +176,7 @@ class SyncService:
             resp.last_sync_date = datetime.now(timezone.utc)
             await self.uow._session.flush()
 
-            affected_accounts = {a for a in affected_accounts if a not in added_ids}
-
+            affected_accounts = {a for a in affected_accounts}
             if affected_accounts:
                 affected_acc_records = await self.uow.account_repository.get_by_in(list(affected_accounts))
                 for acc in affected_acc_records:
@@ -185,11 +184,16 @@ class SyncService:
                         rec = AccountOutRecord.model_validate(acc, from_attributes=True)
                     else:
                         rec = AccountOutRecord.model_validate(acc)
-                    resp.update_state.append(StateUpdate(
-                        table_type=TableType.ACCOUNTS,
-                        record=rec.model_dump(),
-                        updated_at=acc.updated_at
-                    ))
+                    if rec.id in added_ids:
+                        for upd in range(len(resp.update_state)):
+                            if rec.id == resp.update_state[upd].record.id:
+                                resp.update_state[upd].record.funds = rec.funds
+                    else:
+                        resp.update_state.append(StateUpdate(
+                            table_type=TableType.ACCOUNTS,
+                            record=rec.model_dump(),
+                            updated_at=acc.updated_at
+                        ))
                     
             await self.uow.commit()
             return Result.ok(resp)
