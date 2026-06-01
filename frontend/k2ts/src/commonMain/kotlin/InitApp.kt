@@ -1,6 +1,7 @@
 import data.SyncInternalQueries
 import di.initKoin
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.promise
 import root.RootComponent
 import settings.usecases.theme.GetThemeUseCase
@@ -29,7 +30,9 @@ fun initApp() = CoroutineScope(AsyncDispatcher).promise<RootComponent> {
         syncManager = syncManager
     )
 
-    syncManager.requestSync()
+    syncManager.scope.launch {
+        syncManager.forceSync(false)
+    }
 
     val rootComponent = initRealRootComponent()
 

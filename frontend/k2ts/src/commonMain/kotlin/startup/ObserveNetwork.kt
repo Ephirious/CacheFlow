@@ -11,7 +11,7 @@ fun observeNetwork(
         "online",
         callback = {
             syncManager.scope.launch {
-                syncManager.requestSync()
+                syncManager.forceSync(false)
             }
         }
     )

@@ -7,8 +7,12 @@ import kotlin.js.JsExport
 
 @Serializable
 @JsExport
-enum class SyncStatus {
-    Ok, InProcess, Failed
+sealed class SyncStatus {
+    data object Ok : SyncStatus()
+    data object InProcess : SyncStatus()
+
+    data object Failed : SyncStatus()
+    data class WouldRetry(val inSeconds: Int) : SyncStatus()
 }
 
 

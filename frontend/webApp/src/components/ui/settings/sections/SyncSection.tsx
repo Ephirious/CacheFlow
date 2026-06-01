@@ -1,25 +1,55 @@
-import {FiDownload, FiLogIn, FiLogOut, FiRefreshCw, FiCheckCircle, FiAlertCircle, FiCloudOff} from "react-icons/fi";
-import { SyncOverviewComponent, SyncOverviewIntent, SyncOverviewState, SyncStatus } from "k2ts";
+import {
+    FiDownload,
+    FiLogIn,
+    FiLogOut,
+    FiRefreshCw,
+    FiCheckCircle,
+    FiAlertCircle,
+    FiCloudOff,
+    FiClock
+} from "react-icons/fi";
+import {SyncOverviewComponent, SyncOverviewIntent, SyncOverviewState, SyncStatus} from "k2ts";
 import {useValue, when} from "interop";
 
 const SyncSection = ({component}: { component: SyncOverviewComponent }) => {
     const state = useValue(component.state)
 
     return (
-        <div className="mx-6 flex flex-col gap-4 rounded-xl border border-border-default p-6 lg:mx-auto lg:w-full lg:max-w-6xl">
+        <div
+            className="mx-6 flex flex-col gap-4 rounded-xl border border-border-default p-6 lg:mx-auto lg:w-full lg:max-w-6xl">
             <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-text-primary">Синхронизация</h2>
                 {when(state)
                     .on(SyncOverviewState.Authenticated, (auth) => {
                         if (auth.syncStatus === SyncStatus.Ok) {
-                            return <div className="flex items-center gap-1.5 text-brand-primary"><FiCheckCircle className="h-4 w-4"/> <span className="text-sm font-medium">Синхронизировано</span></div>;
+                            return <div className="flex items-center gap-1.5 text-brand-primary"><FiCheckCircle
+                                className="h-4 w-4"/> <span className="text-sm font-medium">Синхронизировано</span>
+                            </div>;
                         }
                         if (auth.syncStatus === SyncStatus.InProcess) {
-                            return <div className="flex items-center gap-1.5 text-text-secondary"><FiRefreshCw className="h-4 w-4 animate-spin"/> <span className="text-sm font-medium">Синхронизация...</span></div>;
+                            return <div className="flex items-center gap-1.5 text-text-secondary"><FiRefreshCw
+                                className="h-4 w-4 animate-spin"/> <span
+                                className="text-sm font-medium">Синхронизация...</span></div>;
                         }
-                        return <div className="flex items-center gap-1.5 text-state-danger"><FiAlertCircle className="h-4 w-4"/> <span className="text-sm font-medium">Ошибка</span></div>;
+
+                        if (auth.syncStatus instanceof SyncStatus.WouldRetry) {
+                            const seconds = (auth.syncStatus as any).inSeconds;
+                            return (
+                                <div
+                                    className="flex items-center gap-1.5 text-text-secondary"
+                                    title={`Новая попытка через ${seconds} сек.`}
+                                >
+                                    <FiClock className="h-4 w-4"/>
+                                    <span className="text-sm font-medium">Ожидание ({seconds}с)...</span>
+                                </div>
+                            );
+                        }
+
+                        return <div className="flex items-center gap-1.5 text-state-danger"><FiAlertCircle
+                            className="h-4 w-4"/> <span className="text-sm font-medium">Ошибка</span></div>;
                     })
-                    .otherwise(() => <div className="flex items-center gap-1.5 text-text-secondary" title="Не синхронизировано"><FiCloudOff className="h-4 w-4"/></div>)}
+                    .otherwise(() => <div className="flex items-center gap-1.5 text-text-secondary"
+                                          title="Не синхронизировано"><FiCloudOff className="h-4 w-4"/></div>)}
             </div>
 
             <div className="flex flex-col gap-3">
@@ -62,8 +92,9 @@ const SyncSection = ({component}: { component: SyncOverviewComponent }) => {
                                 </span>
                                 <p className="text-text-primary font-medium">Экспорт в CSV</p>
                             </button>
-                            <div className="flex items-start gap-2 rounded-xl bg-state-danger/10 p-3 text-sm text-state-danger border border-state-danger/20 mt-2">
-                                <FiAlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+                            <div
+                                className="flex items-start gap-2 rounded-xl bg-state-danger/10 p-3 text-sm text-state-danger border border-state-danger/20 mt-2">
+                                <FiAlertCircle className="mt-0.5 h-5 w-5 shrink-0"/>
                                 <p>
                                     При выходе из аккаунта все данные на этом устройстве будут удалены.
                                 </p>

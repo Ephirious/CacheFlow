@@ -4,13 +4,10 @@ import auth.TokenStorage
 import dbEnums.SyncTableType
 import editors.repositories.AccountsRepository
 import editors.repositories.CategoriesRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.koin.core.component.KoinComponent
@@ -44,10 +41,12 @@ class SyncManagerImpl(
     private val maxRetryDelay = 5.minutes
     private var currentRetryDelay = initialRetryDelay
 
-    override val status = MutableStateFlow(SyncStatus.Ok)
+    override val status: MutableStateFlow<SyncStatus> = MutableStateFlow(SyncStatus.Ok)
 
     private val mutex = Mutex()
 
+
+    private var retryJob: Job? = null
 
     private val scheduler =
         SyncScheduler(scope, listOf(queueRepo.getUnsyncedFlow()))
@@ -58,18 +57,29 @@ class SyncManagerImpl(
                 .onStart { Logg.debug { "DebounceSyncFlow started" } }
                 .catch { e -> Logg.error { "DebounceSyncFlow error: ${e.message}" } }
                 .collect {
-                    trySync()
+                    trySync(retry = true)
                 }
         }
     }
 
     override suspend fun requestSync() {
-        Logg.debug { "Syncing manual request" }
         scheduler.schedule()
     }
 
-    override suspend fun forceSync(retry: Boolean) = trySync(retry = retry)
+    override suspend fun forceSync(retry: Boolean) {
 
+        Logg.debug { "Syncing force request" }
+
+        val wasRetryingBefore = retryJob?.isActive == true
+
+        if (!retry) {
+            currentRetryDelay = initialRetryDelay
+        }
+
+        val finalRetry = retry || wasRetryingBefore
+
+        trySync(retry = finalRetry)
+    }
 
     private suspend fun trySync(retry: Boolean = true) {
         if (tokenStorage.isTokensEmpty()) {
@@ -78,7 +88,14 @@ class SyncManagerImpl(
         }
         Logg.debug { "Syncing try start" }
 
-        var result = SyncStatus.InProcess
+
+        var result: SyncStatus = SyncStatus.InProcess
+
+        val currentJob = currentCoroutineContext()[Job]
+
+        if (retryJob != null && retryJob != currentJob) {
+            retryJob?.cancel()
+        }
 
         mutex.withLock {
             withWebLock(scope) {
@@ -91,6 +108,10 @@ class SyncManagerImpl(
                         status.value = SyncStatus.Ok
                         localDataSource.setLastTimeSync(lastTimeSync)
                         currentRetryDelay = initialRetryDelay
+                        if (retryJob != currentJob) {
+                            retryJob?.cancel()
+                        }
+                        retryJob = null
                     },
                     onFailure = { error ->
                         status.value = SyncStatus.Failed
@@ -108,10 +129,18 @@ class SyncManagerImpl(
 
             currentRetryDelay = (currentRetryDelay * 2).coerceAtMost(maxRetryDelay)
 
-            scope.launch {
+            retryJob = scope.launch(AsyncDispatcher) {
                 Logg.debug { "Will retry sync after $waitTime" }
-                delay(waitTime)
-                scheduler.schedule()
+
+                var remainingSeconds = waitTime.inWholeSeconds.toInt()
+
+                while (remainingSeconds > 0) {
+                    status.value = SyncStatus.WouldRetry(remainingSeconds)
+                    delay(1.seconds)
+                    remainingSeconds--
+                }
+
+                trySync(true)
             }
         }
     }
