@@ -6,6 +6,7 @@ import auth.UserId
 class ResendVerificationCodeUseCase(
     private val repository: AuthRepository
 ) {
-    suspend operator fun invoke(userId: UserId) =
+    suspend operator fun invoke(userId: UserId) {
         repository.resendVerificationCode(userId = userId)
+    }
 }

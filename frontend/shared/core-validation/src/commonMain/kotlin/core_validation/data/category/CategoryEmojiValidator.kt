@@ -10,7 +10,6 @@ import utils.CustomError
 object CategoryEmojiRule : ValidationRule<String, Any, Nothing?, CustomError> {
     override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
         return combineRules(
-            value, ctx,
             // param = максимальная длинна
             { MaxLenRule.validate(value, ctx, param = 1) },
             { NotEmptyOrNullStringRule.validate(value, ctx, param) }

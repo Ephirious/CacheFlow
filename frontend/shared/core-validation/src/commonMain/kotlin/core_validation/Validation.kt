@@ -1,6 +1,7 @@
 package core_validation
 
 import utils.CustomError
+import utils.InvalidDomainException
 import kotlin.js.JsExport
 import kotlin.reflect.KClass
 
@@ -25,9 +26,7 @@ annotation class GenerateValidator(
 )
 
 
-fun <T, S> combineRules(
-    value: T,
-    ctx: S,
+fun combineRules(
     vararg rules: () -> CustomError?
 ): CustomError? {
     for (rule in rules) {
@@ -35,4 +34,13 @@ fun <T, S> combineRules(
         if (error != null) return error
     }
     return null
+}
+
+fun combineStrictRules(
+    vararg rules: () -> CustomError?
+) {
+    for (rule in rules) {
+        val error = rule()
+        if (error != null) throw InvalidDomainException(error)
+    }
 }

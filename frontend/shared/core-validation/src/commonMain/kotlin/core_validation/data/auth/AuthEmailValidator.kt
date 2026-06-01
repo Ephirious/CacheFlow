@@ -11,7 +11,6 @@ import utils.CustomError
 object AuthEmailRule : ValidationRule<String, Any, Nothing?, CustomError> {
     override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
         return combineRules(
-            value, ctx,
             { NotEmptyOrNullStringRule.validate(value, ctx, param) },
             { EmailFormatRule.validate(value, ctx, param) },
             // param = maxLen

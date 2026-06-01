@@ -2,6 +2,10 @@ package auth.usecases
 
 import auth.AuthRepository
 import auth.UserId
+import core_validation.combineStrictRules
+import core_validation.data.auth.AuthEmailRule
+import core_validation.data.auth.AuthOTPCodeRule
+import core_validation.data.auth.AuthPasswordRule
 import sync.repositories.SyncManager
 
 class VerifyRegistrationUseCase(
@@ -9,7 +13,17 @@ class VerifyRegistrationUseCase(
     private val syncManager: SyncManager,
 ) {
     suspend operator fun invoke(userId: UserId, code: String, email: String, password: String) {
+        combineStrictRules(
+            { AuthOTPCodeRule.validate(code, Unit, null) },
+
+            // По идее нижнее нет смысла чекать, но лан
+            { AuthEmailRule.validate(email, Unit, null) },
+            { AuthPasswordRule.validate(password, Unit, null) },
+        )
+
         repository.verifyRegistration(userId = userId, verificationCode = code)
+
+
         repository.login(email = email, password = password)
         repository.getProfile()
 

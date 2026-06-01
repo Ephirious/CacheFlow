@@ -9,7 +9,6 @@ import utils.CustomError
 object TransactionNoteRule : ValidationRule<String, Any, Nothing?, CustomError> {
     override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
         return combineRules(
-            value, ctx,
             // param = maxLen
             { MaxLenRule.validate(value, ctx, param = 1024) }
         )

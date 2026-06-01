@@ -9,7 +9,6 @@ import utils.CustomError
 object AccountInitialBalanceRule : ValidationRule<String, Any, Nothing?, CustomError> {
     override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
         return combineRules(
-            value, ctx,
             // param = must be positive
             { StringAmountRule.validate(value, ctx, param = false) },
         )

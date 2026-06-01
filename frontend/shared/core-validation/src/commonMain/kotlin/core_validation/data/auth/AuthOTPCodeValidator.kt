@@ -10,7 +10,6 @@ import utils.CustomError
 object AuthOTPCodeRule : ValidationRule<String, Any, Nothing?, CustomError> {
     override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
         return combineRules(
-            value, ctx,
             { NotEmptyOrNullStringRule.validate(value, ctx, param) },
             // param = exactLen
             { ExactLenRule.validate(value, ctx, param = 6) }

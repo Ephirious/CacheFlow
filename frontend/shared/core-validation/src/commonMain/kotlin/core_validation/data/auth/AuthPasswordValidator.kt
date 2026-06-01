@@ -9,7 +9,6 @@ import utils.CustomError
 object AuthPasswordRule : ValidationRule<String, Any, Nothing?, CustomError> {
     override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
         return combineRules(
-            value, ctx,
             { NotEmptyOrNullStringRule.validate(value, ctx, param) }
         )
     }

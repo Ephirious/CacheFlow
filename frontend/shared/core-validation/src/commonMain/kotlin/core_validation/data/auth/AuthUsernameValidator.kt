@@ -10,7 +10,6 @@ import utils.CustomError
 object AuthUsernameRule : ValidationRule<String, Any, Nothing?, CustomError> {
     override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
         return combineRules(
-            value, ctx,
             { NotEmptyOrNullStringRule.validate(value, ctx, param) },
             // param = maxLen
             { MaxLenRule.validate(value, ctx, param = 100) }
