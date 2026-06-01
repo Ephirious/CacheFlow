@@ -9,8 +9,8 @@ import Stats from "./Stats.tsx";
 
 
 const RootScreen = ({component}: { component: RootComponent }) => {
-    const pages = useValue(component.childPages)
-    const activeChild = pages.active;
+    const stack = useValue(component.childStack)
+    const activeChild = stack.active;
     const isMainActive = activeChild instanceof RootChild.MainChild;
 
     useLayoutEffect(() => {

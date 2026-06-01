@@ -1,17 +1,18 @@
 package root
 
 
+import com.arkivanov.decompose.router.webhistory.WebNavigationOwner
 import kotlinx.serialization.Serializable
 import main.MainComponent
 import settings.SettingsComponent
 import stats.StatsComponent
 import utils.Url
-import utils.presentation.DefaultPages
+import utils.presentation.DefaultStack
 import kotlin.js.JsExport
 
 
 @JsExport
-interface RootComponent : DefaultPages<RootConfig, RootChild> {
+interface RootComponent : DefaultStack<RootConfig, RootChild>, WebNavigationOwner {
     fun onOutput(output: RootOutput)
 }
 

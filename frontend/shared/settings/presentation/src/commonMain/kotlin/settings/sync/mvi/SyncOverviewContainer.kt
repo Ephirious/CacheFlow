@@ -90,16 +90,19 @@ class SyncOverviewContainer(
                 updateState { SyncOverviewState.NotAuthenticated }
                 return@launch
             }
+            withState {
+                if (this !is SyncOverviewState.Authenticated) {
+                    val profile = getProfileUseCase()
 
-            val profile = getProfileUseCase()
-
-            updateState {
-                SyncOverviewState.Authenticated(
-                    name = profile.name,
-                    email = profile.email,
-                    id = profile.id,
-                    syncStatus = syncManager.status.value
-                )
+                    updateState {
+                        SyncOverviewState.Authenticated(
+                            name = profile.name,
+                            email = profile.email,
+                            id = profile.id,
+                            syncStatus = syncManager.status.value
+                        )
+                    }
+                }
             }
         }.registerOrIgnore(manager = jobs, key = Jobs.UpdateAuthStatus)
     }
