@@ -45,5 +45,7 @@ fun getHttpClient(
             this.contentType(ContentType.Application.Json)
         }
 
+        expectSuccess = true
+
         configBlock()
     }

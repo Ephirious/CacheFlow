@@ -3,16 +3,12 @@ package auth.cloud
 import auth.AuthUrls
 import auth.TokenStorage
 import auth.UserId
-import auth.cloud.dtos.ResendCodeRequestDTO
-import auth.cloud.dtos.TokenDTO
-import auth.cloud.dtos.UserCreateDTO
-import auth.cloud.dtos.UserDataDTO
-import auth.cloud.dtos.VerifyEmailRequestDTO
+import auth.cloud.dtos.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.request.forms.FormDataContent
-import io.ktor.http.Parameters
+import io.ktor.client.request.forms.*
+import io.ktor.http.*
 import utils.data.throwableToException
 
 class AuthRemoteDataSource(

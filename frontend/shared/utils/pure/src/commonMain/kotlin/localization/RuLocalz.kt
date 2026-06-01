@@ -1,7 +1,7 @@
 package localization
 
 class RuLocalz : Localz {
-    override fun by(key: ValidationKey): String = when (key) {
+    override fun by(key: LocalzKey): String = when (key) {
         is MainSummaryKey -> when (key) {
             MainSummaryKey.OverallBalance -> "Общий баланс"
             MainSummaryKey.ProfitPerMonth -> "за месяц"
@@ -40,6 +40,11 @@ class RuLocalz : Localz {
         NotEmptyOrNullStringError.EmptyOrNullString -> "Не может быть пустым"
         DiffTransferAccountsError.SameAccounts -> "Нельзя перевести на тот же счёт"
         EmailFormatError.InvalidFormat -> "Неверный формат email"
+        is HardCodedServerError -> when (key) {
+            HardCodedServerError.EmailAlreadyInUse -> "Этот email уже используется"
+            HardCodedServerError.WrongLoginOrPassword -> "Неправильный логин или пароль"
+            HardCodedServerError.FailToFetch -> "Не удалось подключиться"
+        }
     }
 
 
