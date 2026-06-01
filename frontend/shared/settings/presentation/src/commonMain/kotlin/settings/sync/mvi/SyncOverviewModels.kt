@@ -16,6 +16,7 @@ sealed class SyncOverviewState : MVIState {
         val email: String,
         val id: String,
         val syncStatus: SyncStatus,
+        val forceSyncCooldownSeconds: Int = 0
     ) : SyncOverviewState()
 }
 
