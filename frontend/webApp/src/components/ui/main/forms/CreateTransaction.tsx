@@ -138,12 +138,12 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         accounts={state.form.accounts.asJsReadonlyArrayView()}
                         fromId={
                             when(state.form.transactionType)
-                                .on([ManageTransactionType.Transfer], (t) => t.fromId ?? null)
+                                .on([ManageTransactionType.Transfer], (t) => (t as any).fromId ?? null)
                                 .otherwise(() => null)
                         }
                         toId={
                             when(state.form.transactionType)
-                                .on([ManageTransactionType.Transfer], (t) => t.toId ?? null)
+                                .on([ManageTransactionType.Transfer], (t) => (t as any).toId ?? null)
                                 .otherwise(() => null)
                         }
                         onSelectFrom={(id) => {
@@ -182,7 +182,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                     <DatePicker
                         value={new Date(isoString(state.form.date))}
                         onChange={(newDate) => {
-                            component.intent(new ManageTransactionBaseIntent.ChangedDate(newDate.toISOString()))
+                            if (newDate) component.intent(new ManageTransactionBaseIntent.ChangedDate(newDate.toISOString()))
                         }}
                     />
                 </div>

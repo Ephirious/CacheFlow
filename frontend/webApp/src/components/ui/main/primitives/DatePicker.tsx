@@ -1,13 +1,14 @@
 import { IoCalendarOutline } from "react-icons/io5";
 
 interface DatePickerProps {
-    value: Date;
-    onChange: (date: Date) => void;
+    value?: Date | null;
+    onChange: (date: Date | null) => void;
 }
 
 const DatePicker = ({ value, onChange }: DatePickerProps) => {
 
-    const formatDate = (date: Date) => {
+    const formatDate = (date?: Date | null) => {
+        if (!date) return "Не выбрано";
         const months = [
             "января", "февраля", "марта", "апреля", "мая", "июня",
             "июля", "августа", "сентября", "октября", "ноября", "декабря"
@@ -21,8 +22,11 @@ const DatePicker = ({ value, onChange }: DatePickerProps) => {
             <div className="relative">
                 <input
                     type="date"
-                    value={value.toISOString().split('T')[0]}
-                    onChange={(e) => onChange(new Date(e.target.value))}
+                    value={value ? value.toISOString().split('T')[0] : ""}
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        onChange(val ? new Date(val) : null);
+                    }}
                     className="absolute inset-0 opacity-0 cursor-pointer z-10"
                 />
 

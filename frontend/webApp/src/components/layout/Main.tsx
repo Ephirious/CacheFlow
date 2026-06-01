@@ -1,11 +1,12 @@
-import {MainCard, Transactions, BottomSheet, CreateTransactionButton, CreateTransaction} from "../ui/main";
+import {MainCard, Transactions, BottomSheet, CreateTransactionButton, CreateTransaction, Filters} from "../ui/main";
 import {
     MainAction,
     MainComponent,
     MainState,
     ManageTransactionComponent,
     ManageTransactionState,
-    TransactionsIntent
+    TransactionsIntent,
+    TransactionsAction
 } from "k2ts";
 import {useValue, when} from "interop";
 import {useEffect, useLayoutEffect, useRef, useState} from "react";
@@ -64,8 +65,21 @@ const MainOK = ({component}: { component: MainComponent }) => {
     const summaryState = useValue(component.summaryComponent.state);
     const transactionsState = useValue(component.transactionsComponent.state);
 
+    const hasActiveFilters = 
+        transactionsState.filters.allowIncome ||
+        transactionsState.filters.allowOutcome ||
+        transactionsState.filters.allowTransfer ||
+        transactionsState.filters.accountIds.asJsReadonlyArrayView().length > 0 ||
+        transactionsState.filters.categoryIds.asJsReadonlyArrayView().length > 0 ||
+        transactionsState.filters.dateFrom !== null ||
+        transactionsState.filters.dateTo !== null ||
+        (transactionsState.filters.noteQuery !== null && transactionsState.filters.noteQuery !== "");
+
     const manageTransactionSlot = useValue(component.jsManageTransactionSlot);
     const manageTransactionComponent = manageTransactionSlot.instance
+    const filtersSlot = useValue(component.transactionsComponent.jsFiltersSlot);
+    const filtersComponent = filtersSlot.instance;
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
     const [isManageOpen, setIsManageOpen] = useState(false);
     const [isDesktop, setIsDesktop] = useState(() => window.matchMedia(desktopMediaQuery).matches);
     const [useDesktopModal, setUseDesktopModal] = useState(() => window.matchMedia(modalMediaQuery).matches);
@@ -121,6 +135,12 @@ const MainOK = ({component}: { component: MainComponent }) => {
         }
     }, [manageTransactionComponent]);
 
+    useLayoutEffect(() => {
+        if (filtersComponent) {
+            setIsFiltersOpen(true);
+        }
+    }, [filtersComponent]);
+
     useActions(component, (action) => {
         when(action)
             .is(MainAction.HideManageTransaction, () => {
@@ -130,6 +150,17 @@ const MainOK = ({component}: { component: MainComponent }) => {
     });
 
     useEffect(() => {
+        const unsubscribe = component.transactionsComponent.subscribeActions((action: any) => {
+            when(action)
+                .is(TransactionsAction.HideFilters, () => {
+                    setIsFiltersOpen(false);
+                })
+                .run();
+        });
+        return () => unsubscribe();
+    }, [component.transactionsComponent]);
+
+    useEffect(() => {
         if (!isManageOpen && manageTransactionComponent) {
             const timer = setTimeout(() => {
                 component.setIsManageTransactionOpen(false);
@@ -137,6 +168,15 @@ const MainOK = ({component}: { component: MainComponent }) => {
             return () => clearTimeout(timer);
         }
     }, [isManageOpen, manageTransactionComponent]);
+
+    useEffect(() => {
+        if (!isFiltersOpen && filtersComponent) {
+            const timer = setTimeout(() => {
+                component.transactionsComponent.setIsFiltersOpen(false);
+            }, 350);
+            return () => clearTimeout(timer);
+        }
+    }, [isFiltersOpen, filtersComponent]);
 
     const [themeElement, setThemeElement] = useState<HTMLElement>();
     const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(null);
@@ -177,10 +217,12 @@ const MainOK = ({component}: { component: MainComponent }) => {
                     <section className="mt-4 rounded-3xl border border-border-subtle bg-surface-sheet shadow-sm">
                         <Transactions
                             transactions={transactionsState.transactions.asJsReadonlyArrayView()}
+                            hasActiveFilters={hasActiveFilters}
                             onEditClick={(transactionId) => {
                                 component.openTransactionToEdit(transactionId);
                             }}
                             onLoadMore={() => component.transactionsComponent.intent(TransactionsIntent.LoadMore)}
+                            onFilterClick={() => component.transactionsComponent.setIsFiltersOpen(true)}
                         />
                     </section>
                 ) : (
@@ -200,9 +242,11 @@ const MainOK = ({component}: { component: MainComponent }) => {
                         >
                             <Transactions
                                 transactions={transactionsState.transactions.asJsReadonlyArrayView()}
+                                hasActiveFilters={hasActiveFilters}
                                 onEditClick={(transactionId) => {
                                     component.openTransactionToEdit(transactionId);
                                 }}
+                                onFilterClick={() => component.transactionsComponent.setIsFiltersOpen(true)}
                             />
                         </BottomSheet>
                     </>
@@ -273,8 +317,97 @@ const MainOK = ({component}: { component: MainComponent }) => {
                 </div>,
                 document.body
             )}
+
+            {!useDesktopModal && (
+                <BottomSheet
+                    containerEl={themeElement}
+                    open={isFiltersOpen}
+                    onOpenChange={setIsFiltersOpen}
+                    onAnimationEnd={(isOpen) => {
+                        if (!isOpen) {
+                            component.transactionsComponent.setIsFiltersOpen(false);
+                        }
+                    }}
+                    snapPoints={[1]}
+                    initialSnapPoint={1}
+                    dismissible={true}
+                    modal={true}
+                    repositionInputs={false}
+                    fixed={true}
+                    zIndex={60}
+                    backgroundColor="var(--color-surface-base)"
+                    className="sm:hidden"
+                    themeMode="interpolate"
+                    themeTargetColor="var(--color-surface-base)"
+                    useCurrentThemeAsBase={true}
+                    themeInterpolationStartThreshold={sheetThemeThreshold}
+                    contentPaddingBottom="calc(env(safe-area-inset-bottom))"
+                >
+                    {filtersComponent && (
+                        <div className="flex flex-col h-full w-full relative">
+                            <div className="flex items-center justify-between px-6 py-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-brand-primary w-8 h-8 rounded-full flex items-center justify-center">
+                                        <svg className="w-4 h-4 text-brand-on-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-xl font-bold text-text-primary">Фильтры</span>
+                                </div>
+                                <button
+                                    onClick={() => setIsFiltersOpen(false)}
+                                    className="p-2 rounded-xl text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary"
+                                >
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <Filters component={filtersComponent} />
+                        </div>
+                    )}
+                </BottomSheet>
+            )}
+
+            {useDesktopModal && isFiltersOpen && filtersComponent && createPortal(
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]"
+                    onClick={() => setIsFiltersOpen(false)}
+                >
+                    <div
+                        className="flex max-h-[calc(100vh-4rem)] w-full max-w-2xl min-h-0 flex-col rounded-3xl bg-surface-sheet shadow-2xl"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <div className="flex justify-between px-6 pb-0 pt-5">
+                            <div className="flex items-center gap-2">
+                                <div className="bg-brand-primary w-8 h-8 rounded-full flex items-center justify-center">
+                                    <svg className="w-4 h-4 text-brand-on-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                    </svg>
+                                </div>
+                                <span className="text-xl font-bold text-text-primary">Фильтры</span>
+                            </div>
+                            <button
+                                aria-label="Закрыть"
+                                className="rounded-xl p-2 text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary"
+                                onClick={() => setIsFiltersOpen(false)}
+                                type="button"
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="min-h-0 flex-1 overflow-y-auto px-1 pb-4">
+                            <Filters component={filtersComponent} />
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };
+
 
 export default Main;
