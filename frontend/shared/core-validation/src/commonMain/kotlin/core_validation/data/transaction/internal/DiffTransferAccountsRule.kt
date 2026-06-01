@@ -3,8 +3,10 @@ package core_validation.data.transaction.internal
 import core_validation.ValidationRule
 import localization.DiffTransferAccountsError
 import localization.DiffTransferAccountsError.SameAccounts
+import kotlin.js.JsExport
 
 
+@JsExport
 interface TransferAccountsContext {
     val fromId: String?
     val toId: String?
