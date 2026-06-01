@@ -1,17 +1,18 @@
 package manageTransaction.mvi
 
+import core_validation.GenerateValidator
+import core_validation.data.IdValidator
+import core_validation.data.transaction.TransactionNoteValidator
+import core_validation.data.transaction.TransactionValueValidator
+import core_validation.data.transaction.TransferAccountIdValidator
+import core_validation.data.transaction.internal.TransferAccountsContext
 import editors.models.Account
 import editors.models.Category
 import kotlinx.datetime.LocalDate
-import manageTransaction.validation.DiffTransferAccounts
-import utils.annotations.validation.StringAmount
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
 import utils.annotations.DataCopyable
 import utils.annotations.DataCopyableNode
-import utils.annotations.GenerateValidator
-import utils.annotations.validation.MaxLen
-import utils.annotations.validation.NotEmptyOrNullString
 import kotlin.js.JsExport
 
 @JsExport
@@ -19,14 +20,13 @@ import kotlin.js.JsExport
 @GenerateValidator
 interface ManageTransactionFormBaseState<V> : MVIState {
 
-    @StringAmount(param = true)
-    @MaxLen(10)
+    @TransactionValueValidator
     val value: String
     val transactionType: ManageTransactionType
 
     val date: LocalDate
 
-    @MaxLen(1024)
+    @TransactionNoteValidator
     val note: String
 
     val incomeCategories: List<Category>
@@ -45,10 +45,10 @@ sealed class ManageTransactionType(
     @DataCopyable
     @GenerateValidator
     sealed interface IncomeOrOutcome<V> {
-        @NotEmptyOrNullString
+        @IdValidator
         val categoryId: String?
 
-        @NotEmptyOrNullString
+        @IdValidator
         val accountId: String?
 
         val validation: V
@@ -70,15 +70,13 @@ sealed class ManageTransactionType(
 
     @GenerateValidator
     data class Transfer(
-        @NotEmptyOrNullString
-        @DiffTransferAccounts
-        val fromId: String?,
+        @TransferAccountIdValidator
+        override val fromId: String?,
 
-        @NotEmptyOrNullString
-        @DiffTransferAccounts
-        val toId: String?,
+        @TransferAccountIdValidator
+        override val toId: String?,
         val validation: TransferValidationErrors = TransferValidationErrors()
-    ) : ManageTransactionType("Transfer")
+    ) : ManageTransactionType("Transfer"), TransferAccountsContext
 }
 
 

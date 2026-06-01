@@ -1,9 +1,9 @@
-package utils.annotations.validation
+package core_validation.basic
 
+import core_validation.LinkedRule
+import core_validation.ValidationRule
 import localization.StringAmountError
 import localization.StringAmountError.*
-import utils.annotations.LinkedRule
-import utils.annotations.ValidationRule
 import utils.types.BigDecimal
 
 object StringAmountRule : ValidationRule<String, Any, Boolean, StringAmountError> {
@@ -43,4 +43,4 @@ object StringAmountRule : ValidationRule<String, Any, Boolean, StringAmountError
 @LinkedRule(StringAmountRule::class)
 @Target(AnnotationTarget.PROPERTY)
 // param – must be positive
-annotation class StringAmount(@Suppress("unused")  val param: Boolean)
+annotation class StringAmount(@Suppress("unused") val param: Boolean)

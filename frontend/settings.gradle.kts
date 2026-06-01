@@ -35,6 +35,8 @@ include(":k2ts") // entryPoint for ts-kotlin
 
 include(":ksp-processor")
 
+include(":shared:core-validation")
+
 include(":shared:core")
 include(":shared:root:presentation")
 

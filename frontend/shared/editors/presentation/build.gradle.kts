@@ -8,6 +8,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.shared.editors.domain)
+                implementation(projects.shared.coreValidation)
             }
         }
     }

@@ -1,11 +1,11 @@
 package editors.categories.mvi
 
+import core_validation.GenerateValidator
+import core_validation.data.category.CategoryEmojiValidator
+import core_validation.data.category.CategoryTitleValidator
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
 import utils.annotations.DataCopyable
-import utils.annotations.GenerateValidator
-import utils.annotations.validation.MaxLen
-import utils.annotations.validation.NotEmptyOrNullString
 import kotlin.js.JsExport
 
 
@@ -28,12 +28,10 @@ interface ManageCategoryBaseState<F : ManageCategoryFormBaseState<*>> : MVIState
 @GenerateValidator
 interface ManageCategoryFormBaseState<V> : MVIState {
 
-    @MaxLen(100)
-    @NotEmptyOrNullString
+    @CategoryTitleValidator
     val title: String
 
-    @MaxLen(1)
-    @NotEmptyOrNullString
+    @CategoryEmojiValidator
     val emoji: String
     val validation: V
 }

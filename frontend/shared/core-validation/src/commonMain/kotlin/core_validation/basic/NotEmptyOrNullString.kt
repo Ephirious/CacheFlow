@@ -1,8 +1,8 @@
-package utils.annotations.validation
+package core_validation.basic
 
+import core_validation.LinkedRule
+import core_validation.ValidationRule
 import localization.NotEmptyOrNullStringError
-import utils.annotations.LinkedRule
-import utils.annotations.ValidationRule
 
 object NotEmptyOrNullStringRule : ValidationRule<String?, Any, Nothing?, NotEmptyOrNullStringError> {
     override fun validate(value: String?, ctx: Any, param: Nothing?): NotEmptyOrNullStringError? {

@@ -1,20 +1,20 @@
 package localization
 
-import utils.annotations.ValidationError
+import utils.CustomError
 
 
-enum class StringAmountError : ValidationError, ValidationKey {
+enum class StringAmountError : CustomError, ValidationKey {
     EmptyAmount, NotANumber, NotPositive, ScaleExceeded
 }
 
-enum class DiffTransferAccountsError : ValidationError, ValidationKey {
+enum class DiffTransferAccountsError : CustomError, ValidationKey {
     SameAccounts
 }
 
-sealed class MaxLenError : ValidationError, ValidationKey {
+sealed class MaxLenError : CustomError, ValidationKey {
     data class MaxLengthExceeded(val limit: Int) : MaxLenError()
 }
 
-enum class NotEmptyOrNullStringError : ValidationError, ValidationKey {
+enum class NotEmptyOrNullStringError : CustomError, ValidationKey {
     EmptyOrNullString
 }

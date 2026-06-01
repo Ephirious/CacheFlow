@@ -1,9 +1,9 @@
-package utils.annotations.validation
+package core_validation.basic
 
+import core_validation.LinkedRule
+import core_validation.ValidationRule
 import localization.MaxLenError
-import localization.MaxLenError.MaxLengthExceeded
-import utils.annotations.LinkedRule
-import utils.annotations.ValidationRule
+
 
 private val unicodeRegex = Regex("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|.")
 
@@ -14,7 +14,7 @@ fun String.unicodeLength(): Int {
 object MaxLenRule : ValidationRule<String, Any, Int, MaxLenError> {
     override fun validate(value: String, ctx: Any, param: Int): MaxLenError? {
         return if (value.unicodeLength() > param) {
-            MaxLengthExceeded(param)
+            MaxLenError.MaxLengthExceeded(param)
         } else null
     }
 }

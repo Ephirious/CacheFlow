@@ -10,7 +10,7 @@ class ValidationProcessor(
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        val symbols = resolver.getSymbolsWithAnnotation("utils.annotations.GenerateValidator")
+        val symbols = resolver.getSymbolsWithAnnotation("core_validation.GenerateValidator")
         symbols.filterIsInstance<KSClassDeclaration>().forEach { it.accept(ValidationVisitor(), Unit) }
         return emptyList()
     }
@@ -27,9 +27,9 @@ class ValidationProcessor(
             // Логика получения кастомной ошибки
             val genAnn = classDeclaration.annotations.find { it.shortName.asString() == "GenerateValidator" }
             val errorKSType = genAnn?.arguments?.find { it.name?.asString() == "errorClass" }?.value as? KSType
-            val errorTypeName = errorKSType?.declaration?.simpleName?.asString() ?: "ValidationError"
+            val errorTypeName = errorKSType?.declaration?.simpleName?.asString() ?: "CustomError"
             val errorTypeImport =
-                errorKSType?.declaration?.qualifiedName?.asString() ?: "utils.annotations.ValidationError"
+                errorKSType?.declaration?.qualifiedName?.asString() ?: "utils.CustomError"
 
             val isDataCopyable = classDeclaration.annotations.any {
                 it.shortName.asString() == "DataCopyable" || it.shortName.asString() == "DataCopyableNode"
