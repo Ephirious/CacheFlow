@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import transactions.db.*
 import transactions.local.TransactionsLocalDataSource
 import transactions.models.Transaction
+import transactions.models.TransactionFilters
 import utils.Logg
 import utils.presentation.AsyncDispatcher
 import kotlin.coroutines.EmptyCoroutineContext
@@ -46,8 +47,14 @@ class TransactionsRepositoryImpl(
         localDataSource.unsetFirstEntrance()
     }
 
+    override fun getFilteredTransactionsFlow(
+        accountId: String?, filters: TransactionFilters, limit: Long
+    ): Flow<List<Transaction>> =
+        dbDataSource.getTransactionsFilteredFlow(accountId, filters, limit).flowOn(AsyncDispatcher)
+
     override fun getTransactionsFlow(accountId: String?): Flow<List<Transaction>> =
         dbDataSource.getTransactionsFlow(accountId).flowOn(AsyncDispatcher)
+
 
     override suspend fun upsertTransaction(transaction: Transaction) {
         dbDataSource.upsertTransaction(transaction)

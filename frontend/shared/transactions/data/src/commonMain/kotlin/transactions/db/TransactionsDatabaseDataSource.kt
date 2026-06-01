@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import transactions.mappers.listToDomain
 import transactions.mappers.toDomain
 import transactions.models.Transaction
+import transactions.models.TransactionFilters
 import transactions.models.TransactionType
 import utils.bigDecimalExtensions.times
 import utils.bigDecimalExtensions.unaryMinus
@@ -56,6 +57,32 @@ class TransactionsDatabaseDataSource(
             }
     }
 
+
+    fun getTransactionsFilteredFlow(
+        accountId: String?,
+        filters: TransactionFilters,
+        limit: Long
+    ): Flow<List<Transaction>> {
+        val safeCategoryIds = filters.categoryIds.ifEmpty { listOf("") }
+        val safeAccountIds = filters.accountIds.ifEmpty { listOf("") }
+        val hasTypeFilter = filters.allowIncome || filters.allowOutcome || filters.allowTransfer
+
+        return transactionsQueries.selectAllFiltered(
+            accountId = accountId,
+            noteQuery = filters.noteQuery?.takeIf { it.isNotBlank() },
+            dateFrom = filters.dateFrom,
+            dateTo = filters.dateTo,
+            hasCategoryFilter = if (filters.categoryIds.isNotEmpty()) 1 else 0,
+            categoryIds = safeCategoryIds,
+            hasAccountFilter = if (filters.accountIds.isNotEmpty()) 1 else 0,
+            accountIds = safeAccountIds,
+            hasTypeFilter = if (hasTypeFilter) 1 else 0,
+            allowIncome = if (filters.allowIncome) 1 else 0,
+            allowOutcome = if (filters.allowOutcome) 1 else 0,
+            allowTransfer = if (filters.allowTransfer) 1 else 0,
+            limit = limit
+        ).asFlow().mapToList(AsyncDispatcher).map { it.listToDomain() }
+    }
 
     suspend fun selectPrimaryTransaction(id: String) =
         transactionsQueries.selectPrimaryWithAccountAndCategoryById(id).awaitAsOne().toDomain()

@@ -136,7 +136,7 @@ class RealMainComponent(
             container = {
                 TransactionsContainer(
                     throwErrorToParent = ::throwErrorFromChild,
-                    getTransactionsFlowUseCase = get()
+                    getFilteredTransactionsFlowUseCase = get()
                 )
             }
         )

@@ -135,5 +135,43 @@ LEFT JOIN Accounts acc_to ON (
     END = acc_to.id
 );
 
+
+selectAllFiltered:
+SELECT
+    op.id, op.amount, op.date, op.notes, op.created_at,
+    acc.id AS acc_id, acc.name AS acc_name, acc.funds AS acc_funds, acc.color AS acc_color,
+    cat.id AS cat_id, cat.name AS cat_name, cat.emoji AS cat_emoji, cat.type AS cat_type,
+    t.id AS transfer_id, acc_to.id AS target_acc_id, acc_to.name AS target_acc_name, acc_to.funds AS target_acc_funds, acc_to.color AS target_acc_color
+FROM Operations op
+JOIN Accounts acc ON op.account_uuid = acc.id
+LEFT JOIN Categories cat ON op.category_uuid = cat.id
+LEFT JOIN Transfers t ON op.transfer_id = t.id
+LEFT JOIN Accounts acc_to ON (
+    CASE WHEN t.account_from_id = op.account_uuid THEN t.account_to_id ELSE t.account_from_id END = acc_to.id
+)
+WHERE
+    (
+        (:accountId IS NULL AND (op.transfer_id IS NULL OR op.account_uuid = t.account_to_id))
+        OR (op.account_uuid = :accountId)
+    )
+    -- notes
+    AND (:noteQuery IS NULL OR op.notes LIKE '%' || :noteQuery || '%')
+    -- dates
+    AND (:dateFrom IS NULL OR op.date >= :dateFrom)
+    AND (:dateTo IS NULL OR op.date <= :dateTo)
+    -- categories
+    AND (:hasCategoryFilter = 0 OR op.category_uuid IN :categoryIds)
+    -- accounts
+    AND (:hasAccountFilter = 0 OR op.account_uuid IN :accountIds OR (t.id IS NOT NULL AND (t.account_from_id IN :accountIds OR t.account_to_id IN :accountIds)))
+    -- types (0 – не фильтровать, 1 – фильтровать)
+    AND (
+        :hasTypeFilter = 0 OR
+        (:allowIncome = 1 AND op.transfer_id IS NULL AND op.amount NOT LIKE '-%') OR
+        (:allowOutcome = 1 AND op.transfer_id IS NULL AND op.amount LIKE '-%') OR
+        (:allowTransfer = 1 AND op.transfer_id IS NOT NULL)
+    )
+ORDER BY op.date DESC, op.created_at DESC
+LIMIT :limit;
+
 delete:
 DELETE FROM Operations WHERE id = ?;

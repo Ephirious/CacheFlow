@@ -14,6 +14,16 @@ kotlin {
     jvm()
     js(IR) {
         browser()
+        compilerOptions {
+            target = "es2015"
+            freeCompilerArgs.addAll(
+                listOf(
+                    "-Xes-long-as-bigint",
+                    "-Xir-per-module=false",
+                    "-Xir-property-lazy-initialization"
+                )
+            )
+        }
     }
     sourceSets {
         commonMain.dependencies {
