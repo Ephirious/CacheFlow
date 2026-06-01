@@ -1,11 +1,12 @@
 package utils
 
-@Suppress("ConstPropertyName")
 object AppConfig {
-    const val isDebuggable = false
-    const val pushVapidPublicKey = "BDJfPY2ZNH_L1IIWABoh5_ELqPjSM4osBATVW0bzaaWxdEMehnPgtRNtXq86K34Z3w5EvOt7obu142LnrhhIE_A"
+    val isDebuggable = getFromEnv("APP_DEBUGGABLE")?.toBooleanStrictOrNull() ?: false
+    val pushVapidPublicKey =
+        getFromEnv("APP_VAPID_PUBLIC_KEY") ?: "not for mvp =/ (used to be for notifications)"
 
-    const val serverIP = "localhost"
-    const val serverPort = 8000
-    const val urlSchemeString = "http://" // used for push registration
+    // KtorClient
+    val serverHost = getFromEnv("SERVER_HOST") ?: "localhost"
+    val serverPort: Int? = getFromEnv("SERVER_PORT")?.toIntOrNull()
+    val isHttps = getFromEnv("APP_IS_HTTPS")?.toBooleanStrictOrNull() ?: false
 }
