@@ -39,7 +39,11 @@ fun <S : MVIState, I : ManageAccountBaseIntent, A : MVIAction, F : ManageAccount
                     }
 
                     is ManageAccountBaseIntent.ChangedTitle -> {
-                        currentForm.copyBase(title = baseIntent.title)
+                        @Suppress("UNCHECKED_CAST")
+                        (currentForm.copyBase(title = baseIntent.title)
+                                as ManageAccountFormBaseState<ManageAccountFormBaseValidationErrors>)
+                            .validated(ManageAccountFormBaseValidationFields.title)
+
                     }
 
                     ManageAccountBaseIntent.ClickedTryAgain -> currentForm

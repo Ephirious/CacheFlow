@@ -2,6 +2,7 @@ package editors.accounts.mvi
 
 import core_validation.GenerateValidator
 import core_validation.data.account.AccountInitialBalanceValidator
+import core_validation.data.account.AccountTitleValidator
 import utils.annotations.DataCopyableNode
 import utils.types.HexColor
 import kotlin.js.JsExport
@@ -34,7 +35,10 @@ data class CreateAccountFormState(
     @AccountInitialBalanceValidator
     val initialBalance: String,
     override val validation: CreateAccountFormValidationErrors,
+
+    @AccountTitleValidator
     override val title: String,
+
     override val color: HexColor,
 ) : ManageAccountFormBaseState<CreateAccountFormValidationErrors>
 
