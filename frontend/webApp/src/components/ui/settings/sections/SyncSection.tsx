@@ -69,7 +69,11 @@ const SyncSection = ({component}: { component: SyncOverviewComponent }) => {
                                 </p>
                             </div>
                             <button
-                                onClick={() => component.intent(SyncOverviewIntent.Logout)}
+                                onClick={() => {
+                                    if (window.confirm("Вы уверены, что хотите выйти из аккаунта? Все локальные данные будут удалены.")) {
+                                        component.intent(SyncOverviewIntent.Logout);
+                                    }
+                                }}
                                 className="flex w-full items-center gap-3 rounded-lg border border-state-danger/30 bg-surface-base px-4 py-3 text-base cursor-pointer hover:bg-state-danger/10 active:scale-[0.98] transition-all"
                                 type="button"
                             >

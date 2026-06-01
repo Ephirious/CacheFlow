@@ -15,7 +15,7 @@ const CategorySelector = ({
                               onAdd
                           }: CategorySelectorProps) => {
     return (
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide overflow-hidden">
+        <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar px-1 -mx-1">
             {categories.map((category) => (
                 <button
                     key={category.id}
