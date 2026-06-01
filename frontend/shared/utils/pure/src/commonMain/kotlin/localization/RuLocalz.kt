@@ -32,8 +32,9 @@ class RuLocalz : Localz {
             StringAmountError.ScaleExceeded -> "Слишком много знаков после запятой (макс. 2)"
         }
 
-        is MaxLenError -> when (key) {
-            is MaxLenError.MaxLengthExceeded -> "Максимальная длина – ${key.limit} символов"
+        is LenError -> when (key) {
+            is LenError.MaxLengthExceeded -> "Максимальная длина – ${key.limit} символов"
+            is LenError.NotExactLength -> "Необходимая длина – ${key.shouldBe} символов"
         }
 
         NotEmptyOrNullStringError.EmptyOrNullString -> "Не может быть пустым"

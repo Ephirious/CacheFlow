@@ -2,19 +2,19 @@ package core_validation.basic
 
 import core_validation.LinkedRule
 import core_validation.ValidationRule
-import localization.MaxLenError
+import localization.LenError
 
 
 private val unicodeRegex = Regex("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|.")
 
-private fun String.unicodeLength(): Int {
+internal fun String.unicodeLength(): Int {
     return unicodeRegex.findAll(this).count()
 }
 
-object MaxLenRule : ValidationRule<String, Any, Int, MaxLenError> {
-    override fun validate(value: String, ctx: Any, param: Int): MaxLenError? {
+object MaxLenRule : ValidationRule<String, Any, Int, LenError> {
+    override fun validate(value: String, ctx: Any, param: Int): LenError? {
         return if (value.unicodeLength() > param) {
-            MaxLenError.MaxLengthExceeded(param)
+            LenError.MaxLengthExceeded(param)
         } else null
     }
 }

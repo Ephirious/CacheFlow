@@ -11,8 +11,9 @@ enum class DiffTransferAccountsError : CustomError, ValidationKey {
     SameAccounts
 }
 
-sealed class MaxLenError : CustomError, ValidationKey {
-    data class MaxLengthExceeded(val limit: Int) : MaxLenError()
+sealed class LenError : CustomError, ValidationKey {
+    data class MaxLengthExceeded(val limit: Int) : LenError()
+    data class NotExactLength(val shouldBe: Int) : LenError()
 }
 
 enum class NotEmptyOrNullStringError : CustomError, ValidationKey {
