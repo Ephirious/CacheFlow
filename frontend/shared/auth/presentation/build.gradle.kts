@@ -1,5 +1,6 @@
 plugins {
     id("presentation")
+    id("ksp-on")
 }
 
 kotlin {
@@ -7,6 +8,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.shared.auth.domain)
+                implementation(projects.shared.coreValidation)
             }
         }
     }
