@@ -18,3 +18,8 @@ sealed class MaxLenError : CustomError, ValidationKey {
 enum class NotEmptyOrNullStringError : CustomError, ValidationKey {
     EmptyOrNullString
 }
+
+
+enum class EmailFormatError : CustomError, ValidationKey {
+    InvalidFormat
+}

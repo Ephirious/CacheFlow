@@ -2,17 +2,6 @@ package localization
 
 class RuLocalz : Localz {
     override fun by(key: ValidationKey): String = when (key) {
-        is StringAmountError -> when (key) {
-            StringAmountError.EmptyAmount -> "Сумма не может быть пустой"
-            StringAmountError.NotANumber -> "Это не очень похоже число"
-            StringAmountError.NotPositive -> "Сумма должна быть больше нуля"
-            StringAmountError.ScaleExceeded -> "Слишком много знаков после запятой (макс. 2)"
-        }
-
-        is MaxLenError -> when (key) {
-            is MaxLenError.MaxLengthExceeded -> "Максимальная длина – ${key.limit} символов"
-        }
-
         is MainSummaryKey -> when (key) {
             MainSummaryKey.OverallBalance -> "Общий баланс"
             MainSummaryKey.ProfitPerMonth -> "за месяц"
@@ -36,8 +25,20 @@ class RuLocalz : Localz {
             ManageTransactionKey.Note -> "Заметка (необязательно)"
         }
 
+        is StringAmountError -> when (key) {
+            StringAmountError.EmptyAmount -> "Сумма не может быть пустой"
+            StringAmountError.NotANumber -> "Это не очень похоже число"
+            StringAmountError.NotPositive -> "Сумма должна быть больше нуля"
+            StringAmountError.ScaleExceeded -> "Слишком много знаков после запятой (макс. 2)"
+        }
+
+        is MaxLenError -> when (key) {
+            is MaxLenError.MaxLengthExceeded -> "Максимальная длина – ${key.limit} символов"
+        }
+
         NotEmptyOrNullStringError.EmptyOrNullString -> "Не может быть пустым"
         DiffTransferAccountsError.SameAccounts -> "Нельзя перевести на тот же счёт"
+        EmailFormatError.InvalidFormat -> "Неверный формат email"
     }
 
 

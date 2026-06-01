@@ -7,7 +7,7 @@ import localization.MaxLenError
 
 private val unicodeRegex = Regex("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|.")
 
-fun String.unicodeLength(): Int {
+private fun String.unicodeLength(): Int {
     return unicodeRegex.findAll(this).count()
 }
 
