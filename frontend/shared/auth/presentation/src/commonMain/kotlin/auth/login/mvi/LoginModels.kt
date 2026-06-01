@@ -19,7 +19,7 @@ data class LoginState(
     val validation: LoginValidationErrors = LoginValidationErrors()
 ) : MVIState {
     companion object {
-        fun getInitial() = LoginState()
+        fun getInitial() = LoginState().validated()
     }
 }
 

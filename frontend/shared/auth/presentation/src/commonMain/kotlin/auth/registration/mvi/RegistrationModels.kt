@@ -34,7 +34,7 @@ data class RegistrationState(
 ) : MVIState {
 
     companion object {
-        fun getInitial() = RegistrationState()
+        fun getInitial() = RegistrationState().validatedForCurrentStep()
     }
 }
 

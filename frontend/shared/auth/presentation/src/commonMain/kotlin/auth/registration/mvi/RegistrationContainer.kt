@@ -41,7 +41,7 @@ class RegistrationContainer(
                     RegistrationIntent.BackClicked -> {
                         withState {
                             if (step == RegistrationStep.EnterCode) {
-                                updateState { copy(step = RegistrationStep.InputDetails, codeInput = "") }
+                                updateState { copy(step = RegistrationStep.InputDetails, codeInput = "").validated() }
                             } else {
                                 onNavigateBack()
                             }
@@ -54,19 +54,19 @@ class RegistrationContainer(
 
 
                     is RegistrationIntent.ChangeCode -> {
-                        updateState { copy(codeInput = intent.code) }
+                        updateState { copy(codeInput = intent.code).validated(RegistrationValidationFields.codeInput) }
                     }
 
                     is RegistrationIntent.ChangeEmail -> {
-                        updateState { copy(emailInput = intent.email) }
+                        updateState { copy(emailInput = intent.email).validated(RegistrationValidationFields.emailInput) }
                     }
 
                     is RegistrationIntent.ChangeName -> {
-                        updateState { copy(nameInput = intent.name) }
+                        updateState { copy(nameInput = intent.name).validated(RegistrationValidationFields.nameInput) }
                     }
 
                     is RegistrationIntent.ChangePassword -> {
-                        updateState { copy(passwordInput = intent.password) }
+                        updateState { copy(passwordInput = intent.password).validated(RegistrationValidationFields.passwordInput) }
                     }
                 }
             }
@@ -75,6 +75,7 @@ class RegistrationContainer(
 
     private suspend fun Ctx.submitRegistration() {
         withState {
+            if (!isAllValidated()) return@withState
             updateState { copy(isLoading = true) }
 
             val newUserId = registerUseCase(emailInput, passwordInput, nameInput)
@@ -92,6 +93,7 @@ class RegistrationContainer(
 
     private suspend fun Ctx.submitCode() {
         withState {
+            if (!isAllValidated()) return@withState
             val userId = savedUserId ?: return@withState
 
             updateState { copy(isLoading = true) }

@@ -39,11 +39,11 @@ class LoginContainer(
                     }
 
                     is LoginIntent.ChangeEmail -> {
-                        updateState { copy(emailInput = intent.email) }
+                        updateState { copy(emailInput = intent.email).validated(LoginValidationFields.emailInput) }
                     }
 
                     is LoginIntent.ChangePassword -> {
-                        updateState { copy(passwordInput = intent.password) }
+                        updateState { copy(passwordInput = intent.password).validated(LoginValidationFields.passwordInput) }
                     }
 
                     LoginIntent.SubmitClicked -> submitLogin()
@@ -54,6 +54,7 @@ class LoginContainer(
 
     private suspend fun Ctx.submitLogin() {
         withState {
+            if (!isAllValidated()) return@withState
             updateState { copy(isLoading = true) }
 
             loginUseCase(emailInput, passwordInput)
