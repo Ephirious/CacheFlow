@@ -1,47 +1,39 @@
-Это Kotlin Multiplatform проект с UI на TypeScript
+# Frontend
 
-* [/shared](): здесь пошарен код между всеми таргетами в проекте.
+Изменено: 02.06.2026
 
-* [/webApp](./webApp) содержит React-приложение. Оно использует Kotlin/JS библиотеку сбилженную
-  через [/k2ts](./k2ts) модуль.
+Frontend состоит из React-приложения и Kotlin Multiplatform shared layer.
 
-* [/k2ts](./k2ts) содержит настройки для билда библиотеки под JS таргет, занимается инициализацией
+```text
+frontend/
+├── webApp/          # React + TypeScript
+├── k2ts/            # Kotlin/JS bridge
+├── shared/          # общая бизнес-логика
+└── ksp-processor/   # кодогенерация
+```
 
+### shared
 
-### Внутренняя документация
+Здесь находится основная бизнес-логика приложения:
+- авторизация;
+- транзакции;
+- счета и категории;
+- синхронизация;
+- статистика;
+- навигация.
 
-- ~[Взаимодействие WebApp и ServiceWorker. (кэширование, пуши, синхронизация)](docs/WebApp_ServiceWorker.md)~ Устарело, т.к. ServiceWorker был переписан.
+Подробности по каждому модулю описаны в `shared/*/README.md`.
 
-### Билд и запуск
+### webApp
 
-Чтобы сбилдить и запустить веб-приложение, следуйте следующим шагам:
+React-приложение, которое использует Kotlin/JS библиотеку, собранную из `k2ts`.
 
-1. Скачайте IntelliJ IDEA, установите плагин Kotlin Multiplatform
-2. Откройте этот проект (в IDEA) и установите JAVA 17
-3. Скачайте [Node.js](https://nodejs.org/en/download) (содержит `npm`)
-4. Сбилдите Kotlin/JS код (модуль k2ts):
-    - на macOS/Linux
-      ```shell
-      ./gradlew buildK2ts
-      ```
-    - на Windows
-      ```shell
-      .\gradlew.bat buildK2ts
-      ```
-5. Запустите приложение
-   ```shell
-   npm install
-   npm run start
-   ```
+Подробности по web-части находятся в `webApp/README.md`.
 
-> [!NOTE]
-> **Про сборку**
-> - **Kotlin:** `buildK2ts` билдит JS библиотеку Kotlin логики с биндингами на TS _(Production для лучшей стабильности)_
-> - **TS** : `npm run start`, `npm run build`, `npm run preview`
->    - `start` – используется для реактивной разработки, т.е. поддерживает hotReload основной логики (`k2ts`) и других файлов _(UI)_.\
-     Не поддерживает offline-first, т.к. кэширование отключено. _(порт 8080)_
->    - `build` – билдит проект в папочку `dist`
->    - `preview` – выполняет `build`, а потом хостится, имитируя поведение настоящего прода. Можно устанавливать как PWA. _(порт 4173)_
+## Полезная документация
 
-> Не забывайте прописывать `npm install`!! Если при компиляции Kotlin жалуется на yarn.lock – сносите папку
-`kotlin-js-store` _(не лучшая практика в проде, но...)_
+- [`../docs/setup/local-development.md`](../docs/setup/local-development.md)
+- [`../docs/architecture/react-ui.md`](../docs/architecture/react-ui.md)
+- [`../docs/architecture/offline-first.md`](../docs/architecture/offline-first.md)
+- [`../docs/architecture/synchronization.md`](../docs/architecture/synchronization.md)
+- [`../docs/architecture/k2ts.md`](../docs/architecture/k2ts.md)
