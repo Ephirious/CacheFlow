@@ -1,47 +1,90 @@
-Это Kotlin Multiplatform проект с UI на TypeScript
+# Frontend
 
-* [/shared](): здесь пошарен код между всеми таргетами в проекте.
+Изменено: 02.06.2026
 
-* [/webApp](./webApp) содержит React-приложение. Оно использует Kotlin/JS библиотеку сбилженную
-  через [/k2ts](./k2ts) модуль.
+Frontend состоит из React-приложения и Kotlin Multiplatform shared layer.
 
-* [/k2ts](./k2ts) содержит настройки для билда библиотеки под JS таргет, занимается инициализацией
+```text
+frontend/
+├── webApp/   # React + TypeScript
+├── k2ts/     # Kotlin/JS bridge
+└── shared/   # общая бизнес-логика
+```
 
+## Что где находится
 
-### Внутренняя документация
+### shared
 
-- ~[Взаимодействие WebApp и ServiceWorker. (кэширование, пуши, синхронизация)](docs/WebApp_ServiceWorker.md)~ Устарело, т.к. ServiceWorker был переписан.
+Здесь находится основная бизнес-логика приложения:
 
-### Билд и запуск
+- авторизация;
+- транзакции;
+- счета и категории;
+- синхронизация;
+- статистика;
+- навигация.
 
-Чтобы сбилдить и запустить веб-приложение, следуйте следующим шагам:
+Подробности по каждому модулю описаны в `shared/*/README.md`.
 
-1. Скачайте IntelliJ IDEA, установите плагин Kotlin Multiplatform
-2. Откройте этот проект (в IDEA) и установите JAVA 17
-3. Скачайте [Node.js](https://nodejs.org/en/download) (содержит `npm`)
-4. Сбилдите Kotlin/JS код (модуль k2ts):
-    - на macOS/Linux
-      ```shell
-      ./gradlew buildK2ts
-      ```
-    - на Windows
-      ```shell
-      .\gradlew.bat buildK2ts
-      ```
-5. Запустите приложение
-   ```shell
-   npm install
-   npm run start
-   ```
+### webApp
 
-> [!NOTE]
-> **Про сборку**
-> - **Kotlin:** `buildK2ts` билдит JS библиотеку Kotlin логики с биндингами на TS _(Production для лучшей стабильности)_
-> - **TS** : `npm run start`, `npm run build`, `npm run preview`
->    - `start` – используется для реактивной разработки, т.е. поддерживает hotReload основной логики (`k2ts`) и других файлов _(UI)_.\
-     Не поддерживает offline-first, т.к. кэширование отключено. _(порт 8080)_
->    - `build` – билдит проект в папочку `dist`
->    - `preview` – выполняет `build`, а потом хостится, имитируя поведение настоящего прода. Можно устанавливать как PWA. _(порт 4173)_
+React-приложение, которое использует Kotlin/JS библиотеку, собранную из `k2ts`.
 
-> Не забывайте прописывать `npm install`!! Если при компиляции Kotlin жалуется на yarn.lock – сносите папку
-`kotlin-js-store` _(не лучшая практика в проде, но...)_
+### k2ts
+
+Модуль, который экспортирует Kotlin-код в JavaScript и генерирует TypeScript-описания.
+
+Именно через него React получает доступ к состоянию экранов и навигации.
+
+## Перед запуском
+
+Понадобятся:
+
+- Java 17;
+- Node.js и npm;
+- IntelliJ IDEA с Kotlin Multiplatform Plugin (желательно).
+
+## Сборка Kotlin/JS
+
+Linux/macOS:
+
+```bash
+./gradlew buildK2ts
+```
+
+Windows:
+
+```powershell
+.\gradlew.bat buildK2ts
+```
+
+## Запуск React-приложения
+
+```bash
+npm install
+npm run start
+```
+
+## Режимы работы
+
+### Разработка
+
+```bash
+npm run start
+```
+
+Поддерживает hot reload, но не включает offline-first поведение Service Worker.
+
+### Проверка production-сборки
+
+```bash
+npm run preview
+```
+
+В этом режиме приложение ближе всего к реальному production-окружению. Можно проверять PWA-функциональность и работу Service Worker.
+
+## Полезные документы
+
+- `../docs/architecture/offline-first.md`
+- `../docs/architecture/synchronization.md`
+- `../docs/architecture/k2ts.md`
