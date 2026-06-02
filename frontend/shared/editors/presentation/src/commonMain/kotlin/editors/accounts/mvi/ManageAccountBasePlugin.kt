@@ -39,11 +39,15 @@ fun <S : MVIState, I : ManageAccountBaseIntent, A : MVIAction, F : ManageAccount
                     }
 
                     is ManageAccountBaseIntent.ChangedTitle -> {
-                        @Suppress("UNCHECKED_CAST")
-                        (currentForm.copyBase(title = baseIntent.title)
-                                as ManageAccountFormBaseState<ManageAccountFormBaseValidationErrors>)
-                            .validated(ManageAccountFormBaseValidationFields.title)
-
+                        when (val f = currentForm.copyBase(title = baseIntent.title)) {
+                            is CreateAccountFormState -> f.validated(CreateAccountFormValidationFields.title)
+                            else -> {
+                                @Suppress("UNCHECKED_CAST")
+                                (f as ManageAccountFormBaseState<ManageAccountFormBaseValidationErrors>).validated(
+                                    ManageAccountFormBaseValidationFields.title
+                                )
+                            }
+                        }
                     }
 
                     ManageAccountBaseIntent.ClickedTryAgain -> currentForm
