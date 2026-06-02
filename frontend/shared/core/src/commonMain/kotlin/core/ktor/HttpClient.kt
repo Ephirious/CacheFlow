@@ -8,6 +8,7 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.http.ContentType
 import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
+import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.ClassDiscriminatorMode
@@ -43,6 +44,8 @@ fun getHttpClient(
         install(DefaultRequest) {
             this.contentType(ContentType.Application.Json)
             url {
+                encodedPath = "/api/"
+
                 protocol = if (AppConfig.isHttps) URLProtocol.HTTPS else URLProtocol.HTTP
                 host = AppConfig.serverHost
 
