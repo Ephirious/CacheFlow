@@ -15,7 +15,6 @@ class UpsertTransactionUseCase(
 ) {
     suspend operator fun invoke(transaction: Transaction) {
         combineStrictRules(
-            { IdRule.validate(transaction.id) },
             { TransactionValueRule.validate(transaction.value.toString()) },
             { TransactionNoteRule.validate(transaction.note) },
 
