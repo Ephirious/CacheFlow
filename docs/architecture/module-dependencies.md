@@ -1,33 +1,36 @@
-# Module Dependencies
+# Структура модулей и зависимости
 
-Документ фиксирует зависимости между frontend shared-модулями и backend слоями.
+Изменено: 02.06.2026
 
-## Frontend module graph
+Этот документ помогает быстро понять, как собран проект и какие слои за что отвечают.
+
+## Общая картина
 
 ```text
 webApp
-  ↓
-k2ts
-  ↓
-root:presentation
-  ├── auth:presentation
-  ├── transactions:presentation
-  ├── settings:presentation
-  ├── editors:presentation
-  └── stats:presentation
+  -> k2ts
+  -> root:presentation
 
-feature:presentation
-  ↓
-feature:domain
-  ↓
-feature:data
-  ↓
-core / utils / core-validation
+root:presentation
+  -> auth:presentation
+  -> transactions:presentation
+  -> settings:presentation
+  -> editors:presentation
+  -> stats:presentation
 ```
 
-## Gradle modules
+Типичный feature-модуль выглядит так:
 
-`frontend/settings.gradle.kts` подключает следующие группы модулей:
+```text
+presentation
+  -> domain
+  -> data
+  -> core / utils / core-validation
+```
+
+## Какие модули есть в проекте
+
+Из `frontend/settings.gradle.kts` подключаются:
 
 ```text
 :k2ts
@@ -37,94 +40,69 @@ core / utils / core-validation
 :shared:core
 :shared:root:presentation
 
-:shared:transactions:data
-:shared:transactions:domain
-:shared:transactions:presentation
-
-:shared:stats:presentation
-
-:shared:settings:data
-:shared:settings:domain
-:shared:settings:presentation
-
-:shared:editors:data
-:shared:editors:domain
-:shared:editors:presentation
-
-:shared:sync:data
-:shared:sync:domain
-
-:shared:auth:data
-:shared:auth:domain
-:shared:auth:presentation
+:shared:transactions:*
+:shared:stats:*
+:shared:settings:*
+:shared:editors:*
+:shared:sync:*
+:shared:auth:*
 
 :shared:utils:common
 :shared:utils:pure
 ```
 
-## Dependency rules
+## Что лежит в слоях
 
-### Presentation layer
+### Presentation
 
-Presentation modules may depend on:
+Здесь находятся компоненты, контейнеры, состояние экранов и навигация.
 
-- own domain module;
-- other presentation modules only through navigation/composition contracts;
-- `core`, `utils:common`, `utils:pure`;
-- Decompose and FlowMVI APIs.
+Presentation-слой работает через Decompose и FlowMVI и не должен напрямую обращаться к SQLDelight или сетевым клиентам.
 
-Presentation modules must not directly depend on SQLDelight, Settings storage or backend DTO implementations.
+### Domain
 
-### Domain layer
+Здесь лежат:
 
-Domain modules contain:
+- use case'ы;
+- интерфейсы репозиториев;
+- доменные модели.
 
-- usecases;
-- repository interfaces;
-- domain models;
-- validation orchestration.
+Domain знает, какие данные нужны приложению, но не знает, где именно они хранятся.
 
-Domain modules should not know concrete storage/network implementations.
+### Data
 
-### Data layer
+Data-слой связывает доменную модель с реальной реализацией.
 
-Data modules contain:
+Здесь находятся:
 
-- repository implementations;
-- local data sources;
-- SQLDelight access;
-- Multiplatform Settings access;
-- Ktor integration;
-- sync queue integration.
+- реализации репозиториев;
+- SQLDelight;
+- Settings;
+- Ktor;
+- интеграция с очередью синхронизации.
 
-## Cross-feature dependencies
+## Несколько важных связей
 
-Some modules intentionally depend on other domain modules:
+Некоторые модули заведомо знают друг о друге.
 
-- `auth:domain` uses sync and transaction domain contracts for authenticated app initialization.
-- `editors:domain` works with account/category entities used by transactions and sync.
-- `transactions:presentation` composes filters, summary and transaction list features.
-- `sync:data` depends on concrete repositories and backend API contracts.
+Например:
 
-## Backend dependency graph
+- `auth:domain` связан с синхронизацией и данными пользователя;
+- `editors` работает со счетами и категориями, которые используются в транзакциях;
+- `stats` строится поверх счетов и транзакций;
+- `sync:data` использует конкретные репозитории для применения изменений.
+
+## Backend
+
+На сервере зависимости намного проще:
 
 ```text
-api routers
-  ↓
-services
-  ↓
-unit of work
-  ↓
-repositories
-  ↓
-SQLAlchemy models
-  ↓
-PostgreSQL
+API
+  -> Services
+  -> UnitOfWork
+  -> Repositories
+  -> SQLAlchemy Models
+  -> PostgreSQL
 ```
 
-## Backend repository rules
-
-- New database access logic should be added through repositories.
-- Services should use `UnitOfWork`, not raw sessions.
-- Service methods should return typed `Result` objects where this pattern is already used.
-- Alembic migrations must reflect model changes.
+Новая бизнес-логика должна появляться в сервисах, а доступ к базе - через репозитории и UnitOfWork.
