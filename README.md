@@ -32,5 +32,6 @@ CacheFlow/
 Настройка и запуск:
 
 - [Локальная разработка](./docs/setup/local-development.md)
+- [Докер](./docs/setup/docker.md)
 
 Документация frontend модулей лежит рядом с кодом в `frontend/shared/*/README.md`.
