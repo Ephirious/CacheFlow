@@ -1,10 +1,10 @@
-# Utils Module
+# Модуль utils
 
-## Назначение
+Изменено: 02.06.2026
 
-`utils` содержит общие переиспользуемые утилиты и инфраструктурные abstractions.
+`utils` - набор общих инструментов, которые используются практически во всех остальных модулях.
 
-Структура:
+Структура разделена на два слоя:
 
 ```text
 utils/
@@ -14,44 +14,32 @@ utils/
 
 ## utils:pure
 
-Нижний слой зависимостей.
+Самый нижний уровень зависимостей.
 
-Подтвержденные зависимости:
+Из подтверждённых зависимостей:
 
-- kotlinx.serialization.json
+- `kotlinx.serialization.json`
+- `big.js`
+- `graphemer`
 
-Web-specific зависимости:
-
-- npm: big.js
-- npm: graphemer
-
-Модуль может использоваться любым другим shared-модулем без зависимости на UI или presentation stack.
+Этот модуль не зависит от UI и может использоваться где угодно.
 
 ## utils:common
 
-Подтвержденные зависимости:
+Содержит инфраструктуру, которая нужна presentation-слою:
 
-- Decompose Core
-- FlowMVI Core
-- FlowMVI Essenty
-- Kotlin Coroutines
-- utils:pure
+- Decompose
+- FlowMVI
+- Coroutines
 
-## Подтвержденные обязанности
+Также здесь находятся различные вспомогательные классы, которые часто встречаются в коде:
 
-По найденным использованиям модуль содержит:
+- `JsValue`
+- `JsChildStack`
+- `JsChildSlot`
 
-- JS interop wrappers (`JsValue`, `JsChildStack`, `JsChildSlot`);
-- helpers для Decompose integration;
-- coroutine utilities;
-- URL/navigation helpers;
-- presentation helpers;
-- logging utilities.
+Через них Kotlin-компоненты экспортируют состояние и навигацию в React-приложение.
 
-## Архитектурная роль
+## Когда смотреть сюда
 
-`utils` является фундаментом shared layer.
-
-Зависимость на `utils:pure` допускается практически во всех модулях.
-
-Зависимость на `utils:common` используется presentation и startup слоями, которым необходимы Decompose/FlowMVI abstractions.
+Если в проекте появляется код, который хочется скопировать сразу в несколько модулей, скорее всего ему место именно в `utils`, а не в очередном feature-модуле.
