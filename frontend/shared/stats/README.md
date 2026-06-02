@@ -1,8 +1,8 @@
-# Stats Module
+# Модуль stats
 
-## Назначение
+Изменено: 02.06.2026
 
-Модуль отвечает за построение статистики и аналитических представлений на основе счетов и транзакций.
+`stats` строит статистику по счетам и транзакциям. Собственной базы данных у него нет - он работает поверх уже существующих данных.
 
 ## Структура
 
@@ -11,55 +11,34 @@ stats/
 └── presentation/
 ```
 
-На текущий момент в репозитории подтвержден только presentation layer.
+На текущий момент модуль состоит только из presentation-слоя.
 
-## Подтвержденные классы
+## Основные классы
 
-- StatsComponent
-- RealStatsComponent
-- StatsCalculator
-- StatsState
-- StatsIntent
+- `StatsComponent`
+- `RealStatsComponent`
+- `StatsCalculator`
+- `StatsState`
+- `StatsIntent`
 
-## Источники данных
+## Откуда берутся данные
 
-Модуль использует:
+Статистика использует:
 
-- GetAccountsFlowUseCase
-- GetTransactionsFlowUseCase
+- `GetAccountsFlowUseCase`
+- `GetTransactionsFlowUseCase`
 
-Данные объединяются через `combine(...)`.
+Потоки объединяются через `combine(...)`, после чего пересчитываются агрегаты.
 
-## State model
+Состояние экрана хранит выбранный счёт, период, метрику и данные, необходимые для построения аналитики.
 
-Компонент хранит:
+Поддерживаются действия:
 
-- список счетов;
-- список транзакций;
-- выбранный счет;
-- выбранный период;
-- выбранную метрику.
+- `SelectAccount`
+- `SelectMetric`
+- `SelectPresetPeriod`
+- `SelectCustomPeriod`
 
-## Поддерживаемые intents
+## Интеграция с UI
 
-Подтверждены:
-
-- SelectAccount
-- SelectMetric
-- SelectPresetPeriod
-- SelectCustomPeriod
-
-## JS interop
-
-`StatsComponent` экспортируется через `@JsExport`.
-
-Предоставляет:
-
-- observable state (`jsState`);
-- метод `intent(...)`.
-
-## Архитектурная роль
-
-Stats не владеет собственным хранилищем данных.
-
-Модуль является вычислительным слоем, который агрегирует данные из accounts и transactions и строит аналитическое состояние для UI.
+`StatsComponent` экспортируется в JavaScript через `@JsExport` и предоставляет React-приложению состояние (`jsState`) и метод отправки intent'ов.
