@@ -11,8 +11,6 @@ stats/
 └── presentation/
 ```
 
-На текущий момент модуль состоит только из presentation-слоя.
-
 ## Основные классы
 
 - `StatsComponent`
@@ -38,7 +36,3 @@ stats/
 - `SelectMetric`
 - `SelectPresetPeriod`
 - `SelectCustomPeriod`
-
-## Интеграция с UI
-
-`StatsComponent` экспортируется в JavaScript через `@JsExport` и предоставляет React-приложению состояние (`jsState`) и метод отправки intent'ов.
