@@ -1,8 +1,8 @@
-# Settings Module
+# Модуль settings
 
-## Назначение
+Изменено: 02.06.2026
 
-Модуль отвечает за настройки приложения и страницы управления конфигурацией.
+`settings` отвечает за настройки приложения и экраны, где пользователь управляет частью справочников.
 
 ## Структура
 
@@ -13,42 +13,28 @@ settings/
 └── presentation/
 ```
 
-## Domain
+## Тема приложения
 
-Подтвержденные usecases:
+Сейчас в domain-слое есть `GetThemeUseCase` и контракт `SettingsRepository`.
 
-- GetThemeUseCase
+Репозиторий умеет:
 
-### SettingsRepository
-
-Подтвержденные операции:
-
-- setTheme(theme)
-- getTheme()
+- `setTheme(theme)`
+- `getTheme()`
 
 Для темы используется модель `AppTheme`.
 
-## Data
+## Реализация и UI
 
-Подтвержденные элементы:
+В `data` находятся:
 
-- SettingsRepositoryImpl
-- SettingsDataModule
+- `SettingsRepositoryImpl`
+- `SettingsDataModule`
 
-Data слой отвечает за хранение пользовательских настроек.
+В `presentation` используются:
 
-## Presentation
+- `SettingsContainer`
+- `RealSettingsComponent`
+- `AccountsComponent`
 
-Подтвержденные компоненты:
-
-- SettingsContainer
-- RealSettingsComponent
-- AccountsComponent
-
-Модуль агрегирует страницы настроек и предоставляет интерфейсы управления справочниками приложения.
-
-## Ответственность
-
-- управление темой приложения;
-- конфигурация пользовательского окружения;
-- интеграция со страницами счетов и связанных настроек.
+`settings` не только хранит параметры приложения, но и собирает часть экранов управления. Например, через него пользователь попадает к настройкам счетов.
