@@ -1,133 +1,99 @@
-# Data Flow
+# Поток данных
 
-Документ описывает движение данных между React UI, Kotlin Multiplatform shared layer и backend API.
+Изменено: 02.06.2026
 
-## Frontend flow
+Этот файл описывает, как данные проходят через React, Kotlin shared layer и backend API.
+
+Главная идея простая: UI не ходит напрямую в базу или HTTP-клиент. React общается с Kotlin-компонентами, компоненты передают действия в MVI-контейнеры, а бизнес-логика уходит в use case'ы и репозитории.
+
+## Frontend
 
 ```text
 React UI
-   ↓
-TypeScript bindings
-   ↓
-Kotlin/JS exported API
-   ↓
-Decompose Component
-   ↓
-FlowMVI Container / Store
-   ↓
-UseCase
-   ↓
-Repository interface
-   ↓
-Repository implementation
-   ↓
-SQLDelight / Settings / Ktor API
+  -> TypeScript bindings
+  -> Kotlin/JS exported API
+  -> Decompose Component
+  -> FlowMVI Container / Store
+  -> UseCase
+  -> Repository interface
+  -> Repository implementation
+  -> SQLDelight / Settings / Ktor API
 ```
 
-## UI events
+Пользовательские действия приходят из UI как intents. Это может быть отправка формы, смена фильтра, переход между экранами, создание сущности или ручной запуск синхронизации.
 
-UI не должен напрямую работать с базой данных или HTTP-клиентом. Он отправляет пользовательские действия в presentation layer:
-
-- submit формы;
-- изменение фильтра;
-- переход между экранами;
-- создание/редактирование сущности;
-- запуск синхронизации.
-
-Presentation layer преобразует события в intents/actions и передает их в MVI container.
-
-## MVI state updates
-
-Типичный цикл:
+MVI-контейнер обрабатывает intent, вызывает нужный use case и обновляет состояние экрана. React подписан на это состояние через JS-interop обёртки.
 
 ```text
 Intent
-  → business action
-  → repository call
-  → state mutation
-  → StateFlow emission
-  → React render
+  -> business action
+  -> repository call
+  -> state update
+  -> state emission
+  -> React render
 ```
 
-Состояние экрана должно быть производным от domain/data state. UI-компоненты не должны хранить бизнес-состояние, которое уже есть в shared layer.
+## Запись данных
 
-## Local-first write flow
+В большинстве пользовательских сценариев приложение сначала меняет локальное состояние, а уже потом синхронизирует его с сервером.
 
 ```text
-User Action
-   ↓
-UseCase
-   ↓
-Local Repository
-   ↓
-SQLDelight transaction
-   ↓
-Sync Queue operation
-   ↓
-UI state update
-   ↓
-Background/server sync
+User action
+  -> UseCase
+  -> Local Repository
+  -> SQLDelight transaction
+  -> Sync Queue operation
+  -> UI state update
+  -> background sync
 ```
 
-Frontend сначала фиксирует изменение локально, после чего sync layer доставляет операцию на backend.
+Такой порядок нужен, чтобы интерфейс не зависел от качества сети. Пользователь видит результат сразу, а `sync`-модуль позже доставляет изменение на backend.
 
-## Read flow
+## Чтение данных
+
+Чтение обычно построено вокруг `Flow`.
 
 ```text
 Screen opened
-   ↓
-Component subscribes to Flow
-   ↓
-Repository observes SQLDelight query
-   ↓
-Flow emits domain models
-   ↓
-MVI state is updated
+  -> Component subscribes to Flow
+  -> Repository observes SQLDelight query
+  -> Flow emits domain models
+  -> MVI state is updated
 ```
 
-## Backend flow
+Экран не перечитывает данные вручную после каждого действия. Если локальная база изменилась, поток отдаёт новое значение, а состояние экрана пересобирается.
+
+## Backend
+
+На сервере поток данных выглядит так:
 
 ```text
 HTTP Request
-   ↓
-FastAPI router
-   ↓
-Dependency injection
-   ↓
-Service
-   ↓
-UnitOfWork
-   ↓
-Repository
-   ↓
-SQLAlchemy model
-   ↓
-PostgreSQL
+  -> FastAPI router
+  -> Dependency injection
+  -> Service
+  -> UnitOfWork
+  -> Repository
+  -> SQLAlchemy model
+  -> PostgreSQL
 ```
 
-## Sync flow
+API-слой принимает запрос и отдаёт его в сервис. Сервис работает через Unit of Work и репозитории, а не напрямую с SQLAlchemy session.
+
+## Синхронизация
 
 ```text
 Client sync queue
-   ↓
-POST /sync
-   ↓
-SyncService
-   ↓
-server-side operation validation
-   ↓
-repository updates
-   ↓
-SyncResponse
-   ↓
-client local merge
+  -> POST /sync
+  -> SyncService
+  -> operation validation
+  -> repository updates
+  -> SyncResponse
+  -> local merge
 ```
+
+Клиент отправляет накопленные операции и дату последней синхронизации. Сервер возвращает принятые операции, удаления и обновлённое состояние. Клиент применяет ответ в локальную базу.
 
 ## Ошибки
 
-Ошибки должны проходить через domain/presentation result model:
-
-- backend возвращает HTTP error или structured error;
-- data layer мапит ошибку в domain-level result;
-- usecase возвращает failure;
-- MVI container отображает ошибку в state.
+Ошибки не должны всплывать в UI в сыром виде. Data/domain-слои должны превратить их в понятный результат, а presentation-слой уже решает, что показать пользователю.
