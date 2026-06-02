@@ -166,6 +166,8 @@ class SyncService:
                     repo, _, _, schema_out_record = self._schemas_map[s_op.table_type]
                     db_obj = await repo.get_by_id(s_op.processing_id)
                     if db_obj:
+                        if s_op.table_type == TableType.OPERATIONS:
+                            affected_accounts.add(db_obj.account_uuid)
                         resp.update_state.append(StateUpdate(
                             table_type=s_op.table_type,
                             record=schema_out_record.model_validate(db_obj, from_attributes=True).model_dump(),
