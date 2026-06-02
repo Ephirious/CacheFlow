@@ -1,80 +1,69 @@
-# Decompose
+# Навигация и Decompose
 
-Frontend shared layer использует Decompose для component lifecycle и навигационных структур.
+Изменено: 02.06.2026
 
-## Подтвержденные элементы
+В проекте Decompose используется как слой навигации и жизненного цикла компонентов. React отвечает за отрисовку, а Decompose управляет структурой экранов и их состоянием.
 
-В `TransactionsComponent` используются:
+Хороший пример можно посмотреть в `TransactionsComponent`.
 
-- `ComponentContext` как базовый lifecycle/navigation context;
-- `SlotNavigation<Unit>` для управления открытием фильтров;
-- `childSlot(...)` для создания дочернего `FiltersComponent`;
-- `Value<ChildSlot<Unit, FiltersComponent>>` как Decompose observable navigation state;
-- `handleBackButton = false` для slot с фильтрами;
-- JS wrapper `asJsSlot()` для передачи child slot в TypeScript.
+Там используются:
 
-## Роль Decompose
+- `ComponentContext`
+- `SlotNavigation<Unit>`
+- `childSlot(...)`
+- `ChildSlot<Unit, FiltersComponent>`
+- `asJsSlot()`
 
-Decompose используется не как UI-фреймворк, а как слой управления компонентами:
+## Как это выглядит
 
 ```text
 ComponentContext
-   ↓
-Root/Feature Component
-   ↓
-Child Stack / Child Slot
-   ↓
-Nested Component
-   ↓
-JS interop wrapper
-   ↓
-React UI
+  -> Feature Component
+  -> Child Stack / Child Slot
+  -> Nested Component
+  -> JS wrapper
+  -> React UI
 ```
 
-## Component contract
+То есть React получает уже готовые компоненты и навигационное состояние, а не строит дерево экранов самостоятельно.
 
-Компонент обычно выполняет несколько задач:
+## Пример с фильтрами транзакций
 
-- хранит lifecycle context;
-- экспортирует observable state в JS;
-- принимает intents от TypeScript UI;
-- подписывает UI на actions;
-- создает дочерние компоненты;
-- управляет navigation state.
-
-## ChildSlot на примере фильтров
-
-Для фильтров транзакций используется slot-based навигация:
+Фильтры открываются через отдельный `ChildSlot`.
 
 ```text
 TransactionsComponent
-   └── FiltersComponent через ChildSlot
+  -> FiltersComponent
 ```
 
-Открытие фильтров:
+Открытие выглядит примерно так:
 
 ```text
 setIsFiltersOpen(true)
-   ↓
-filtersSlotNavigation.activate(Unit)
-   ↓
-pushUrlSegment("filters")
+  -> filtersSlotNavigation.activate(Unit)
+  -> pushUrlSegment("filters")
 ```
 
-Закрытие фильтров:
+Закрытие работает в обратную сторону:
 
 ```text
 setIsFiltersOpen(false)
-   ↓
-filtersSlotNavigation.dismiss()
-   ↓
-popUrlSegment("filters")
+  -> filtersSlotNavigation.dismiss()
+  -> popUrlSegment("filters")
 ```
 
-## Правила расширения
+Из-за этого состояние навигации остаётся внутри Kotlin-кода и может синхронизироваться с URL браузера.
 
-1. Новый экран должен иметь явный Component contract.
-2. Вложенные экраны должны создаваться через Decompose navigation primitives.
-3. JS-facing navigation state должен оборачиваться в interop-типы из `utils.interop`.
-4. Business logic не должна попадать в React-компоненты.
-5. Component должен связывать navigation, MVI store и JS API.
+## Что обычно делает компонент
+
+Большинство компонентов в проекте выполняют одинаковый набор задач:
+
+- держат `ComponentContext`;
+- экспортируют состояние в JavaScript;
+- принимают intents от React;
+- создают дочерние компоненты;
+- связывают навигацию и MVI-контейнер.
+
+## Практическое правило
+
+Если появляется новый экран, его лучше оформлять отдельным компонентом Decompose, а не пытаться хранить навигацию только внутри React. Так приложение остаётся единообразным и не появляется второй источник правды для маршрутов.
