@@ -82,6 +82,7 @@ const AuthBottomSheet = ({ component }: AuthBottomSheetProps) => {
             initialSnapPoint={1}
             dismissible={true}
             modal={true}
+            repositionInputs={false}
             backgroundColor="var(--color-surface-base)"
             contentPaddingBottom="calc(env(safe-area-inset-bottom))"
         >

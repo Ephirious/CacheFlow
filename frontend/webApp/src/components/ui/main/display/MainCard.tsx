@@ -11,7 +11,6 @@ interface MainCardData {
 
 const MainCard = ({data}: { data: MainCardData }) => {
     const displayBalance = data.balance.prettyString();
-    const displayPercentage = data.percentage.toString();
     const accountsList = data.accounts;
     const pageSize = 2;
     const [activePage, setActivePage] = useState(0);
@@ -81,7 +80,7 @@ const MainCard = ({data}: { data: MainCardData }) => {
                     <div className="text-5xl sm:text-6xl font-bold text-brand-on-primary">
                         {displayBalance.toString()} ₽
                     </div>
-                    <div className="text-sm text-brand-on-primary/70 font-medium">+{displayPercentage.toString()}% за месяц</div>
+
                 </div>
                 {shouldShowCarousel ? (
                     <>

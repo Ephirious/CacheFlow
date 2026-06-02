@@ -22,6 +22,11 @@ const DatePicker = ({ value, onChange }: DatePickerProps) => {
             <div className="relative">
                 <input
                     type="date"
+                    onClick={(e) => {
+                        try {
+                            if (e.currentTarget.showPicker) e.currentTarget.showPicker();
+                        } catch (err) {}
+                    }}
                     value={value ? value.toISOString().split('T')[0] : ""}
                     onChange={(e) => {
                         const val = e.target.value;

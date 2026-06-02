@@ -65,6 +65,11 @@ const StatsChartsCarousel = ({
                                     max={dateRange.to || undefined}
                                     onChange={(event) => onDateRangeChange({...dateRange, from: event.target.value})}
                                     type="date"
+                                    onClick={(e) => {
+                                        try {
+                                            if (e.currentTarget.showPicker) e.currentTarget.showPicker();
+                                        } catch (err) {}
+                                    }}
                                     value={dateRange.from}
                                 />
                             </label>
@@ -75,6 +80,11 @@ const StatsChartsCarousel = ({
                                     min={dateRange.from || undefined}
                                     onChange={(event) => onDateRangeChange({...dateRange, to: event.target.value})}
                                     type="date"
+                                    onClick={(e) => {
+                                        try {
+                                            if (e.currentTarget.showPicker) e.currentTarget.showPicker();
+                                        } catch (err) {}
+                                    }}
                                     value={dateRange.to}
                                 />
                             </label>
