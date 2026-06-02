@@ -67,7 +67,7 @@ FROM SyncOperations op
 LEFT JOIN Accounts acc ON op.processing_id = acc.id AND op.table_type = 'accounts' AND op.action = 'create'
 LEFT JOIN Categories cat ON op.processing_id = cat.id AND op.table_type = 'categories' AND op.action = 'create'
 LEFT JOIN Operations oper ON op.processing_id = oper.id AND op.table_type = 'operations' AND op.action = 'create'
-LEFT JOIN Transfers tran ON op.processing_id = tran.id AND op.table_type = 'transfers' AND op.action = 'create'
+LEFT JOIN Transfers tran ON op.processing_id = tran.id AND op.table_type = 'transfer' AND op.action = 'create'
 ORDER BY op.created_at;
 
 getCreateOperationByProcessingId:

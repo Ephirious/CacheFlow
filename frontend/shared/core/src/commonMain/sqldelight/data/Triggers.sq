@@ -184,6 +184,7 @@ createTriggers {
     
     CREATE TRIGGER IF NOT EXISTS trg_transfers_sync_insert
     AFTER INSERT ON Transfers
+    WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
     BEGIN
         INSERT INTO SyncOperations (id, processing_id, action, table_type, created_at)
         VALUES (lower(hex(randomblob(16))), new.id, 'create', 'transfer', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
@@ -192,7 +193,8 @@ createTriggers {
     
     CREATE TRIGGER IF NOT EXISTS trg_transfers_sync_update_from
     AFTER UPDATE OF account_from_id ON Transfers
-    WHEN old.account_from_id IS NOT new.account_from_id
+    WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
+         AND old.account_from_id IS NOT new.account_from_id
          AND NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
     BEGIN
         INSERT INTO SyncOperations (id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
@@ -201,7 +203,8 @@ createTriggers {
     
     CREATE TRIGGER IF NOT EXISTS trg_transfers_sync_update_to
     AFTER UPDATE OF account_to_id ON Transfers
-    WHEN old.account_to_id IS NOT new.account_to_id
+    WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
+         AND old.account_to_id IS NOT new.account_to_id
          AND NOT EXISTS (SELECT 1 FROM SyncOperations WHERE processing_id = new.id AND action = 'create')
     BEGIN
         INSERT INTO SyncOperations (id, processing_id, action, table_type, field_to_update, value_to_update, created_at)
@@ -210,6 +213,7 @@ createTriggers {
     
     CREATE TRIGGER IF NOT EXISTS trg_transfers_sync_delete
     BEFORE DELETE ON Transfers
+    WHEN (SELECT is_sync_running FROM SyncSettings LIMIT 1) = 0
     BEGIN
         INSERT INTO SyncOperations (id, processing_id, action, table_type, created_at)
         SELECT lower(hex(randomblob(16))), old.id, 'delete', 'transfer', strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
