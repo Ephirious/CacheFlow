@@ -1,63 +1,38 @@
-# Root Presentation Module
+# Модуль root:presentation
 
-## Назначение
+Изменено: 02.06.2026
 
-`root:presentation` — composition root frontend shared layer.
+`root:presentation` собирает верхний уровень навигации приложения. Это место, где Decompose связывает основные экраны в один стек.
 
-Модуль отвечает за:
+## Основные классы
 
-- создание корневого Decompose component tree;
-- управление root navigation stack;
-- обработку deep links;
-- web navigation integration;
-- маршрутизацию между основными разделами приложения.
+- `RootComponent`
+- `RealRootComponent`
+- `RootConfig`
+- `RootChild`
+- `RootOutput`
+- `PersistentRootComponents`
 
-## Подтвержденные классы
+## Как устроена навигация
 
-- RealRootComponent
-- RootComponent
-- RootConfig
-- RootChild
-- RootOutput
-- PersistentRootComponents
+`RealRootComponent` использует `StackNavigation<RootConfig>` и `childStack(...)`.
 
-## Navigation stack
+В корневом стеке сейчас есть три основных направления:
 
-`RealRootComponent` использует:
+- `MainChild`
+- `StatsChild`
+- `SettingsChild`
 
-- `StackNavigation<RootConfig>`;
-- `childStack(...)`;
-- `ChildStack<RootConfig, RootChild>`;
-- `childStackWebNavigation(...)`;
-- `WebNavigation`.
-
-## Root children
-
-Подтвержденные root children:
-
-- MainChild
-- StatsChild
-- SettingsChild
-
-## Initial stack
-
-Начальный стек выбирается по deep link URL.
-
-Подтвержденное поведение:
+Начальный стек выбирается по deep link URL:
 
 ```text
-/             → Main
-/stats        → Main + Stats
-/settings/... → Main + Settings
+/             -> Main
+/stats        -> Main + Stats
+/settings/... -> Main + Settings
 ```
 
-## JS interop
+Для web-навигации используется `childStackWebNavigation(...)`. Корневой стек передаётся в JavaScript через `JsValue<JsChildStack<RootChild>>` и `asJsStack()`.
 
-Root stack экспортируется в TypeScript через:
+## Что важно помнить
 
-- `JsValue<JsChildStack<RootChild>>`;
-- `asJsStack()`.
-
-## Ответственность модуля
-
-Root-модуль не реализует бизнес-логику экранов. Он связывает основные feature-компоненты и отвечает за навигационную композицию приложения.
+Этот модуль не должен содержать бизнес-логику экранов. Его задача - собрать компоненты, настроить стартовый стек и связать Kotlin-навигацию с web-историей браузера.
