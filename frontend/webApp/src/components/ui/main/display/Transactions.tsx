@@ -8,12 +8,16 @@ import { useMemo, useState } from "react";
 
 const Transactions = ({
     transactions,
+    hasActiveFilters,
     onEditClick,
-    onLoadMore
+    onLoadMore,
+    onFilterClick
 }: {
     transactions: readonly Transaction[];
+    hasActiveFilters?: boolean;
     onEditClick: (transactionId: string) => void;
     onLoadMore?: () => void;
+    onFilterClick?: () => void;
 }) => {
     const sections = useMemo(() => {
         return transactions.reduce<Array<{ dateLabel: string; items: Transaction[] }>>((acc, transaction) => {
@@ -42,13 +46,17 @@ const Transactions = ({
             <div className="flex w-full items-center justify-between">
                 <span className="text-xl font-bold text-text-primary">Транзакции</span>
                 <motion.div
+                    onClick={onFilterClick}
                     className="
-                    bg-surface-muted
+                    bg-surface-muted relative
                     flex px-4 py-2 items-center rounded-2xl border-border-default border gap-2 cursor-pointer
                     "
                 >
-                    <LiaFilterSolid className="w-4 h-4 text-base text-text-primary font-medium"/>
-                    <p className="text-text-primary">Фильтры</p>
+                    <LiaFilterSolid className={hasActiveFilters ? "w-4 h-4 text-base font-medium text-brand-primary" : "w-4 h-4 text-base font-medium text-text-primary"}/>
+                    <p className={hasActiveFilters ? "font-medium text-brand-primary" : "text-text-primary"}>Фильтры</p>
+                    {hasActiveFilters && (
+                        <span className="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-brand-primary" />
+                    )}
                 </motion.div>
             </div>
             {transactions.length === 0 ? (
