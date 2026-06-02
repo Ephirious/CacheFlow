@@ -8,10 +8,10 @@ import filters.RealFiltersComponent
 import filters.mvi.FiltersContainer
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import pro.respawn.flowmvi.annotation.InternalFlowMVIAPI
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.essenty.dsl.retainedStore
 import pro.respawn.flowmvi.essenty.dsl.subscribe
-import transactions.models.TransactionFilters
 import transactions.mvi.TransactionsAction
 import transactions.mvi.TransactionsContainer
 import transactions.mvi.TransactionsIntent
@@ -23,7 +23,6 @@ import utils.interop.jsStateSubscribe
 import utils.popUrlSegment
 import utils.presentation.componentCoroutineScope
 import utils.pushUrlSegment
-import kotlin.getValue
 import kotlin.js.JsExport
 import kotlin.js.JsName
 
@@ -73,7 +72,7 @@ class RealTransactionsComponent(
                 componentCtx = childCtx,
                 container = {
                     FiltersContainer(
-                        initialFilters = TransactionFilters(),
+                        initialFilters = @OptIn(InternalFlowMVIAPI::class) states.value.filters,
                         getAccountsFlowUseCase = get(),
                         getCategoriesFlowUseCase = get(),
                         onApply = {
