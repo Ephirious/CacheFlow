@@ -5,18 +5,19 @@ import core_validation.ValidationRule
 import core_validation.basic.MaxLenRule
 import core_validation.basic.NotEmptyOrNullStringRule
 import core_validation.combineRules
-import core_validation.data.auth.internal.EmailFormatRule
+import core_validation.data.auth.internal.EmailInternalFormatRule
 import utils.CustomError
 
 object AuthEmailRule : ValidationRule<String, Any, Nothing?, CustomError> {
-    override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
-        return combineRules(
-            { NotEmptyOrNullStringRule.validate(value, ctx, param) },
-            { EmailFormatRule.validate(value, ctx, param) },
-            // param = maxLen
-            { MaxLenRule.validate(value, ctx, param = 255) }
+    override fun validateKSP(value: String, ctx: Any, param: Nothing?): CustomError? =
+        validate(value)
+
+    fun validate(email: String) =
+        combineRules(
+            { NotEmptyOrNullStringRule.validate(email) },
+            { EmailInternalFormatRule.validate(email) },
+            { MaxLenRule.validate(email, maxLen = 255) }
         )
-    }
 }
 
 @LinkedRule(AuthEmailRule::class)

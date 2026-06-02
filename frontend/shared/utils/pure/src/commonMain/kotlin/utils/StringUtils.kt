@@ -14,3 +14,6 @@ fun String.snakeCase(): String =
 fun String?.orUnknown(fallback: String = "Unknown error!"): String = this ?: fallback
 val String?.orUnknown: String
     get() = this.orUnknown()
+
+
+expect fun String.visualLength(): Int

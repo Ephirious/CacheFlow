@@ -8,13 +8,14 @@ import core_validation.combineRules
 import utils.CustomError
 
 object CategoryTitleRule : ValidationRule<String, Any, Nothing?, CustomError> {
-    override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
-        return combineRules(
-            // param = максимальная длинна
-            { MaxLenRule.validate(value, ctx, param = 100) },
-            { NotEmptyOrNullStringRule.validate(value, ctx, param) }
+    override fun validateKSP(value: String, ctx: Any, param: Nothing?): CustomError? =
+        validate(value)
+
+    fun validate(title: String) =
+        combineRules(
+            { MaxLenRule.validate(title, maxLen = 100) },
+            { NotEmptyOrNullStringRule.validate(title) }
         )
-    }
 }
 
 @LinkedRule(CategoryTitleRule::class)

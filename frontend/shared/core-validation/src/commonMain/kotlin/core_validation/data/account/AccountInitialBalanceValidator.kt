@@ -7,12 +7,14 @@ import core_validation.combineRules
 import utils.CustomError
 
 object AccountInitialBalanceRule : ValidationRule<String, Any, Nothing?, CustomError> {
-    override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
-        return combineRules(
-            // param = must be positive
-            { StringAmountRule.validate(value, ctx, param = false) },
+    override fun validateKSP(value: String, ctx: Any, param: Nothing?): CustomError? =
+        validate(value)
+
+    fun validate(initialBalance: String): CustomError? =
+        combineRules(
+            { StringAmountRule.validate(initialBalance, mustBePositive = false) },
         )
-    }
+
 }
 
 @LinkedRule(AccountInitialBalanceRule::class)

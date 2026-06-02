@@ -7,23 +7,25 @@ import localization.StringAmountError.*
 import utils.types.BigDecimal
 
 object StringAmountRule : ValidationRule<String, Any, Boolean, StringAmountError> {
-    override fun validate(value: String, ctx: Any, param: Boolean): StringAmountError? {
+    override fun validateKSP(value: String, ctx: Any, param: Boolean): StringAmountError? =
+        validate(value, param)
 
-        if (value.isBlank()) return EmptyAmount
+    fun validate(amount: String, mustBePositive: Boolean): StringAmountError? {
+
+        if (amount.isBlank()) return EmptyAmount
 
         val decimal = try {
-            BigDecimal(value)
+            BigDecimal(amount)
         } catch (_: Throwable) {
             return NotANumber
         }
 
-        // param = mustBePositive
-        if (param && decimal <= BigDecimal.ZERO) {
+        if (mustBePositive && decimal <= BigDecimal.ZERO) {
             return NotPositive
         }
 
-        val currentScale = if (value.contains(".")) {
-            value.substringAfter(".").length
+        val currentScale = if (amount.contains(".")) {
+            amount.substringAfter(".").length
         } else {
             0
         }
@@ -31,10 +33,6 @@ object StringAmountRule : ValidationRule<String, Any, Boolean, StringAmountError
         if (currentScale > 2) {
             return ScaleExceeded
         }
-
-//        if (decimal > BigDecimal("1000000000")) {
-//            return TooMuch
-//        }
 
         return null
     }

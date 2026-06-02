@@ -164,7 +164,7 @@ class ValidationProcessor(
                     null -> "null"
                     else -> paramArg.toString()
                 }
-                val call = "$ruleName.validate($propName, this, $param)"
+                val call = "$ruleName.validateKSP($propName, this, $param)"
                 w.write(call)
                 if (i < rules.size - 1) w.write("\n            ?: ")
             }

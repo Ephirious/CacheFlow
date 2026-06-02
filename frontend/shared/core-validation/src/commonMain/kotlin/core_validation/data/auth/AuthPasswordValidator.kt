@@ -7,11 +7,13 @@ import core_validation.combineRules
 import utils.CustomError
 
 object AuthPasswordRule : ValidationRule<String, Any, Nothing?, CustomError> {
-    override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
-        return combineRules(
-            { NotEmptyOrNullStringRule.validate(value, ctx, param) }
+    override fun validateKSP(value: String, ctx: Any, param: Nothing?): CustomError? =
+        validate(value)
+
+    fun validate(password: String) =
+        combineRules(
+            { NotEmptyOrNullStringRule.validate(password) }
         )
-    }
 }
 
 @LinkedRule(AuthPasswordRule::class)

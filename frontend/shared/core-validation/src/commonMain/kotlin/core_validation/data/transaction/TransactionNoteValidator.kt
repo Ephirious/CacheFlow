@@ -7,12 +7,13 @@ import core_validation.combineRules
 import utils.CustomError
 
 object TransactionNoteRule : ValidationRule<String, Any, Nothing?, CustomError> {
-    override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
-        return combineRules(
-            // param = maxLen
-            { MaxLenRule.validate(value, ctx, param = 1024) }
+    override fun validateKSP(value: String, ctx: Any, param: Nothing?): CustomError? =
+        validate(value)
+
+    fun validate(note: String) =
+        combineRules(
+            { MaxLenRule.validate(note, maxLen = 1024) }
         )
-    }
 }
 
 @LinkedRule(TransactionNoteRule::class)

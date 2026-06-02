@@ -93,13 +93,10 @@ const CategoryModal = ({open, component, mode, category, onClose}: CategoryModal
                             <input
                                 className={`flex text-center items-center justify-center h-14 w-full rounded-xl text-2xl outline-none transition-all focus:scale-105 ${!basicEmojis.includes(state.getForm().emoji) && state.getForm().emoji !== "" ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet bg-surface-muted" : "bg-surface-base border border-border-default placeholder:text-text-muted"}`}
                                 onChange={(e) => {
-                                    const val = e.target.value;
-                                    const chars = Array.from(val);
-                                    const nextEmoji = chars.length > 0 ? chars[chars.length - 1] : "";
-                                    component.intent(new ManageCategoryBaseIntent.ChangedEmoji(nextEmoji));
+                                    component.intent(new ManageCategoryBaseIntent.ChangedEmoji(e.target.value));
                                 }}
                                 onBlur={() => setTouched(prev => ({ ...prev, emoji: true }))}
-                                placeholder="🙂"
+                                placeholder="своя"
                                 title="Ввести свой эмодзи"
                                 type="text"
                                 value={!basicEmojis.includes(state.getForm().emoji) ? state.getForm().emoji : ""}

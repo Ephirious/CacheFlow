@@ -12,10 +12,17 @@ interface TransferAccountsContext {
     val toId: String?
 }
 
-internal object DiffTransferAccountsRule :
+object DiffTransferAccountsRule :
     ValidationRule<String?, TransferAccountsContext, Nothing?, DiffTransferAccountsError> {
-    override fun validate(value: String?, ctx: TransferAccountsContext, param: Nothing?): DiffTransferAccountsError? {
-        if (ctx.fromId == ctx.toId) return SameAccounts
+    override fun validateKSP(
+        value: String?,
+        ctx: TransferAccountsContext,
+        param: Nothing?
+    ): DiffTransferAccountsError? =
+        validate(fromId = ctx.fromId, toId = ctx.toId)
+
+    fun validate(fromId: String?, toId: String?): DiffTransferAccountsError? {
+        if (fromId == toId) return SameAccounts
         return null
     }
 }

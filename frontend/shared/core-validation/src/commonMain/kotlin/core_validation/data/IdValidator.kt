@@ -7,11 +7,12 @@ import core_validation.combineRules
 import utils.CustomError
 
 object IdRule : ValidationRule<String?, Any, Nothing?, CustomError> {
-    override fun validate(value: String?, ctx: Any, param: Nothing?): CustomError? {
-        return combineRules(
-            { NotEmptyOrNullStringRule.validate(value, ctx, param) }
-        )
-    }
+    override fun validateKSP(value: String?, ctx: Any, param: Nothing?): CustomError? =
+        validate(value)
+
+    fun validate(id: String?) = combineRules(
+        { NotEmptyOrNullStringRule.validate(id) }
+    )
 }
 
 @LinkedRule(IdRule::class)

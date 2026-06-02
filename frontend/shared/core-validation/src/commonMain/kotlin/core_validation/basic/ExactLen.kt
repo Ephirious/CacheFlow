@@ -3,11 +3,15 @@ package core_validation.basic
 import core_validation.LinkedRule
 import core_validation.ValidationRule
 import localization.LenError
+import utils.visualLength
 
 object ExactLenRule : ValidationRule<String, Any, Int, LenError> {
-    override fun validate(value: String, ctx: Any, param: Int): LenError? {
-        return if (value.unicodeLength() != param) {
-            LenError.NotExactLength(param)
+    override fun validateKSP(value: String, ctx: Any, param: Int): LenError? =
+        validate(value, param)
+
+    fun validate(str: String, exactLen: Int): LenError? {
+        return if (str.visualLength() != exactLen) {
+            LenError.NotExactLength(exactLen)
         } else null
     }
 }

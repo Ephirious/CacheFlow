@@ -11,9 +11,9 @@ class RegisterUseCase(
 ) {
     suspend operator fun invoke(email: String, password: String, name: String): String {
         combineStrictRules(
-            { AuthEmailRule.validate(email, Unit, null) },
-            { AuthPasswordRule.validate(password, Unit, null) },
-            { AuthUsernameRule.validate(name, Unit, null) },
+            { AuthEmailRule.validate(email) },
+            { AuthPasswordRule.validate(password) },
+            { AuthUsernameRule.validate(name) },
         )
         return repository.register(email = email, password = password, name = name)
     }

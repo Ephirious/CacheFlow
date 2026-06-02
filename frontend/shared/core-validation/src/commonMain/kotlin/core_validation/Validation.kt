@@ -6,7 +6,7 @@ import kotlin.js.JsExport
 import kotlin.reflect.KClass
 
 interface ValidationRule<T, S, P, E> {
-    fun validate(value: T, ctx: S, param: P): E?
+    fun validateKSP(value: T, ctx: S, param: P): E?
 }
 
 

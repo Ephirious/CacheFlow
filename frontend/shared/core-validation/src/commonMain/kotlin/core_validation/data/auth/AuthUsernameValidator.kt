@@ -8,13 +8,14 @@ import core_validation.combineRules
 import utils.CustomError
 
 object AuthUsernameRule : ValidationRule<String, Any, Nothing?, CustomError> {
-    override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
-        return combineRules(
-            { NotEmptyOrNullStringRule.validate(value, ctx, param) },
-            // param = maxLen
-            { MaxLenRule.validate(value, ctx, param = 100) }
+    override fun validateKSP(value: String, ctx: Any, param: Nothing?): CustomError? =
+        validate(value)
+
+    fun validate(username: String) =
+        combineRules(
+            { NotEmptyOrNullStringRule.validate(username) },
+            { MaxLenRule.validate(username, maxLen = 100) }
         )
-    }
 }
 
 @LinkedRule(AuthUsernameRule::class)

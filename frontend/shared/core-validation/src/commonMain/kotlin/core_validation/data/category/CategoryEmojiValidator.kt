@@ -8,13 +8,14 @@ import core_validation.combineRules
 import utils.CustomError
 
 object CategoryEmojiRule : ValidationRule<String, Any, Nothing?, CustomError> {
-    override fun validate(value: String, ctx: Any, param: Nothing?): CustomError? {
-        return combineRules(
-            // param = максимальная длинна
-            { MaxLenRule.validate(value, ctx, param = 1) },
-            { NotEmptyOrNullStringRule.validate(value, ctx, param) }
+    override fun validateKSP(value: String, ctx: Any, param: Nothing?): CustomError? =
+        validate(value)
+
+    fun validate(emoji: String) =
+        combineRules(
+            { MaxLenRule.validate(emoji, maxLen = 1) },
+            { NotEmptyOrNullStringRule.validate(emoji) }
         )
-    }
 }
 
 @LinkedRule(CategoryEmojiRule::class)

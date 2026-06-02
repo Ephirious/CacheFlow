@@ -12,8 +12,8 @@ class LoginUseCase(
 ) {
     suspend operator fun invoke(email: String, password: String) {
         combineStrictRules(
-            { AuthEmailRule.validate(email, Unit, null) },
-            { AuthPasswordRule.validate(password, Unit, null) }
+            { AuthEmailRule.validate(email) },
+            { AuthPasswordRule.validate(password) }
         )
 
         repository.login(email = email, password = password)

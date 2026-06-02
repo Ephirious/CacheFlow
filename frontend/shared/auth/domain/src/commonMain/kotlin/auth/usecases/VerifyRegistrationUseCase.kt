@@ -14,11 +14,11 @@ class VerifyRegistrationUseCase(
 ) {
     suspend operator fun invoke(userId: UserId, code: String, email: String, password: String) {
         combineStrictRules(
-            { AuthOTPCodeRule.validate(code, Unit, null) },
+            { AuthOTPCodeRule.validate(code) },
 
             // По идее нижнее нет смысла чекать, но лан
-            { AuthEmailRule.validate(email, Unit, null) },
-            { AuthPasswordRule.validate(password, Unit, null) },
+            { AuthEmailRule.validate(email) },
+            { AuthPasswordRule.validate(password) },
         )
 
         repository.verifyRegistration(userId = userId, verificationCode = code)
