@@ -6,7 +6,7 @@ object AppConfig {
         getFromEnv("APP_VAPID_PUBLIC_KEY") ?: "not for mvp =/ (used to be for notifications)"
 
     // KtorClient
-    val serverHost = getFromEnv("SERVER_HOST") ?: "localhost"
+    val serverHost = "cache-flow.ru"
     val serverPort: Int? = getFromEnv("SERVER_PORT")?.toIntOrNull()
-    val isHttps = getFromEnv("APP_IS_HTTPS")?.toBooleanStrictOrNull() ?: false
+    val isHttps = true
 }

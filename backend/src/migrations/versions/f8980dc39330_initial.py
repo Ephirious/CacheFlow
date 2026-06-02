@@ -24,7 +24,7 @@ def upgrade() -> None:
     op.create_table('sync_operations',
     sa.Column('processing_id', sa.Uuid(), nullable=False),
     sa.Column('action', sa.Enum('CREATE', 'UPDATE', 'DELETE', name='action'), nullable=False),
-    sa.Column('table_type', sa.Enum('CATEGORIES', 'ACCOUNTS', 'OPERATIONS', name='tabletype'), nullable=False),
+    sa.Column('table_type', sa.Enum('CATEGORIES', 'ACCOUNTS', 'OPERATIONS', 'TRANSFER', name='tabletype'), nullable=False),
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
