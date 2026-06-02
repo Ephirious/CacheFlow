@@ -1,19 +1,10 @@
-# Auth Module
+# Модуль auth
 
-## Назначение
+Изменено: 02.06.2026
 
-Модуль отвечает за:
+`auth` отвечает за вход пользователя в приложение и за всё, что нужно вокруг сессии: регистрацию, подтверждение регистрации, логин, logout, получение профиля и очистку локальных данных при выходе.
 
-- регистрацию пользователя;
-- подтверждение регистрации;
-- повторную отправку кода подтверждения;
-- авторизацию;
-- выход из системы;
-- получение профиля пользователя;
-- интеграцию Ktor auth plugin;
-- очистку локальных данных при logout.
-
-## Структура
+## Что есть в модуле
 
 ```text
 auth/
@@ -22,59 +13,35 @@ auth/
 └── presentation/
 ```
 
-## Domain
+`domain` задаёт контракт авторизации через `AuthRepository`. В нём есть операции `register`, `verifyRegistration`, `resendVerificationCode`, `login`, `logout`, `getProfile` и `clearAllTables`.
 
-Подтвержденные usecases:
+Основные use case'ы:
 
-- LoginUseCase
-- RegisterUseCase
-- LogoutUseCase
-- GetProfileUseCase
-- ResendVerificationCodeUseCase
+- `LoginUseCase`
+- `RegisterUseCase`
+- `LogoutUseCase`
+- `GetProfileUseCase`
+- `ResendVerificationCodeUseCase`
 
-### AuthRepository
+`data` содержит реализацию работы с авторизацией:
 
-Domain слой содержит интерфейс `AuthRepository`.
+- `AuthRepositoryImpl`
+- `KtorAuthPluginImpl`
+- `LogoutDataInternalUseCase`
+- `AuthDataModule`
 
-Подтвержденные операции:
+`presentation` сейчас представлен контейнерами для логина и регистрации:
 
-- register(...)
-- verifyRegistration(...)
-- resendVerificationCode(...)
-- login(...)
-- logout()
-- getProfile()
-- clearAllTables()
-
-## Data
-
-Подтвержденные реализации:
-
-- AuthRepositoryImpl
-- KtorAuthPluginImpl
-- LogoutDataInternalUseCase
-- AuthDataModule
-
-Data слой реализует сетевое взаимодействие и интеграцию с клиентом авторизации.
-
-## Presentation
-
-Подтвержденные MVI контейнеры:
-
-- LoginContainer
-- RegistrationContainer
-
-Presentation слой экспортирует состояние и действия в JS через общие interop-механизмы проекта.
+- `LoginContainer`
+- `RegistrationContainer`
 
 ## Зависимости
 
-Согласно Gradle-конфигурации:
+По Gradle-модулю `auth:domain` видно, что авторизация связана с:
 
-- shared.sync.domain
-- shared.transactions.domain
-- shared.coreValidation
+- `shared:sync:domain`
+- `shared:transactions:domain`
+- `shared:core-validation`
 - Ktor Client
 
-## Ответственность модуля
-
-Auth-модуль является входной точкой приложения и предоставляет данные о текущем пользователе для остальных feature-модулей.
+Это важно: logout не ограничивается только удалением токена. Модуль также знает о локальных данных, которые надо сбросить при смене пользователя.
