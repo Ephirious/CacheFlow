@@ -1,30 +1,31 @@
-# Core Module
+# Модуль core
 
-## Назначение
+Изменено: 02.06.2026
 
-`shared:core` — инфраструктурный shared-модуль frontend-части.
+`shared:core` - инфраструктурный модуль frontend-части. Здесь собраны вещи, которые нужны многим data-модулям: база, сетевой клиент, настройки и DI.
 
-Подтвержденная ответственность:
+## Что подключает модуль
 
-- общая конфигурация локальной базы данных;
-- SQLDelight database generation;
-- подключение Ktor client dependencies;
-- подключение Multiplatform Settings;
-- интеграция Koin;
-- зависимость от auth domain для установки auth feature / token refresh.
-
-## Gradle-конфигурация
-
-Модуль использует плагины:
+В Gradle у модуля включены плагины:
 
 ```text
 shared
 sqldelight
 ```
 
+Через `commonMain` подключаются:
+
+- Koin Core
+- Ktor Client
+- Multiplatform Settings
+- `shared:utils:pure`
+- `shared:auth:domain`
+
+Для JS-таргета подключён SQLDelight Web Worker driver.
+
 ## SQLDelight
 
-Подтвержденная конфигурация:
+`core` создаёт общую SQLDelight-базу `Database`:
 
 ```kotlin
 sqldelight {
@@ -38,22 +39,8 @@ sqldelight {
 }
 ```
 
-## Dependencies
+`generateAsync.set(true)` важен для Kotlin/JS: работа с базой строится вокруг асинхронного API.
 
-`commonMain`:
+## Как использовать
 
-- Koin Core;
-- Ktor Client bundle;
-- Multiplatform Settings bundle;
-- `shared:utils:pure`;
-- `shared:auth:domain`.
-
-`jsMain`:
-
-- SQLDelight Web Worker driver.
-
-## Архитектурная роль
-
-`core` предоставляет базовую инфраструктуру, которую используют data-модули и startup-код приложения.
-
-Модуль не должен содержать feature-specific бизнес-логику.
+Feature-модули не должны заново настраивать базу, Ktor или Settings. Если модулю нужна инфраструктура хранения или сети, он должен подключаться к уже собранным абстракциям из `core` и своих data-модулей.
