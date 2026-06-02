@@ -1,13 +1,8 @@
-# Editors Module
+# Модуль editors
 
-## Назначение
+Изменено: 02.06.2026
 
-Модуль отвечает за пользовательские сценарии создания, редактирования и удаления справочников, которые используются в финансовых операциях.
-
-Подтвержденные области:
-
-- счета (`Account`);
-- категории (`Category`).
+`editors` отвечает за справочники, которые потом используются в транзакциях: счета и категории. Здесь находятся сценарии создания, редактирования и мягкого удаления этих сущностей.
 
 ## Структура
 
@@ -18,83 +13,42 @@ editors/
 └── presentation/
 ```
 
-## Domain
+## Счета
 
-### Account usecases
+Для счетов есть отдельный контракт `AccountsRepository`. Он отдаёт `Flow<List<Account>>`, умеет получать счёт по id, создавать, обновлять, мягко удалять и делать upsert.
 
-Подтвержденные usecases:
+Основные use case'ы:
 
-- CreateAccountUseCase
-- EditAccountUseCase
-- DeleteAccountUseCase
-- GetAccountsFlowUseCase
+- `CreateAccountUseCase`
+- `EditAccountUseCase`
+- `DeleteAccountUseCase`
+- `GetAccountsFlowUseCase`
 
-### Category usecases
+## Категории
 
-Подтвержденные usecases:
+Для категорий используется `CategoriesRepository`. Логика похожа на счета: потоковый список, получение по id, создание, обновление, мягкое удаление и upsert.
 
-- CreateCategoryUseCase
-- EditCategoryUseCase
-- DeleteCategoryUseCase
-- GetCategoriesFlowUseCase
-- GetCategoryByIdUseCase
+Основные use case'ы:
 
-## Repositories
-
-### AccountsRepository
-
-Подтвержденные операции:
-
-- getAccountsFlow(onlyActive)
-- getAccountById(id)
-- insertAccount(name, stringAmount, color)
-- updateAccount(id, name, color)
-- softDelete(id)
-- softDeleteAccount(id)
-- upsertAccount(id, name, color, stringAmount)
-
-### CategoriesRepository
-
-Подтвержденные операции:
-
-- getCategoriesFlow(onlyActive)
-- getCategoryById(id)
-- insertCategory(name, emoji, type)
-- updateCategory(id, name, emoji)
-- softDelete(id)
-- softDeleteCategory(id)
-- upsertCategory(id, name, emoji, type)
-
-## Data
-
-Подтвержденные элементы:
-
-- EditorsDataModule
-- CategoriesRepositoryImpl
-
-Data слой реализует repository interfaces и работает с локальным хранилищем.
-
-## Presentation
-
-Подтвержденные MVI контейнеры и компоненты:
-
-- CreateAccountContainer
-- EditAccountContainer
-- CreateCategoryContainer
-- EditCategoryContainer
-
-Модуль используется страницами настроек и экранами редактирования справочников.
-
-## Модели
-
-Подтвержденные domain-модели:
-
-- Account
-- Category
+- `CreateCategoryUseCase`
+- `EditCategoryUseCase`
+- `DeleteCategoryUseCase`
+- `GetCategoriesFlowUseCase`
+- `GetCategoryByIdUseCase`
 
 `Category` использует `CategoryType` из `dbEnums`.
 
-## Инварианты
+## UI-слой
 
-- Удаление справочников реализуется через soft-delete операции.
-- Потоковые методы возвращают `Flow<List<...>>`, что позволяет UI реактивно обновляться при изменениях в локальном хранилище.
+В presentation-слое есть контейнеры для форм:
+
+- `CreateAccountContainer`
+- `EditAccountContainer`
+- `CreateCategoryContainer`
+- `EditCategoryContainer`
+
+Модуль часто используется из настроек, потому что именно там пользователь управляет счетами и категориями.
+
+## Что важно помнить
+
+Удаление здесь мягкое. Это важно для синхронизации и для локальной истории изменений: сущность не обязательно сразу исчезает из базы физически.
