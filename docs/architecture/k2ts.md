@@ -1,4 +1,4 @@
-# Kotlin/JS bridge: k2ts
+# Kotlin/JS-мост: k2ts
 
 Изменено: 02.06.2026
 
