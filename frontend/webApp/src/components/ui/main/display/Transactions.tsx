@@ -3,7 +3,7 @@ import { LuArrowRightLeft } from "react-icons/lu";
 import {motion} from "framer-motion";
 import { TransactionCard } from "./index";
 import { prettyDate, Transaction } from "k2ts";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 
 
 const Transactions = ({
@@ -35,6 +35,23 @@ const Transactions = ({
     }, [transactions]);
 
     const [expandedId, setExpandedId] = useState<string | null>(null);
+    const loadMoreRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!onLoadMore) return;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    onLoadMore();
+                }
+            },
+            { rootMargin: "200px" }
+        );
+        if (loadMoreRef.current) {
+            observer.observe(loadMoreRef.current);
+        }
+        return () => observer.disconnect();
+    }, [onLoadMore]);
 
     const onTransactionClick = (transactionId: string) => {
         setExpandedId((prev) => prev === transactionId ? null : transactionId);
@@ -93,13 +110,7 @@ const Transactions = ({
                         </div>
                     ))}
                     {transactions.length >= 20 && onLoadMore && (
-                        <button
-                            onClick={onLoadMore}
-                            className="mt-2 w-full rounded-xl border border-border-default bg-surface-muted py-3 text-sm font-medium text-text-primary cursor-pointer transition-all hover:bg-surface-hover active:scale-[0.98]"
-                            type="button"
-                        >
-                            Показать ещё
-                        </button>
+                        <div ref={loadMoreRef} className="h-1 w-full opacity-0"></div>
                     )}
                 </div>
             )}
