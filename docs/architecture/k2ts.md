@@ -6,23 +6,7 @@
 
 ## Что делает модуль
 
-Модуль собирает Kotlin/JS библиотеку и генерирует TypeScript-описания.
-
-В Gradle включено:
-
-```text
-js(IR)
-browser()
-binaries.library()
-generateTypeScriptDefinitions()
-useEsModules()
-```
-
-Имя выходного JS-модуля:
-
-```text
-k2ts
-```
+Модуль собирает Kotlin/JS библиотеку (`k2ts`) и генерирует TypeScript-описания.
 
 ## Зависимости
 
@@ -55,6 +39,8 @@ fun initApp()
 6. запускает первичную синхронизацию;
 7. создаёт `RootComponent`;
 8. возвращает компонент в JavaScript.
+
+> TODO: убрать блок ui-потока при запуске
 
 ## Как React получает Kotlin-состояние
 
