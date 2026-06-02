@@ -12,6 +12,8 @@ Backend отвечает за API, авторизацию, синхрониза�
 - `docs/auth.md`
 - `docs/sync.md`
 - `docs/database.md`
+- `docs/unit-of-work.md`
+- `docs/security.md`
 
 ## Структура
 
