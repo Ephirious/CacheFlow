@@ -38,7 +38,7 @@ class AuthRemoteDataSource(
 
     suspend fun login(email: String, password: String) = throwableToException {
         // x-www-form-urlencoded, а не json
-        val tokens = httpClient.post("/auth/login") {
+        val tokens = httpClient.post(AuthUrls.LOGIN) {
             setBody(FormDataContent(Parameters.build {
                 append("username", email)
                 append("password", password)
