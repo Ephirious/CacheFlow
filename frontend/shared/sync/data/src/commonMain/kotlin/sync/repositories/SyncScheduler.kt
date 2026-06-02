@@ -12,7 +12,7 @@ class SyncScheduler(
 ) {
 
     companion object {
-        private val IDLE_DEBOUNCE = 2.seconds
+        private val IDLE_DEBOUNCE = 15.seconds
     }
 
     private val trigger = MutableSharedFlow<Unit>(

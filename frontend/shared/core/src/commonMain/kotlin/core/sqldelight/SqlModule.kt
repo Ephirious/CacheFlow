@@ -3,20 +3,7 @@ package core.sqldelight
 import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.async.coroutines.awaitCreate
 import app.cash.sqldelight.db.SqlDriver
-import data.Accounts
-import data.AccountsQueries
-import data.Categories
-import data.CategoriesQueries
-import data.CommonQueries
-import data.Operations
-import data.OperationsQueries
-import data.SyncDBQueries
-import data.SyncInternalQueries
-import data.SyncOperations
-import data.Transfers
-import data.TransfersQueries
-import data.WeatherEntity
-import data.WeatherQueries
+import data.*
 import org.cacheflow.db.Database
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -43,9 +30,6 @@ internal val sqlModule = module {
     single<Database> {
         Database(
             driver = get<SqlDriver>(),
-            WeatherEntityAdapter = WeatherEntity.Adapter(
-                temperatureAdapter = bigDecimalAdapter
-            ),
             AccountsAdapter = Accounts.Adapter(
                 fundsAdapter = bigDecimalAdapter,
                 created_atAdapter = instantAdapter,
@@ -73,7 +57,6 @@ internal val sqlModule = module {
         )
     }
 
-    single<WeatherQueries> { get<Database>().weatherQueries }
     single<AccountsQueries> { get<Database>().accountsQueries }
     single<CategoriesQueries> { get<Database>().categoriesQueries }
     single<OperationsQueries> { get<Database>().operationsQueries }
@@ -82,4 +65,6 @@ internal val sqlModule = module {
 
     single<SyncDBQueries> { get<Database>().syncDBQueries }
     single<SyncInternalQueries> { get<Database>().syncInternalQueries }
+
+    single<TriggersQueries> { get<Database>().triggersQueries }
 }

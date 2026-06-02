@@ -1,11 +1,10 @@
 package editors.accounts.mvi
 
+import core_validation.GenerateValidator
+import core_validation.data.account.AccountTitleValidator
 import pro.respawn.flowmvi.api.MVIIntent
 import pro.respawn.flowmvi.api.MVIState
 import utils.annotations.DataCopyable
-import utils.annotations.GenerateValidator
-import utils.annotations.validation.MaxLen
-import utils.annotations.validation.NotEmptyOrNullString
 import utils.types.HexColor
 import kotlin.js.JsExport
 
@@ -27,8 +26,7 @@ interface ManageAccountBaseState<F : ManageAccountFormBaseState<*>> : MVIState {
 @DataCopyable
 @GenerateValidator
 interface ManageAccountFormBaseState<V> : MVIState {
-    @MaxLen(100)
-    @NotEmptyOrNullString
+    @AccountTitleValidator
     val title: String
 
     val color: HexColor

@@ -33,9 +33,9 @@ const AccountDropdown = ({
             </label>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between px-4 py-3.5 bg-surface-muted rounded-2xl border border-border-strong shadow-sm hover:border-border-default transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3.5 bg-surface-muted rounded-2xl border border-border-strong shadow-sm cursor-pointer transition-all hover:border-border-default active:scale-[0.98]"
             >
-                <span className={selectedAccount ? "text-text-primary font-medium overflow-hidden h-6" : "text-text-primary"}>
+                <span className={selectedAccount ? "text-text-primary font-medium truncate overflow-hidden pr-2 h-6" : "text-text-primary pr-2"}>
                     {selectedAccount ? selectedAccount.title : "Счёт"}
                 </span>
                 <IoChevronDown
@@ -60,7 +60,7 @@ const AccountDropdown = ({
                                         onSelect(account.id);
                                         setIsOpen(false);
                                     }}
-                                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-hover transition-colors text-left"
+                                    className="w-full flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-surface-hover text-left active:bg-surface-hover/80"
                                 >
                                     <div
                                         className="w-3 h-3 rounded-full shrink-0"

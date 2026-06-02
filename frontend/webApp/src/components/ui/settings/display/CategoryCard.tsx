@@ -8,14 +8,14 @@ interface CategoryCardProps {
 const CategoryCard = ({item, onClick}: CategoryCardProps) => {
     return (
         <button
-            className="flex flex-col items-center gap-2 rounded-xl border border-border-strong bg-surface-base py-2"
+            className="flex flex-col items-center gap-2 rounded-xl border border-border-strong bg-surface-base py-2 cursor-pointer transition-all hover:bg-surface-muted active:scale-95"
             onClick={() => onClick(item)}
             type="button"
         >
             <div className={`flex rounded-2xl w-12 h-12 p-3 text-category-groceries bg-indigo-100 justify-center`}> {/* TODO: Артём? ${item.color} */}
                 {item.icon}
             </div>
-            <p className="text-sm font-semibold text-text-primary">{item.title}</p>
+            <p className="text-sm font-semibold text-text-primary truncate w-full text-center px-1">{item.title}</p>
         </button>
     );
 };

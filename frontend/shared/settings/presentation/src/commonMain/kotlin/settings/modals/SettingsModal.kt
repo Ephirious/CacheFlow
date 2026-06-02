@@ -1,5 +1,6 @@
 package settings.modals
 
+import auth.AuthComponent
 import editors.accounts.CreateAccountComponent
 import editors.accounts.EditAccountComponent
 import editors.categories.CreateCategoryComponent
@@ -20,6 +21,9 @@ sealed class SettingsModalConfig {
 
     @Serializable
     data class EditAccount(val id: String) : SettingsModalConfig()
+
+    @Serializable
+    data object Auth : SettingsModalConfig()
 }
 
 @JsExport
@@ -37,5 +41,8 @@ sealed class SettingsModalChild {
 
     @Suppress("unused")
     class EditAccountChild(val component: EditAccountComponent) : SettingsModalChild()
+
+    @Suppress("unused")
+    class AuthChild(val component: AuthComponent) : SettingsModalChild()
 
 }

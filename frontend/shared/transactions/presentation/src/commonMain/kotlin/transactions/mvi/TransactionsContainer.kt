@@ -1,30 +1,33 @@
 package transactions.mvi
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import pro.respawn.flowmvi.api.Container
 import pro.respawn.flowmvi.api.PipelineContext
 import pro.respawn.flowmvi.api.Store
 import pro.respawn.flowmvi.dsl.store
-import pro.respawn.flowmvi.plugins.JobManager
 import pro.respawn.flowmvi.plugins.whileSubscribed
-import transactions.usecases.GetTransactionsFlowUseCase
+import transactions.models.TransactionFilters
+import transactions.usecases.GetFilteredTransactionsFlowUseCase
 import utils.orUnknown
 import utils.presentation.flowMVI.customReduce
 import utils.presentation.flowMVI.fastConfig
-import utils.presentation.flowMVI.observe
 
-private typealias Ctx = PipelineContext<TransactionsState, TransactionsIntent, Nothing>
-
-private enum class Jobs {
-    ObserveTransactions
-}
+private typealias Ctx = PipelineContext<TransactionsState, TransactionsIntent, TransactionsAction>
 
 class TransactionsContainer(
     private val throwErrorToParent: (() -> String) -> Unit,
-    private val getTransactionsFlowUseCase: GetTransactionsFlowUseCase,
-) : Container<TransactionsState, TransactionsIntent, Nothing> {
-    override val store: Store<TransactionsState, TransactionsIntent, Nothing> =
+    private val getFilteredTransactionsFlowUseCase: GetFilteredTransactionsFlowUseCase,
+) : Container<TransactionsState, TransactionsIntent, TransactionsAction> {
+
+    private val queryConfig = MutableStateFlow(Pair(TransactionFilters(), 20L))
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val store: Store<TransactionsState, TransactionsIntent, TransactionsAction> =
         store(
-            // TODO
             initial = TransactionsState(
                 transactions = listOf()
             ),
@@ -32,31 +35,49 @@ class TransactionsContainer(
             fastConfig(
                 name = "Transactions",
                 resetOnStop = true,
-                doOnRecover = { throwErrorToParent { it.message.orUnknown }; this }
+                doOnRecover = { state, e -> throwErrorToParent { e.message.orUnknown }; state }
             )
 
-            val jobs = JobManager<Jobs>()
-
             whileSubscribed {
-                observeTransactions(jobs)
+                queryConfig
+                    .flatMapLatest { (filters, limit) ->
+                        getFilteredTransactionsFlowUseCase(accountId = null, filters, limit)
+                    }
+                    .onEach { items ->
+                        updateState {
+                            copy(
+                                transactions = items,
+                                isEndOfList = items.size < limit,
+                                isLoadingMore = false
+                            )
+                        }
+                    }
+                    .launchIn(this)
             }
 
             customReduce { intent ->
                 when (intent) {
-                    is TransactionsIntent.TransactionClicked -> TODO()
+                    TransactionsIntent.LoadMore -> {
+                        withState {
+                            if (!isEndOfList && !isLoadingMore) {
+                                val newLimit = limit + 20L
+                                updateState { copy(limit = newLimit, isLoadingMore = true) }
+                                queryConfig.value = filters to newLimit
+                            }
+                        }
+                    }
+
+                    is TransactionsIntent.FiltersApplied -> {
+                        val newLimit = 20L
+                        updateState { copy(filters = intent.filters, limit = newLimit) }
+                        queryConfig.value = intent.filters to newLimit
+                        action(TransactionsAction.HideFilters)
+                    }
+
+                    TransactionsIntent.CloseFilters -> action(TransactionsAction.HideFilters)
                 }
             }
         }
 
 
-    private fun Ctx.observeTransactions(jobs: JobManager<Jobs>) {
-
-        observe(
-            flow = getTransactionsFlowUseCase(accountId = null),
-            jobs = jobs,
-            key = Jobs.ObserveTransactions
-        ) { transactions ->
-            updateState { copy(transactions = transactions) }
-        }
-    }
 }

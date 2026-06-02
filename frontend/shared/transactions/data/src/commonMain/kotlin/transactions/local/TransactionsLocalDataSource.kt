@@ -12,6 +12,10 @@ class TransactionsLocalDataSource(
         settings[FIRST_ENTRANCE_KEY] = true
     }
 
+    fun unsetFirstEntrance() {
+        settings[FIRST_ENTRANCE_KEY] = false
+    }
+
     fun getFirstEntrance(): Boolean =
         settings[FIRST_ENTRANCE_KEY, false]
 

@@ -33,10 +33,10 @@ class EditCategoryContainer(
         ) {
             fastConfig(
                 name = "CreateCategory", resetOnStop = false,
-                doOnRecover = {
+                doOnRecover = { state, e ->
                     EditCategoryState.FatalError(
-                        it.message.orUnknown,
-                        (this as? EditCategoryState.OK)?.form
+                        e.message.orUnknown,
+                        (state as? EditCategoryState.OK)?.form
                     )
                 }
             )

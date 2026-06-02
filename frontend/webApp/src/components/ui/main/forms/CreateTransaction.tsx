@@ -92,7 +92,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         placeholder="0"
                         className="w-full px-4 py-3 border border-border-default rounded-xl bg-surface-muted text-text-primary text-base outline-none placeholder:text-text-muted"
                     />
-                    <p className="text-text-primary text-sm">{valueError && localz.get().byValidation(valueError)}</p>
+                    <p className="text-xs text-state-danger px-1">{valueError && localz.get().byValidation(valueError)}</p>
 
                 </div>
                 <div className="flex w-full flex-col gap-2">
@@ -130,7 +130,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         onAdd={() => console.log("Add category")}
                     />
                     {
-                        <p className="text-text-primary text-sm">{categoryError && localz.get().byValidation(categoryError)}</p>
+                        <p className="text-xs text-state-danger px-1">{categoryError && localz.get().byValidation(categoryError)}</p>
                     }
                 </div>
                 <div className={`flex w-full flex-col gap-2 ${state.form.transactionType.type == 'Transfer' ? "" : "hidden"}`}>
@@ -138,12 +138,12 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         accounts={state.form.accounts.asJsReadonlyArrayView()}
                         fromId={
                             when(state.form.transactionType)
-                                .on([ManageTransactionType.Transfer], (t) => t.fromId ?? null)
+                                .on([ManageTransactionType.Transfer], (t) => (t as any).fromId ?? null)
                                 .otherwise(() => null)
                         }
                         toId={
                             when(state.form.transactionType)
-                                .on([ManageTransactionType.Transfer], (t) => t.toId ?? null)
+                                .on([ManageTransactionType.Transfer], (t) => (t as any).toId ?? null)
                                 .otherwise(() => null)
                         }
                         onSelectFrom={(id) => {
@@ -155,7 +155,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                             component.intent(new ManageTransactionBaseIntent.ChangedTransferToAccount(id))
                         }}
                     />
-                    {transferFromError && localz.get().byValidation(transferFromError)}
+                    <p className="text-xs text-state-danger px-1">{transferFromError && localz.get().byValidation(transferFromError)}</p>
                 </div>
                 <div className={`flex w-full flex-col gap-2 ${state.form.transactionType.type == 'Transfer' ? "hidden" : ""}`}>
                     <span className="text-sm font-medium text-text-primary">Счёт</span>
@@ -175,14 +175,14 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                             component.intent(new ManageTransactionBaseIntent.ChangedAccount(id))
                         }}
                     />
-                    <p className="text-text-primary text-sm">{accountError && localz.get().byValidation(accountError)}</p>
+                    <p className="text-xs text-state-danger px-1">{accountError && localz.get().byValidation(accountError)}</p>
                 </div>
                 <div className="flex w-full flex-col gap-2">
                     <span className="text-sm font-medium text-text-primary">Дата</span>
                     <DatePicker
                         value={new Date(isoString(state.form.date))}
                         onChange={(newDate) => {
-                            component.intent(new ManageTransactionBaseIntent.ChangedDate(newDate.toISOString()))
+                            if (newDate) component.intent(new ManageTransactionBaseIntent.ChangedDate(newDate.toISOString()))
                         }}
                     />
                 </div>
@@ -205,8 +205,8 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         component.intent(ManageTransactionIntent.ClickedSave);
                     }}
                     className={`
-                    py-4 text-base font-bold rounded-2xl
-                    ${hasValidationError ? "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed" : "bg-brand-primary text-brand-on-primary"}
+                    py-4 text-base font-bold rounded-2xl transition-all cursor-pointer transition-all cursor-pointer
+                    ${hasValidationError ? "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed" : "bg-brand-primary text-brand-on-primary hover:opacity-90 active:scale-[0.98] hover:opacity-90 active:scale-[0.98]"}
                     `}>
                     Сохранить
                 </button>
@@ -228,7 +228,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                         component.intent(ManageTransactionIntent.ClickedDelete);
                     }}
                     className={`
-                    rounded-2xl border border-state-danger text-base font-semibold text-state-danger py-4
+                    rounded-2xl border border-state-danger text-base font-semibold text-state-danger py-4 cursor-pointer transition-all hover:bg-state-danger/10 active:scale-[0.98]
                     
                     ${state.isCreateMode ? "hidden" : ""}
                     `}

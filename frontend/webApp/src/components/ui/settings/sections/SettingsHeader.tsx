@@ -29,7 +29,7 @@ const SettingsHeader = ({curTheme, tab, onTabChange, onThemeClick}: SettingsHead
                 </div>
                 <button 
                     onClick={onThemeClick}
-                    className="rounded-2xl bg-surface-muted text-text-primary p-2 transition-colors duration-300 active:scale-95" 
+                    className="rounded-2xl bg-surface-muted text-text-primary p-2 cursor-pointer transition-all duration-300 hover:opacity-80 active:scale-95" 
                     type="button"
                     aria-label="Toggle Theme"
                 >

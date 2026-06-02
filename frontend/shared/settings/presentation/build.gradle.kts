@@ -8,6 +8,10 @@ kotlin {
             implementation(projects.shared.settings.domain)
             implementation(projects.shared.editors.domain)
             implementation(projects.shared.editors.presentation)
+            implementation(projects.shared.auth.presentation)
+
+            implementation(projects.shared.sync.domain)
+            implementation(projects.shared.auth.domain)
         }
     }
 }

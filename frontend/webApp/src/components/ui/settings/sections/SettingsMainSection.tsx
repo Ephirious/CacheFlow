@@ -13,7 +13,7 @@ const SettingsMainSection = ({tab, children, onAddClick}: SettingsMainSectionPro
             <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-text-primary">{tab === "categories" ? "Категории" : "Счета"}</h2>
                 <button
-                    className="rounded-xl bg-brand-primary px-4 py-2 text-base font-medium text-brand-on-primary"
+                    className="rounded-xl bg-brand-primary px-4 py-2 text-base font-medium text-brand-on-primary cursor-pointer transition-all hover:opacity-90 active:scale-[0.98]"
                     onClick={onAddClick}
                     type="button"
                 >

@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(projects.shared.editors.domain)
+            implementation(projects.shared.coreValidation)
         }
     }
 }

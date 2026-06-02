@@ -3,10 +3,12 @@ package sync.cloud.dtos
 import dbEnums.CategoryType
 import dbEnums.SyncActionType
 import dbEnums.SyncTableType
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import kotlinx.serialization.json.decodeFromJsonElement
 
 @Serializable
@@ -23,6 +25,8 @@ data class AccountRecordCreateDTO(
 ) : RecordCreateDTO
 
 
+@OptIn(ExperimentalSerializationApi::class)
+@JsonIgnoreUnknownKeys
 @Serializable
 data class AccountOutDTO(
     val id: String,
@@ -31,6 +35,8 @@ data class AccountOutDTO(
     val funds: String
 ) : RecordOutDTO
 
+@OptIn(ExperimentalSerializationApi::class)
+@JsonIgnoreUnknownKeys
 @Serializable
 data class CategoryRecordCreateDTO(
     val id: String,
@@ -42,17 +48,17 @@ data class CategoryRecordCreateDTO(
 @Serializable
 data class TransferRecordCreateDTO(
     val id: String,
-    val accountFromId: String,
-    val accountToId: String
+    @SerialName("account_from_id") val accountFromId: String,
+    @SerialName("account_to_id" )val accountToId: String
 ) : RecordCreateDTO, RecordOutDTO
 
 @Serializable
 data class OperationRecordCreateDTO(
     val id: String,
-    val accountUuid: String,
-    val transferId: String?,
-    val categoryId: String?,
-    val amount: String,
+    @SerialName("account_uuid") val accountUuid: String,
+    @SerialName("transfer_id") val transferId: String?,
+    @SerialName("category_uuid") val categoryId: String?,
+    @SerialName("amount") val amount: String,
     val date: String,
     val notes: String
 ) : RecordCreateDTO, RecordOutDTO
@@ -75,7 +81,7 @@ data class SyncOperationDTO(
 @Serializable
 data class SyncRequest(
     @SerialName("last_sync_date") val lastSyncDate: String,
-    @SerialName("sync_ops") val operations: List<SyncOperationDTO>,
+    @SerialName("operations") val operations: List<SyncOperationDTO>,
 )
 
 @Serializable

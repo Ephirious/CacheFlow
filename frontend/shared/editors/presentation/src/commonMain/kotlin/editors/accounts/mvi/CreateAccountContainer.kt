@@ -26,10 +26,10 @@ class CreateAccountContainer(
         ) {
             fastConfig(
                 name = "CreateCategory", resetOnStop = false,
-                doOnRecover = {
+                doOnRecover = { state, e ->
                     CreateAccountState.FatalError(
-                        it.message.orUnknown,
-                        (this as? CreateAccountState.OK)?.form
+                        e.message.orUnknown,
+                        (state as? CreateAccountState.OK)?.form
                     )
                 }
             )

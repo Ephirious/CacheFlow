@@ -25,7 +25,7 @@ const SegmentedControl = <T extends string>({
                 const isActive = option.value === value;
                 return (
                     <button
-                        className={`relative rounded-lg px-4 py-2 font-medium sm:px-3 sm:py-1.5 text-sm
+                        className={`relative rounded-lg px-4 py-2 font-medium sm:px-3 sm:py-1.5 text-sm cursor-pointer transition-colors hover:text-text-primary
                         ${isActive ? "text-text-primary" : "text-text-secondary"}`}
                         key={option.value}
                         onClick={() => onChange(option.value)}

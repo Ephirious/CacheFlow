@@ -3,17 +3,25 @@ package core.ktor
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.http.ContentType
+import io.ktor.http.URLProtocol
+import io.ktor.http.contentType
+import io.ktor.http.encodedPath
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
-
+import utils.AppConfig
 
 
 @OptIn(ExperimentalSerializationApi::class)
-fun getHttpClient(engineFactory: HttpClientEngineFactory<HttpClientEngineConfig>) =
+fun getHttpClient(
+    engineFactory: HttpClientEngineFactory<HttpClientEngineConfig>,
+    // AuthFeature
+    configBlock: HttpClientConfig<*>.() -> Unit
+) =
     HttpClient(engineFactory) {
         install(Logging) {
             level = LogLevel.ALL
@@ -28,8 +36,26 @@ fun getHttpClient(engineFactory: HttpClientEngineFactory<HttpClientEngineConfig>
             json(Json {
                 isLenient = true
                 ignoreUnknownKeys = true
-                classDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC
+                classDiscriminatorMode = ClassDiscriminatorMode.NONE
+                classDiscriminator = "kotlin_class_type"
             })
         }
 
+        install(DefaultRequest) {
+            this.contentType(ContentType.Application.Json)
+            url {
+                encodedPath = "/api/"
+
+                protocol = if (AppConfig.isHttps) URLProtocol.HTTPS else URLProtocol.HTTP
+                host = AppConfig.serverHost
+
+                AppConfig.serverPort?.let { serverPort ->
+                    port = serverPort
+                }
+            }
+        }
+
+        expectSuccess = true
+
+        configBlock()
     }

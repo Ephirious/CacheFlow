@@ -1,5 +1,6 @@
 package di
 
+import authDataModule
 import core.coreModule
 import core.sqldelight.getSqlDriverModule
 import editorsDataModule
@@ -38,7 +39,9 @@ suspend fun initKoin(
 
             editorsDataModule,
 
-            syncDataModule
+            syncDataModule,
+
+            authDataModule,
         )
     }
 }

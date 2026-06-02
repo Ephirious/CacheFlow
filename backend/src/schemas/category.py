@@ -10,8 +10,9 @@ class CategoryRecord(BaseModel):
     name: str
     emoji: str
     type: CategoryType
+    user_id: UUID = None
 
 class CategoryUpdate(BaseModel):
-    name: str
-    emoji: str
-    type: CategoryType
+    name: str = None
+    emoji: str = None
+    type: CategoryType = None

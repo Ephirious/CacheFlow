@@ -30,7 +30,7 @@ fun <S : MVIState, I : ManageTransactionBaseIntent, A : MVIAction, F : ManageTra
                             ).validated(ManageTransactionFormBaseValidationFields.value)
                         }
 
-                        is ManageTransactionBaseIntent.ChangedNote -> copyBase(note = baseIntent.note.trim())
+                        is ManageTransactionBaseIntent.ChangedNote -> copyBase(note = baseIntent.note)
 
                         is ManageTransactionBaseIntent.ChangedDate -> {
                             val datePart = baseIntent.date.substringBefore('T')

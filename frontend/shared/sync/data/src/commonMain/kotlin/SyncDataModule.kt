@@ -5,6 +5,8 @@ import sync.repositories.SyncManager
 import sync.repositories.SyncManagerImpl
 import sync.repositories.SyncQueueRepository
 import sync.repositories.SyncQueueRepositoryImpl
+import sync.repositories.SyncRepository
+import sync.repositories.SyncRepositoryImpl
 
 val syncDataModule = module {
     single<SyncRemoteDataSource> { SyncRemoteDataSource(get()) }
@@ -19,8 +21,11 @@ val syncDataModule = module {
             categoriesRepo = get(),
             localDataSource = get(),
             transactionsRepo = get(),
+            tokenStorage = get()
         )
     }
+
+    single<SyncRepository> { SyncRepositoryImpl(get(), get()) }
 
     single<SyncLocalDataSource> { SyncLocalDataSource(get()) }
 }

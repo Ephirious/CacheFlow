@@ -1,20 +1,30 @@
 package localization
 
-import utils.annotations.ValidationError
+import utils.CustomError
 
 
-enum class StringAmountError : ValidationError, ValidationKey {
+enum class StringAmountError : CustomError, LocalzKey {
     EmptyAmount, NotANumber, NotPositive, ScaleExceeded
 }
 
-enum class DiffTransferAccountsError : ValidationError, ValidationKey {
+enum class DiffTransferAccountsError : CustomError, LocalzKey {
     SameAccounts
 }
 
-sealed class MaxLenError : ValidationError, ValidationKey {
-    data class MaxLengthExceeded(val limit: Int) : MaxLenError()
+sealed class LenError : CustomError, LocalzKey {
+    data class MaxLengthExceeded(val limit: Int) : LenError()
+    data class NotExactLength(val shouldBe: Int) : LenError()
 }
 
-enum class NotEmptyOrNullStringError : ValidationError, ValidationKey {
+enum class NotEmptyOrNullStringError : CustomError, LocalzKey {
     EmptyOrNullString
+}
+
+
+enum class EmailFormatError : CustomError, LocalzKey {
+    InvalidFormat
+}
+
+enum class HardCodedServerError : LocalzKey {
+    EmailAlreadyInUse, WrongLoginOrPassword, FailToFetch
 }

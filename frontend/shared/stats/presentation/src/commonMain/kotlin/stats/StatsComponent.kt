@@ -42,7 +42,12 @@ class RealStatsComponent(
 
     init {
         launchPersistentCoroutine(key = "StatsSubscription") {
-            combine(getAccountsFlowUseCase(), getTransactionsFlowUseCase(accountId = null)) { accounts, transactions ->
+            combine(
+                getAccountsFlowUseCase(), getTransactionsFlowUseCase(
+                    accountId = null,
+
+                )
+            ) { accounts, transactions ->
                 StatsSourceData(accounts, transactions)
             }.collect { data ->
                 sourceData.accounts = data.accounts

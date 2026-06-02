@@ -11,7 +11,7 @@ kotlin {
         compilerOptions {
             target = "es2015"
             freeCompilerArgs.addAll(listOf("-Xir-per-module=false",
-                "-Xir-property-lazy-initialization"))
+                "-Xir-property-lazy-initialization", "-Xes-long-as-bigint"))
         }
 
         useEsModules()

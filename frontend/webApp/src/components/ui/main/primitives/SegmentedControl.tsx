@@ -18,7 +18,7 @@ const SegmentedControl = ({value, onChange}: SegmentedControlProps) => {
                 <button
                     key={option.id.toString()}
                     onClick={() => onChange(option.id)}
-                    className="relative flex-1 py-2 px-4 text-lg font-medium text-text-secondary"
+                    className="relative flex-1 py-2 px-4 text-lg font-medium text-text-secondary cursor-pointer transition-colors hover:text-text-primary"
                 >
                     {value === option.id && (
                         <motion.div

@@ -1,0 +1,22 @@
+include:
+  - path: ./backend/docker-compose.yml
+
+services:
+  frontend:
+    build:
+      network: host
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: frontend
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    ports:
+      - "5000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app
+    restart: unless-stopped
+

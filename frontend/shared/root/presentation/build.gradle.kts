@@ -18,6 +18,8 @@ kotlin {
             implementation(projects.shared.editors.data)
             implementation(projects.shared.editors.presentation)
 
+            implementation(projects.shared.auth.data)
+
             implementation(projects.shared.sync.data)
             implementation(projects.shared.sync.domain)
         }

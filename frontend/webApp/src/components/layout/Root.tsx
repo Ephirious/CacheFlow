@@ -9,8 +9,8 @@ import Stats from "./Stats.tsx";
 
 
 const RootScreen = ({component}: { component: RootComponent }) => {
-    const pages = useValue(component.childPages)
-    const activeChild = pages.active;
+    const stack = useValue(component.childStack)
+    const activeChild = stack.active;
     const isMainActive = activeChild instanceof RootChild.MainChild;
 
     useLayoutEffect(() => {
@@ -32,7 +32,7 @@ const RootScreen = ({component}: { component: RootComponent }) => {
     }, [isMainActive]);
 
     return (
-        <div className="fixed flex h-dvh w-screen flex-col sm:flex-row">
+        <div className="fixed flex h-dvh w-screen flex-col md:flex-row">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeChild.constructor.name}

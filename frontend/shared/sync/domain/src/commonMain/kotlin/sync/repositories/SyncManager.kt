@@ -7,15 +7,27 @@ import kotlin.js.JsExport
 
 @Serializable
 @JsExport
-enum class SyncStatus {
-    Ok, InProcess, Failed
+sealed class SyncStatus {
+    data object Ok : SyncStatus()
+    data object InProcess : SyncStatus()
+
+    data object Failed : SyncStatus()
+    data class WouldRetry(val inSeconds: Int) : SyncStatus()
+}
+
+
+interface SyncRepository {
+    fun resetLastSyncDate()
+
+
+    suspend fun setSyncLock(isSyncRunning: Boolean)
 }
 
 interface SyncManager {
 
     // Добавляет запрос о синхронизации в очередь – выдерживает debounce перед отправкой
     suspend fun requestSync()
-    suspend fun forceSync()
+    suspend fun forceSync(retry: Boolean)
 
     // Статус синхронизации для отображения в UI
     val status: StateFlow<SyncStatus>

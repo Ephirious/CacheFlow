@@ -4,17 +4,17 @@ import kotlin.js.JsExport
 
 // -------------------------- MAIN --------------------------
 @JsExport
-enum class MainSummaryKey: ValidationKey {
+enum class MainSummaryKey: LocalzKey {
     OverallBalance, ProfitPerMonth
 }
 
 @JsExport
-enum class MainTransactionsKey: ValidationKey {
+enum class MainTransactionsKey: LocalzKey {
     Transactions, Filters,
 }
 
 @JsExport
-enum class ManageTransactionKey: ValidationKey {
+enum class ManageTransactionKey: LocalzKey {
     CreateTransaction, EditTransaction,
 
     // TODO: move to common

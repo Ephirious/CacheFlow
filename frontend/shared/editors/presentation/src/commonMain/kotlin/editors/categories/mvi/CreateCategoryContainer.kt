@@ -29,10 +29,10 @@ class CreateCategoryContainer(
         ) {
             fastConfig(
                 name = "CreateCategory", resetOnStop = false,
-                doOnRecover = {
+                doOnRecover = { state, e ->
                     CreateCategoryState.FatalError(
-                        it.message.orUnknown,
-                        (this as? CreateCategoryState.OK)?.form
+                        e.message.orUnknown,
+                        (state as? CreateCategoryState.OK)?.form
                     )
                 }
             )

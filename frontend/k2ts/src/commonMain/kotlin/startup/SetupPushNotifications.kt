@@ -8,10 +8,10 @@ import org.w3c.notifications.DEFAULT
 import org.w3c.notifications.GRANTED
 import org.w3c.notifications.Notification
 import org.w3c.notifications.NotificationPermission
+import utils.AppConfig
 import utils.AppConfig.pushVapidPublicKey
-import utils.AppConfig.serverIP
+import utils.AppConfig.serverHost
 import utils.AppConfig.serverPort
-import utils.AppConfig.urlSchemeString
 import utils.Logg
 import utils.getServiceContainer
 import kotlin.js.json
@@ -80,7 +80,7 @@ private fun sendSubscriptionToServer(
     subscription: dynamic
 ) {
     window.fetch(
-        "$urlSchemeString$serverIP:$serverPort/subscribe",
+        "${if (AppConfig.isHttps) "https://" else "http://"}$serverHost${if (serverPort != null) ":$serverPort" else ""}/subscribe",
         js(
             """{
             method: 'POST',

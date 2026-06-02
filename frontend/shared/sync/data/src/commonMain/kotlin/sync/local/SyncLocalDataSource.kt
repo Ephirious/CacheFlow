@@ -12,10 +12,12 @@ class SyncLocalDataSource(
     }
 
     fun getLastTimeSync(): String =
-        settings[LAST_SYNC_TIMESTAMP_KEY, "1970-01-01T00:00:00Z"]
+        settings[LAST_SYNC_TIMESTAMP_KEY, DEFAULT_SYNC_TIMESTAMP]
 
 
     companion object {
         const val LAST_SYNC_TIMESTAMP_KEY = "lastSyncTimestampKey"
+
+        const val DEFAULT_SYNC_TIMESTAMP = "1970-01-01T00:00:00Z"
     }
 }

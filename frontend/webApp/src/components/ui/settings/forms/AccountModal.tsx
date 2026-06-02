@@ -1,4 +1,4 @@
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {AccountItem} from "../types.ts";
 import {accountColorOptions} from "../data.tsx";
 import SettingsModalShell from "./SettingsModalShell.tsx";
@@ -9,7 +9,8 @@ import {
     CreateAccountState,
     EditAccountState,
     ManageAccountBaseIntent,
-    EditAccountIntent
+    EditAccountIntent,
+    localz
 } from "k2ts"
 import {useValue} from "interop";
 
@@ -24,15 +25,21 @@ interface AccountModalProps {
 const inputClass = "h-11 rounded-xl border border-border-default bg-surface-muted px-3 text-base outline-none placeholder:text-text-muted text-text-primary";
 
 const AccountModal = ({component, open, mode, account, onClose}: AccountModalProps) => {
+    const state = useValue(component.state)
+    const [touched, setTouched] = useState({ title: false, initialBalance: false });
+
     useEffect(() => {
+        if (!open) return;
+        setTouched({ title: false, initialBalance: false });
     }, [account, open]);
 
     const isAddMode = mode === "add";
 
-    const state = useValue(component.state)
-
     if (state instanceof CreateAccountState.OK || state instanceof EditAccountState.OK) {
-        const canSubmit = state.getForm().title.trim().length > 0;
+        const validation = state.getForm().validation;
+        const initialBalanceValidation = (state as any).getForm().validation.initialBalance;
+        const hasError = Boolean(validation.title || initialBalanceValidation);
+
         return (
             <SettingsModalShell onClose={onClose} open={open}
                                 title={isAddMode ? "Добавить счёт" : "Редактировать счёт"}>
@@ -40,7 +47,10 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                     className="flex flex-col gap-3"
                     onSubmit={(e) => {
                         e.preventDefault();
-                        if (!canSubmit) return;
+                        if (hasError) {
+                            setTouched({ title: true, initialBalance: true });
+                            return;
+                        }
                         component.intent(state instanceof CreateAccountState.OK ? CreateAccountIntent.ClickedCreate : EditAccountIntent.ClickedEdit);
                     }}
                 >
@@ -49,10 +59,16 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                         <input
                             className={inputClass}
                             onChange={(e) => component.intent(new ManageAccountBaseIntent.ChangedTitle(e.target.value))}
+                            onBlur={() => setTouched(prev => ({ ...prev, title: true }))}
                             placeholder="Наличные, Карта..."
                             type="text"
                             value={state.getForm().title}
                         />
+                        {touched.title && validation.title && (
+                            <span className="text-xs text-state-danger px-1">
+                                {localz.get().byValidation(validation.title!)}
+                            </span>
+                        )}
                     </div>
 
                     {isAddMode && component.type === 'create' && (
@@ -61,11 +77,20 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                             <input
                                 className={inputClass}
                                 inputMode="decimal"
-                                onChange={(e) => component.intent(new CreateAccountIntent.ChangedBalance(e.target.value))}
+                                onChange={(e) => {
+                                    setTouched(prev => ({...prev, initialBalance: true}));
+                                    component.intent(new CreateAccountIntent.ChangedBalance(e.target.value));
+                                }}
+                                onBlur={() => setTouched(prev => ({...prev, initialBalance: true}))}
                                 placeholder="0"
                                 type="text"
                                 value={(state as CreateAccountState.OK).getForm().initialBalance}
                             />
+                            {touched.initialBalance && (state as CreateAccountState.OK).getForm().validation.initialBalance && (
+                                <span className="text-xs text-state-danger px-1">
+                                    {localz.get().byValidation((state as CreateAccountState.OK).getForm().validation.initialBalance!)}
+                                </span>
+                            )}
                         </div>
                     )}
 
@@ -78,7 +103,7 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                                     <button
                                         key={item}
                                         style={{backgroundColor: item}}
-                                        className={`h-14 w-full rounded-xl ${isActive ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet" : ""}`}
+                                        className={`h-14 w-full rounded-xl cursor-pointer transition-transform hover:scale-105 active:scale-95 ${isActive ? "ring-2 ring-text-primary ring-offset-2 ring-offset-surface-sheet" : ""}`}
                                         onClick={() => component.intent(new ManageAccountBaseIntent.ChangedColor(item))}
                                         type="button"
                                     />
@@ -88,15 +113,14 @@ const AccountModal = ({component, open, mode, account, onClose}: AccountModalPro
                     </div>
 
                     <button
-                        className={`mt-1 h-11 rounded-xl text-base font-semibold text-brand-on-primary ${canSubmit ? "bg-brand-primary" : "bg-state-disabled-bg text-state-disabled-text"}`}
-                        disabled={!canSubmit}
+                        className={`mt-1 h-11 rounded-xl text-base font-semibold text-brand-on-primary transition-all ${!hasError ? "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]" : ((touched.title || touched.initialBalance) ? "bg-state-disabled-bg text-state-disabled-text cursor-not-allowed" : "bg-brand-primary cursor-pointer hover:opacity-90 active:scale-[0.98]")}`}
                         type="submit"
                     >
                         {isAddMode ? "Добавить" : "Сохранить"}
                     </button>
                     {!isAddMode && (
                         <button
-                            className="h-11 rounded-xl border border-state-danger text-base font-semibold text-state-danger"
+                            className="h-11 rounded-xl border border-state-danger text-base font-semibold text-state-danger cursor-pointer transition-colors hover:bg-state-danger/10 active:bg-state-danger/20"
                             onClick={() => {
                                 if (window.confirm("Удалить счёт?")) {
                                     component.intent(EditAccountIntent.ClickedDelete);

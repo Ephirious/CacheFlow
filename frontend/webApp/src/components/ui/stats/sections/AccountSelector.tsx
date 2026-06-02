@@ -16,7 +16,7 @@ const AccountSelector = ({account, options, onChange}: AccountSelectorProps) => 
                 const isActive = account === option.value;
                 return (
                     <button
-                        className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
+                        className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-surface-hover active:scale-95 ${
                             isActive
                                 ? "border-brand-primary/30 bg-brand-primary/10 text-brand-primary"
                                 : "border-border-strong bg-surface-base text-text-secondary"
@@ -25,7 +25,7 @@ const AccountSelector = ({account, options, onChange}: AccountSelectorProps) => 
                         onClick={() => onChange(option.value)}
                         type="button"
                     >
-                        <span className="font-medium">{option.label}</span>
+                        <span className="font-medium truncate max-w-[120px] sm:max-w-[160px]">{option.label}</span>
                         {option.balance && <span className="text-xs text-text-secondary">{option.balance}</span>}
                     </button>
                 );

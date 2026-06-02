@@ -2,8 +2,15 @@ package transactions.repositories
 
 import kotlinx.coroutines.flow.Flow
 import transactions.models.Transaction
+import transactions.models.TransactionFilters
 
 interface TransactionsRepository {
+    fun getFilteredTransactionsFlow(
+        accountId: String?,
+        filters: TransactionFilters,
+        limit: Long
+    ): Flow<List<Transaction>>
+
     fun getTransactionsFlow(accountId: String?): Flow<List<Transaction>>
 
     suspend fun upsertTransaction(transaction: Transaction)
@@ -31,4 +38,9 @@ interface TransactionsRepository {
         accountFromId: String,
         accountToId: String
     )
+
+    suspend fun setDbOnFirstEntranceAndTriggers(force: Boolean)
+
+
+    fun unsetFirstEntrance()
 }

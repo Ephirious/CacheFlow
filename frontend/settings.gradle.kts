@@ -35,6 +35,8 @@ include(":k2ts") // entryPoint for ts-kotlin
 
 include(":ksp-processor")
 
+include(":shared:core-validation")
+
 include(":shared:core")
 include(":shared:root:presentation")
 
@@ -54,6 +56,10 @@ include(":shared:editors:presentation")
 
 include(":shared:sync:data")
 include(":shared:sync:domain")
+
+include(":shared:auth:data")
+include(":shared:auth:domain")
+include(":shared:auth:presentation")
 
 include(":shared:utils:common")
 include(":shared:utils:pure")

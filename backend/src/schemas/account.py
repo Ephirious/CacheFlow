@@ -8,6 +8,7 @@ class AccountCreateRecord(BaseModel):
     id: UUID
     name: str
     color: str
+    user_id: UUID = None
 
 class AccountOutRecord(AccountCreateRecord):
     funds: Decimal

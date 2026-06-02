@@ -1,6 +1,6 @@
 plugins {
     id("presentation")
-    alias(libs.plugins.ksp)
+    id("ksp-on")
 }
 
 kotlin {
@@ -10,20 +10,9 @@ kotlin {
                 implementation(projects.shared.transactions.domain)
                 implementation(projects.shared.editors.presentation)
                 implementation(projects.shared.editors.domain)
+                implementation(projects.shared.coreValidation)
             }
-
-
-            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
         }
     }
 }
-
-dependencies {
-    kspCommonMainMetadata(projects.kspProcessor)
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
-    dependsOn(tasks.matching { it.name == "kspCommonMainKotlinMetadata" })
-}
-
 

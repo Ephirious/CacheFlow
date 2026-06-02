@@ -32,10 +32,10 @@ class EditAccountContainer(
         ) {
             fastConfig(
                 name = "EditCategory", resetOnStop = false,
-                doOnRecover = {
+                doOnRecover = { state, e ->
                     EditAccountState.FatalError(
-                        it.message.orUnknown,
-                        (this as? EditAccountState.OK)?.form
+                        e.message.orUnknown,
+                        (state as? EditAccountState.OK)?.form
                     )
                 }
             )

@@ -12,7 +12,7 @@ services:
     volumes:
       - cacheflow_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${DATABASE_NAME}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${DATABASE_NAME}" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -29,7 +29,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: ["sh", "-c", "cd /app/backend && uv run python -m alembic -c alembic.ini upgrade head"]
+    command: [ "sh", "-c", "cd /app/backend && uv run python -m alembic -c alembic.ini upgrade head" ]
     restart: "no"
     networks:
       - app
@@ -53,9 +53,15 @@ services:
       - 1.1.1.1
     ports:
       - "8000:8000"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     volumes:
       - ../backend:/app/backend
-    command: ["sh", "-c", "cd /app/backend && uv run python -m uvicorn backend.src.main:app --host 0.0.0.0 --port 8000 --reload"]
+    command: [ "sh", "-c", "cd /app/backend && uv run python -m uvicorn backend.src.main:app --host 0.0.0.0 --port 8000 --reload" ]
     networks:
       - app
 
@@ -78,7 +84,9 @@ services:
 
 volumes:
   cacheflow_postgres_data:
+    name: cacheflow_postgres_data
   cacheflow_pgadmin_data:
+    name: cacheflow_pgadmin_data
 
 networks:
   app:
