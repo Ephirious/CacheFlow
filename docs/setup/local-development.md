@@ -29,7 +29,7 @@ npm install
 npm run start
 ```
 
-Для проверки поведения, близкого к production:
+Для проверки поведения, близкого к production (Service Worker и offline-first):
 
 ```bash
 npm run preview
