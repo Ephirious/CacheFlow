@@ -12,7 +12,6 @@ import com.arkivanov.decompose.router.slot.activate
 import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.decompose.router.webhistory.WebNavigation
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.essenty.lifecycle.doOnResume
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -30,7 +29,6 @@ import settings.mvi.SettingsState
 import settings.sync.RealSyncOverviewComponent
 import settings.sync.SyncOverviewComponent
 import settings.sync.mvi.SyncOverviewContainer
-import utils.Logg
 import utils.Url
 import utils.interop.*
 import utils.path
@@ -61,10 +59,6 @@ class RealSettingsComponent(
     init {
         lifecycle.doOnResume {
             syncOverviewComponent.updateAuthStatus()
-        }
-
-        lifecycle.doOnDestroy {
-            Logg.debug { "RealSettingsComponent был полностью уничтожен!" }
         }
     }
 
