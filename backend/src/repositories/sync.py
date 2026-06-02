@@ -15,7 +15,7 @@ class SyncOperationRepository(GenericRepository[SyncOperation, SyncOperationBase
     async def get_by_processing_ids(self, ids: list[UUID], last_sync_date: Optional[datetime], user_id: UUID) -> Sequence[SyncOperation]:
         stmt = select(SyncOperation).where(
             SyncOperation.processing_id.in_(ids),
-            SyncOperation.created_at > last_sync_date,
+            SyncOperation.updated_at >= last_sync_date,
             SyncOperation.user_id == user_id
         ).order_by(SyncOperation.processing_id, SyncOperation.created_at)
         res = await self._session.execute(stmt)
@@ -23,7 +23,7 @@ class SyncOperationRepository(GenericRepository[SyncOperation, SyncOperationBase
     
     async def get_by_date(self, sync_date: datetime, user_id: UUID) -> Sequence[SyncOperation]:
         stmt = select(SyncOperation).where(
-            SyncOperation.created_at > sync_date,
+            SyncOperation.updated_at >= sync_date,
             SyncOperation.user_id == user_id
         ).order_by(SyncOperation.created_at)
         res = await self._session.execute(stmt)
