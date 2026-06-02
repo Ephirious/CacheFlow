@@ -20,6 +20,6 @@ class EditCategoryUseCase(
             { CategoryEmojiRule.validate(emoji) },
         )
 
-        repository.updateCategory(id = id, name = name, emoji = emoji)
+        repository.updateCategory(id = id, name = name.trim(), emoji = emoji)
     }
 }

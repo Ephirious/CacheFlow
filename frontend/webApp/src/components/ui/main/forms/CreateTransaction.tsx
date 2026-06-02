@@ -127,7 +127,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                             setTouched((prev) => ({...prev, category: true}));
                             component.intent(new ManageTransactionBaseIntent.ChangedCategory(id))
                         }}
-                        onAdd={() => console.log("Add category")}
+                        onAdd={() => component.createCategoryClick()}
                     />
                     {
                         <p className="text-xs text-state-danger px-1">{categoryError && localz.get().byValidation(categoryError)}</p>
@@ -174,6 +174,7 @@ const CreateTransactionContent = ({component, state}: CreateTransactionProps) =>
                             setTouched((prev) => ({...prev, account: true}));
                             component.intent(new ManageTransactionBaseIntent.ChangedAccount(id))
                         }}
+                        onAdd={() => component.createAccountClick()}
                     />
                     <p className="text-xs text-state-danger px-1">{accountError && localz.get().byValidation(accountError)}</p>
                 </div>

@@ -17,6 +17,6 @@ class CreateCategoryUseCase(
             { CategoryEmojiRule.validate(emoji) },
         )
 
-        repository.insertCategory(name = name, emoji = emoji, type = type)
+        repository.insertCategory(name = name.trim(), emoji = emoji, type = type)
     }
 }

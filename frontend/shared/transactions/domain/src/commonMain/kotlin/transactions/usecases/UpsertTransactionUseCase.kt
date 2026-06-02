@@ -34,6 +34,6 @@ class UpsertTransactionUseCase(
             }
         )
 
-        repository.upsertTransaction(transaction)
+        repository.upsertTransaction(transaction.copy(note = transaction.note.trim()))
     }
 }

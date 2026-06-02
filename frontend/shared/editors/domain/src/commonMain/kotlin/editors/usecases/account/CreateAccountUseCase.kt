@@ -16,6 +16,6 @@ class CreateAccountUseCase(
             { AccountInitialBalanceRule.validate(stringAmount) },
         )
 
-        repository.insertAccount(name = name, stringAmount = stringAmount, color = color)
+        repository.insertAccount(name = name.trim(), stringAmount = stringAmount, color = color)
     }
 }

@@ -15,6 +15,6 @@ class EditAccountUseCase(
             { IdRule.validate(id) },
             { AccountTitleRule.validate(name) }
         )
-        repository.updateAccount(id = id, name = name, color = color)
+        repository.updateAccount(id = id, name = name.trim(), color = color)
     }
 }
