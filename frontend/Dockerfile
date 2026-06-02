@@ -40,7 +40,6 @@ ENV GRADLE_USER_HOME=/root/.gradle
 
 # Кэши из deps
 COPY --from=deps /home/gradle/.gradle /root/.gradle
-COPY --from=deps /home/gradle/cache/webApp/node_modules ./webApp/node_modules
 
 COPY . .
 
