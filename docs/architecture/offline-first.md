@@ -1,35 +1,30 @@
-# Offline-first
+# Работа без сети
 
-Документ описывает подтвержденные offline-first механики frontend-части CacheFlow.
+Изменено: 02.06.2026
 
-## Основные элементы
+В CacheFlow офлайн-режим состоит из двух частей: кэша приложения в Service Worker и локальных данных с очередью синхронизации.
 
-Offline-first поведение состоит из двух независимых частей:
+Service Worker нужен, чтобы приложение открывалось без сети. Очередь синхронизации нужна, чтобы локальные изменения позже доехали до backend.
 
 ```text
 Service Worker cache
-   +
+  +
 Local data / sync queue
 ```
 
-Service Worker отвечает за доступность shell/assets приложения без сети. Sync layer отвечает за доставку локальных изменений на backend и получение удаленных изменений.
-
 ## Service Worker
 
-Файл: `frontend/webApp/src/workers/sw.js`.
+Основной файл: `frontend/webApp/src/workers/sw.js`.
 
-Подтвержденное поведение:
+Кэширование включается только при наличии `BUILD_HASH`. Если хэша нет, Service Worker логирует, что offline-first mode отключён, и не включает кэш.
 
-- кэширование включается только при наличии `BUILD_HASH`;
-- имя кэша строится как `cacheflow-h${BUILD_HASH}`;
-- при отсутствии `BUILD_HASH` offline-first caching отключается;
-- во время `install` кэшируются базовые assets;
-- во время `activate` удаляются старые версии кэша;
-- Service Worker вызывает `skipWaiting()` и `clients.claim()`.
+Имя кэша строится так:
 
-## Precache assets
+```text
+cacheflow-h${BUILD_HASH}
+```
 
-Подтвержденный список assets:
+При установке Service Worker заранее кладёт в кэш базовые файлы приложения:
 
 ```text
 /
@@ -43,23 +38,20 @@ Service Worker отвечает за доступность shell/assets при�
 /src/workers/sqljs.worker.js
 ```
 
-## Fetch strategy
+При активации старые версии кэша удаляются. Это важно после нового билда: приложение не должно оставаться на старых assets.
 
-Service Worker обрабатывает только `GET` запросы.
+## Что кэшируется
 
-Исключения:
+Service Worker обрабатывает только `GET`-запросы и только разрешённые hosts:
 
-- Vite dev requests (`/@vite`);
-- запросы с `token=` в query string;
-- запросы к неразрешенным hosts;
-- API/sync requests;
-- любые запросы при выключенном `CACHE_NAME`.
+- текущий origin;
+- `cdn.tailwindcss.com`;
+- `fonts.googleapis.com`;
+- `fonts.gstatic.com`.
 
-## Не кэшируются
+Vite dev-запросы, запросы с `token=` и запросы к API не кэшируются.
 
-API-запросы не кэшируются Service Worker-ом.
-
-Подтвержденные признаки API-запроса:
+API определяется по следующим признакам:
 
 ```text
 /api/
@@ -68,35 +60,19 @@ API-запросы не кэшируются Service Worker-ом.
 port 8000
 ```
 
-## Strategies
+Это важная граница: Service Worker не пытается кэшировать backend API и не занимается merge данных.
 
-Файл: `frontend/webApp/src/workers/sw/strategies.js`.
+## Стратегии кэширования
 
-### networkFirst
+Стратегии лежат в `frontend/webApp/src/workers/sw/strategies.js`.
 
-Используется для navigation requests.
+Для переходов по страницам используется `networkFirst`: сначала сеть, затем fallback на кэш, а если нужной страницы нет - на `/index.html`.
 
-Поведение:
+Для остальных assets используется `dynamicCacheFirst`: сначала кэш, затем сеть. Успешные ответы сохраняются обратно в кэш.
 
-1. сначала выполняется `fetch(request)`;
-2. успешный `200` response сохраняется в cache;
-3. при ошибке сети возвращается cached response;
-4. если cached response отсутствует, возвращается cached `/index.html`.
+## Что происходит при старте приложения
 
-### dynamicCacheFirst
-
-Используется для остальных cacheable assets.
-
-Поведение:
-
-1. сначала ищется cached response;
-2. при отсутствии cache выполняется network request;
-3. успешный basic `200` response сохраняется в cache;
-4. для navigation fallback возвращается `/index.html`, если он есть в cache.
-
-## Startup integration
-
-В `initApp()` вызывается:
+В `initApp()` вызываются:
 
 ```text
 registerServiceWorker()
@@ -104,14 +80,8 @@ observeNetwork(syncManager)
 syncManager.forceSync(false)
 ```
 
-Это означает, что приложение:
+То есть приложение регистрирует Service Worker, начинает следить за сетью и запускает первичную синхронизацию.
 
-- регистрирует Service Worker при старте;
-- подписывается на network state;
-- запускает первичную синхронизацию после инициализации Koin.
+## Где заканчивается Service Worker
 
-## Границы ответственности
-
-Service Worker не занимается merge данных и не кэширует API.
-
-За согласование локального и серверного состояния отвечает `sync` модуль.
+Service Worker отвечает только за shell и assets. Данные приложения живут в локальной базе, а согласованием с сервером занимается модуль `sync`.
