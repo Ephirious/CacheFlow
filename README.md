@@ -14,9 +14,9 @@ CacheFlow/
 
 ## Где читать документацию
 
-Основной вход для frontend-части:
-
+Код:
 - [frontend/README.md](./frontend/README.md)
+- [backend/README.md](./backend/README.md)
 
 Архитектура:
 
@@ -31,23 +31,5 @@ CacheFlow/
 Настройка и запуск:
 
 - [Локальная разработка](./docs/setup/local-development.md)
-- [Сборка frontend](./docs/setup/build-pipeline.md)
 
-Документация модулей лежит рядом с кодом в `frontend/shared/*/README.md`.
-
-## Быстрый старт frontend
-
-```bash
-cd frontend
-./gradlew buildK2ts
-npm install
-npm run start
-```
-
-Для production-like проверки:
-
-```bash
-npm run preview
-```
-
-Подробности по backend см. в [backend/README.md](./backend/README.md).
+Документация frontend модулей лежит рядом с кодом в `frontend/shared/*/README.md`.
