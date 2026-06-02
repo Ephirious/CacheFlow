@@ -28,9 +28,12 @@ frontend/
 
 React-приложение, которое использует Kotlin/JS библиотеку, собранную из `k2ts`.
 
+Подробности по web-части находятся в `webApp/README.md`.
 
 ## Полезная документация
+
 - `../docs/setup/local-development.md`
+- `../docs/architecture/react-ui.md`
 - `../docs/architecture/offline-first.md`
 - `../docs/architecture/synchronization.md`
 - `../docs/architecture/k2ts.md`
