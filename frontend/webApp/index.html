@@ -23,7 +23,22 @@
 </head>
 <body>
 <div id="root">
-    Грузимся
+    <style>
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4F39F6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 40vh auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <div class="loader"></div>
 </div>
 <script type="module" src="/src/index.tsx"></script>
 </body>

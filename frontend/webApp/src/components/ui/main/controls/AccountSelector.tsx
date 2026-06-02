@@ -6,9 +6,10 @@ interface AccountSelectorProps {
     accounts: readonly Account[];
     selectedId: string | null;
     onSelect: (id: string) => void;
+    onAdd?: () => void;
 }
 
-const AccountSelector = ({accounts, selectedId, onSelect}: AccountSelectorProps) => {
+const AccountSelector = ({accounts, selectedId, onSelect, onAdd}: AccountSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const selectedAccount = accounts.find(acc => acc.id === selectedId);
 
@@ -69,6 +70,20 @@ const AccountSelector = ({accounts, selectedId, onSelect}: AccountSelectorProps)
                                 )}
                             </button>
                         ))}
+                        {onAdd && (
+                            <button
+                                onClick={() => {
+                                    onAdd();
+                                    setIsOpen(false);
+                                }}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 border-t border-border-subtle cursor-pointer transition-colors hover:bg-surface-hover active:bg-surface-hover/80 text-brand-primary font-medium"
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                Создать счёт
+                            </button>
+                        )}
                     </div>
                 </>
             )}

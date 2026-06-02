@@ -5,6 +5,7 @@ import {
     MainState,
     ManageTransactionComponent,
     ManageTransactionState,
+    ManageTransactionModalChild,
     TransactionsIntent,
     TransactionsAction
 } from "k2ts";
@@ -13,6 +14,8 @@ import {useEffect, useLayoutEffect, useRef, useState} from "react";
 import {createPortal} from "react-dom";
 import {useActions} from "interop/useActions";
 import {FiX} from "react-icons/fi";
+import { AccountModal, CategoryModal } from "../ui/settings/forms";
+
 
 
 const Main = ({component}: { component: MainComponent }) => {
@@ -39,22 +42,49 @@ const ManageTransactionContent = ({
     onClose: () => void
 }) => {
     const state = useValue(component.state);
+    const modalSlot = useValue(component.jsModalSlot);
+    const modalInstance = modalSlot.instance;
 
-    return when(state)
-        .on(ManageTransactionState.OK, (okState) => (
-            <CreateTransaction
-                component={component}
-                state={okState}
-                close={onClose}
-            />
-        ))
-        .on(ManageTransactionState.FatalError, (errorState) => (
-            <div className="px-6 py-4 text-state-danger">Ошибка: {errorState.message}</div>
-        ))
-        .otherwise(() => {
-            console.error("[ManageTransaction] Unknown state", state);
-            return <div className="px-6 py-4 text-state-danger">error</div>;
-        });
+    return (
+        <>
+            {when(state)
+                .on(ManageTransactionState.OK, (okState) => (
+                    <CreateTransaction
+                        component={component}
+                        state={okState}
+                        close={onClose}
+                    />
+                ))
+                .on(ManageTransactionState.FatalError, (errorState) => (
+                    <div className="px-6 py-4 text-state-danger">Ошибка: {errorState.message}</div>
+                ))
+                .otherwise(() => {
+                    console.error("[ManageTransaction] Unknown state", state);
+                    return <div className="px-6 py-4 text-state-danger">error</div>;
+                })
+            }
+            
+            {modalInstance && when(modalInstance)
+                .on(ManageTransactionModalChild.CreateCategoryChild, (child) => (
+                    <CategoryModal
+                        component={child.component}
+                        open={true}
+                        mode="add"
+                        onClose={() => component.dismissSlot()}
+                    />
+                ))
+                .on(ManageTransactionModalChild.CreateAccountChild, (child) => (
+                    <AccountModal
+                        component={child.component}
+                        open={true}
+                        mode="add"
+                        onClose={() => component.dismissSlot()}
+                    />
+                ))
+                .run()
+            }
+        </>
+    );
 };
 
 const MainOK = ({component}: { component: MainComponent }) => {
