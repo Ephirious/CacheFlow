@@ -33,7 +33,7 @@ else
 fi
 
 echo "==> Build new images"
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" build
+make build
 
 echo "==> Run migrations"
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" run --rm migrations || {
