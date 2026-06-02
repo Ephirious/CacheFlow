@@ -1,24 +1,24 @@
-# Synchronization
+# Синхронизация данных
 
-Документ описывает подтвержденную реализацию синхронизации.
+Изменено: 02.06.2026
 
-## Основные компоненты
+Синхронизация в CacheFlow построена вокруг очереди операций. Модули приложения сначала меняют локальные данные, а затем `sync` постепенно отправляет накопленные изменения на сервер.
 
-Подтвержденные элементы:
+## Основные части
 
-- SyncManager
-- SyncManagerImpl
-- SyncRepository
-- SyncRepositoryImpl
-- SyncQueue
-- SyncQueueRepositoryImpl
-- SyncScheduler
-- SyncRemoteDataSource
-- SyncLocalDataSource
+В реализации участвуют:
 
-## SyncManager
+- `SyncManager`
+- `SyncManagerImpl`
+- `SyncRepository`
+- `SyncRepositoryImpl`
+- `SyncQueue`
+- `SyncQueueRepositoryImpl`
+- `SyncScheduler`
+- `SyncRemoteDataSource`
+- `SyncLocalDataSource`
 
-Публичный контракт:
+Главная точка входа - `SyncManager`.
 
 ```text
 requestSync()
@@ -26,41 +26,43 @@ forceSync(retry)
 status: StateFlow<SyncStatus>
 ```
 
-## SyncStatus
+## Статусы
 
-Подтвержденные состояния:
+Во время работы используются состояния:
 
-- Ok
-- InProcess
-- Failed
-- WouldRetry(inSeconds)
+- `Ok`
+- `InProcess`
+- `Failed`
+- `WouldRetry(inSeconds)`
 
-## Scheduling
+Последнее состояние показывает, что запрос завершился ошибкой и система ждёт следующей попытки.
 
-Синхронизация запускается не напрямую.
+## Когда запускается синхронизация
 
-Используется `SyncScheduler`, который получает изменения из:
+Запуск идёт через `SyncScheduler`.
+
+Он наблюдает за очередью несинхронизированных операций:
 
 ```text
 queueRepo.getUnsyncedFlow()
 ```
 
-После debounce генерируется событие синхронизации.
+После debounce создаётся запрос на синхронизацию.
 
-## Concurrency protection
+## Защита от параллельных запусков
 
-Подтвержденные механизмы:
+В `SyncManagerImpl` используются:
 
-- Mutex;
-- Web Lock API wrapper (`withWebLock(...)`);
-- SupervisorJob;
-- отдельный AsyncDispatcher.
+- `Mutex`
+- `withWebLock(...)`
+- `SupervisorJob`
+- отдельный dispatcher
 
-Это предотвращает одновременный запуск нескольких процессов синхронизации.
+Это нужно, чтобы несколько вкладок или несколько событий не запускали синхронизацию одновременно.
 
-## Retry policy
+## Повторные попытки
 
-Подтвержденный алгоритм:
+При ошибках используется экспоненциальная задержка:
 
 ```text
 10s
@@ -68,75 +70,56 @@ queueRepo.getUnsyncedFlow()
 40s
 80s
 ...
-max 5 minutes
+до 5 минут
 ```
 
-Используется exponential backoff.
+Во время ожидания статус переключается в `WouldRetry(...)`.
 
-Во время ожидания статус переводится в:
-
-```text
-WouldRetry(remainingSeconds)
-```
-
-## Request pipeline
+## Как выглядит запрос
 
 ```text
 Unsynced queue rows
-        ↓
-mapSyncQueueRow(...)
-        ↓
-SyncRequest
-        ↓
-remoteDataSource.sendSyncRequest(...)
-        ↓
-SyncResponse
+  -> mapSyncQueueRow(...)
+  -> SyncRequest
+  -> sendSyncRequest(...)
+  -> SyncResponse
 ```
 
-## Server response handling
+На сервер отправляются накопленные операции из очереди.
 
-Подтвержденные блоки ответа:
+## Как обрабатывается ответ
 
-### acceptedIds
+Сервер возвращает несколько частей ответа.
 
-Успешно обработанные операции удаляются из локальной очереди.
+`acceptedIds` используются для удаления успешно обработанных операций из локальной очереди.
 
-### deleteOperations
+`deleteOperations` применяются к локальному состоянию. В коде используются операции удаления счетов, категорий, переводов и транзакций.
 
-Применяются локально:
+`updateState` содержит актуальное состояние сущностей. Оно применяется через репозитории:
 
-- softDeleteAccount
-- softDeleteCategory
-- hardDeleteTransfer
-- hardDeleteTransaction
+- `accountsRepo.upsertAccount(...)`
+- `categoriesRepo.upsertCategory(...)`
+- `transactionsRepo.badInsertTransfer(...)`
+- `transactionsRepo.badInsertTransaction(...)`
 
-### updateState
+## Авторизация
 
-Применяются локально через repository layer:
+Без токенов синхронизация не запускается.
 
-- accountsRepo.upsertAccount(...)
-- categoriesRepo.upsertCategory(...)
-- transactionsRepo.badInsertTransfer(...)
-- transactionsRepo.badInsertTransaction(...)
-
-## Authentication requirement
-
-Синхронизация невозможна без токенов авторизации.
-
-Перед запуском проверяется:
+Перед отправкой запроса проверяется:
 
 ```text
 TokenStorage.isTokensEmpty()
 ```
 
-Если токены отсутствуют, синхронизация завершается без выполнения запроса.
+Если пользователь не авторизован, запрос не выполняется.
 
-## Startup behavior
+## При запуске приложения
 
-Во время запуска приложения вызывается:
+Во время старта вызывается:
 
 ```text
 syncManager.forceSync(false)
 ```
 
-что инициирует первичное выравнивание локального состояния с сервером.
+За счёт этого локальное состояние пытается выровняться с сервером сразу после инициализации приложения.
