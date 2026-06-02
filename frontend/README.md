@@ -32,8 +32,8 @@ React-приложение, которое использует Kotlin/JS биб
 
 ## Полезная документация
 
-- `../docs/setup/local-development.md`
-- `../docs/architecture/react-ui.md`
-- `../docs/architecture/offline-first.md`
-- `../docs/architecture/synchronization.md`
-- `../docs/architecture/k2ts.md`
+- [`../docs/setup/local-development.md`](../docs/setup/local-development.md)
+- [`../docs/architecture/react-ui.md`](../docs/architecture/react-ui.md)
+- [`../docs/architecture/offline-first.md`](../docs/architecture/offline-first.md)
+- [`../docs/architecture/synchronization.md`](../docs/architecture/synchronization.md)
+- [`../docs/architecture/k2ts.md`](../docs/architecture/k2ts.md)
