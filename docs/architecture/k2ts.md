@@ -1,14 +1,14 @@
-# k2ts
+# Kotlin/JS bridge: k2ts
 
-`k2ts` — Kotlin/JS bridge между shared Kotlin-кодом и React/TypeScript frontend.
+Изменено: 02.06.2026
 
-## Назначение
+`k2ts` связывает Kotlin shared layer с React/TypeScript приложением. Через него frontend получает доступ к `RootComponent`, состоянию экранов и Kotlin-логике.
 
-Модуль собирает Kotlin Multiplatform код в JavaScript библиотеку и генерирует TypeScript определения.
+## Что делает модуль
 
-## Kotlin/JS configuration
+Модуль собирает Kotlin/JS библиотеку и генерирует TypeScript-описания.
 
-Подтвержденная конфигурация:
+В Gradle включено:
 
 ```text
 js(IR)
@@ -18,7 +18,7 @@ generateTypeScriptDefinitions()
 useEsModules()
 ```
 
-Output module name:
+Имя выходного JS-модуля:
 
 ```text
 k2ts
@@ -26,69 +26,56 @@ k2ts
 
 ## Зависимости
 
-Подтвержденные зависимости:
+`k2ts` подключает те shared-модули, которые нужны при старте приложения:
 
-- shared.root.presentation
-- shared.sync.domain
-- shared.sync.data
-- shared.settings.domain
-- shared.core
-- shared.utils.common
+- `shared:root:presentation`
+- `shared:sync:domain`
+- `shared:sync:data`
+- `shared:settings:domain`
+- `shared:core`
+- `shared:utils:common`
 - Koin
 
-## initApp
+## Точка входа
 
-Главная точка входа:
+Главная функция - `initApp()`.
 
 ```kotlin
 @JsExport
 fun initApp()
 ```
 
-Функция:
+При запуске она:
 
-1. настраивает logging;
-2. регистрирует service worker;
+1. настраивает логирование;
+2. регистрирует Service Worker;
 3. инициализирует Koin;
-4. применяет сохраненную тему;
-5. запускает network observer;
+4. применяет сохранённую тему;
+5. запускает наблюдение за сетью;
 6. запускает первичную синхронизацию;
-7. создает RootComponent;
-8. возвращает его в JavaScript.
+7. создаёт `RootComponent`;
+8. возвращает компонент в JavaScript.
 
-## JS-facing API
+## Как React получает Kotlin-состояние
 
-Компоненты экспортируются через:
+Компоненты экспортируются через `@JsExport`. Для передачи состояния и навигации используются interop-обёртки:
 
-- `@JsExport`;
-- `JsValue<T>`;
-- `JsChildStack<T>`;
-- `JsChildSlot<T>`.
-
-## Navigation bridge
-
-TypeScript получает доступ к Decompose navigation через:
+- `JsValue<T>`
+- `JsChildStack<T>`
+- `JsChildSlot<T>`
 
 ```text
 RootComponent
-   ↓
-jsStack
-   ↓
-React UI
+  -> jsStack
+  -> React UI
 ```
-
-## State bridge
-
-State передается через observable wrappers:
 
 ```text
 StateFlow / Value
-   ↓
-JsValue
-   ↓
-TypeScript subscription
+  -> JsValue
+  -> TypeScript subscription
 ```
 
-## Архитектурная роль
+## Главное правило
 
-`k2ts` является единственной официальной точкой доступа React frontend к shared Kotlin бизнес-логике.
+React не должен пересобирать бизнес-логику на своей стороне. Если данные или навигация уже живут в Kotlin shared layer, TypeScript должен получать их через `k2ts` и interop API.
