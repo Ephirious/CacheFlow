@@ -1,18 +1,8 @@
-# Transactions Module
+# Модуль transactions
 
-## Назначение
+Изменено: 02.06.2026
 
-Основной бизнес-модуль приложения.
-
-Отвечает за:
-
-- хранение транзакций;
-- создание и обновление операций;
-- удаление операций;
-- фильтрацию списка транзакций;
-- отображение summary-информации;
-- интеграцию с локальной БД;
-- подготовку данных для синхронизации.
+`transactions` - основной модуль для работы с операциями. Через него главный экран получает список транзакций, применяет фильтры, удаляет записи и сохраняет изменения в локальную базу.
 
 ## Структура
 
@@ -23,70 +13,30 @@ transactions/
 └── presentation/
 ```
 
-## Domain
+## Основные части
 
-Подтвержденные usecases:
+В `domain` лежат сценарии чтения и изменения транзакций:
 
-- GetTransactionUseCase
-- GetTransactionsFlowUseCase
-- GetFilteredTransactionsFlowUseCase
-- UpsertTransactionUseCase
-- DeleteTransactionUseCase
+- `GetTransactionUseCase`
+- `GetTransactionsFlowUseCase`
+- `GetFilteredTransactionsFlowUseCase`
+- `UpsertTransactionUseCase`
+- `DeleteTransactionUseCase`
 
-### TransactionsRepository
+Основной контракт - `TransactionsRepository`. Он отдаёт список транзакций, список с фильтрами, умеет делать upsert, delete и выбирать транзакцию по id.
 
-Подтвержденные операции:
+В `data` находятся `TransactionsRepositoryImpl`, `TransactionsDataModule` и SQLDelight-схема `Transactions.sq`.
 
-- getTransactionsFlow(...)
-- getFilteredTransactionsFlow(...)
-- upsertTransaction(...)
-- deleteTransaction(...)
-- selectTransactionById(...)
+В `presentation` собраны компоненты главного сценария:
 
-Также содержит служебные методы миграции/инициализации БД.
+- `MainComponent`
+- `TransactionsComponent`
+- `TransactionsContainer`
+- `FiltersContainer`
+- `SummaryContainer`
 
-## Data
+`TransactionsComponent` экспортируется в JS. React получает из него состояние, отправляет intents и открывает фильтры. Фильтры сделаны отдельным Decompose slot-компонентом.
 
-Подтвержденные элементы:
+## Связи
 
-- TransactionsRepositoryImpl
-- TransactionsDataModule
-- SQLDelight schema (`Transactions.sq`)
-
-Data слой отвечает за локальное хранение и реактивные выборки данных.
-
-## Presentation
-
-Подтвержденные компоненты:
-
-- TransactionsComponent
-- TransactionsContainer
-- FiltersContainer
-- SummaryContainer
-- MainComponent
-
-### TransactionsComponent
-
-Экспортируется в JS через `@JsExport`.
-
-Предоставляет:
-
-- observable state;
-- action subscription;
-- открытие/закрытие фильтров;
-- отправку intents.
-
-### Filters
-
-Фильтры реализованы через Decompose ChildSlot и отдельный FiltersComponent.
-
-## Связанные модели
-
-Подтвержденные модели:
-
-- Transaction
-- TransactionFilters
-
-## Зависимости
-
-Модуль используется редакторами, статистикой и системой синхронизации.
+Модуль связан со статистикой, редакторами и синхронизацией. Поэтому изменения в транзакциях лучше проверять вместе с `editors`, `stats` и `sync`.
