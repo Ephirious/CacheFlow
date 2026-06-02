@@ -4,7 +4,7 @@
 
 `webApp` - React/TypeScript часть frontend. Здесь находится UI приложения, Vite-конфигурация, Service Worker и web-specific entry points.
 
-Kotlin-код здесь не живёт. Бизнес-логика приходит из пакета `k2ts`, который собирается из Kotlin Multiplatform shared layer.
+Бизнес-логика приходит из пакета `k2ts`, который собирается из Kotlin Multiplatform shared layer.
 
 ## Структура
 
@@ -47,7 +47,6 @@ index.html
 - React plugin;
 - Tailwind plugin;
 - `vite-tsconfig-paths`;
-- небольшой локальный plugin для заголовков Service Worker и SQL.js worker.
 
 В dev-режиме приложение запускается на порту `8080`.
 
@@ -105,10 +104,4 @@ Service-Worker-Allowed: /
 - Recharts;
 - Vaul.
 
-Recharts используется для графиков, Vaul - для drawer-like UI компонентов.
-
-## Что не должно попадать в webApp
-
-`webApp` не должен дублировать бизнес-логику из Kotlin shared layer.
-
-Если логика относится к транзакциям, синхронизации, авторизации, настройкам или навигации, сначала стоит проверить соответствующий shared-модуль. React-часть должна в основном отвечать за отрисовку и пользовательское взаимодействие.
+Recharts используется для графиков, Vaul – для bottom sheet.
