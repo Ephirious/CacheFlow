@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y nodejs npm git && \
     rm -rf /var/lib/apt/lists/*
 
 
-# ===== Скачивание зависимостей =====
+# ===== Скачивание зависимостей (Kotlin) =====
 FROM base AS deps
 WORKDIR /home/gradle/cache
 ENV GRADLE_USER_HOME=/home/gradle/.gradle
@@ -30,8 +30,6 @@ ENV GRADLE_USER_HOME=/home/gradle/.gradle
 COPY --from=skeleton /staging .
 
 RUN chmod +x gradlew && ./gradlew help --no-daemon --info # Скачивает всё для котлина
-
-RUN npm install
 
 
 
