@@ -22,6 +22,7 @@ CacheFlow/
 
 - [Поток данных](./docs/architecture/data-flow.md)
 - [Структура модулей и зависимости](./docs/architecture/module-dependencies.md)
+- [React UI](./docs/architecture/react-ui.md)
 - [MVI в frontend shared layer](./docs/architecture/mvi.md)
 - [Навигация и Decompose](./docs/architecture/decompose.md)
 - [Работа без сети](./docs/architecture/offline-first.md)
