@@ -9,7 +9,7 @@ frontend/
 ├── webApp/          # React + TypeScript
 ├── k2ts/            # Kotlin/JS bridge
 ├── shared/          # общая бизнес-логика
-└── ksp-processor/   # общая бизнес-логика
+└── ksp-processor/   # кодогенерация
 ```
 
 ### shared
