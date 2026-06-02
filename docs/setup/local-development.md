@@ -24,7 +24,7 @@ npm install
 ```
 
 ## Запуск frontend
-
+Обычный запуск
 ```bash
 npm run start
 ```
@@ -32,6 +32,7 @@ npm run start
 Для проверки поведения, близкого к production (Service Worker и offline-first):
 
 ```bash
+npm run build
 npm run preview
 ```
 
