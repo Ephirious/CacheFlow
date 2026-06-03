@@ -2,6 +2,8 @@ import decimal
 from datetime import datetime
 from uuid import UUID
 
+#comment for fun
+
 from sqlalchemy import ForeignKey, NUMERIC, DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column
 
